@@ -42,15 +42,15 @@ To prepare DNA for transfection
     - Take 800uL from centrifuged tube and add to column
         - Avoid white precipitate when adding
     - Centrifuge columns in benchtop centrifuge, 1 min, 13500 rpm, Room Temp (20C)
-    - Dump supernatant/pass through (in clear tube)
+    - Dump pass through (in clear tube)
 10. Add 500uL Binding Buffer to columns
     - Centrifuge columns in benchtop centrifuge, 1 min, 13500 rpm, Room Temp (20C)
-    - Dump supernatant/pass through (in clear tube)
+    - Dump pass through (in clear tube)
 11. Add 750uL Wash Buffer to columns
     - Centrifuge columns in benchtop centrifuge, 1 min, 13500 rpm, Room Temp (20C)
-    - Dump supernatant/pass through (in clear tube)
+    - Dump pass through (in clear tube)
     - Centrifuge columns in benchtop centrifuge, 1 min, 13500 rpm, Room Temp (20C)
-    - Dump supernatant/pass through (in clear tube)
+    - Dump pass through (in clear tube)
 12. Add Column to clean, capless tube
     - Add 70uL water
     - Centrifuge columns in benchtop centrifuge, 1 min, 13500 rpm, Room Temp (20C)
