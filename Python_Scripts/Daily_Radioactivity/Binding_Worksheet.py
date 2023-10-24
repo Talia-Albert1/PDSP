@@ -232,10 +232,15 @@ for receptor in receptors:
     overage_percent = 1.44
     ligand_vol = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent
     
+    ############### Exceptions #######################
     # If AT2 receptor, double ligand_vol
     if receptor['Receptor'].lower() == 'at2':
         ligand_vol = ligand_vol * 2
     
+    # If using GR125743, account for 1/10 Ci concentration, do not need overage in this case
+    if receptor['3H-Ligand'] == '3H-GR125743':
+        ligand_vol = ligand_vol * (1/overage_percent) * 10
+
     receptor.update({'Ligand Volume (uL)':ligand_vol})
     log_write(receptor['Receptor'] + ' buffer volume, ligdand volume, number of plates, and number of pellets calculated.')
 
