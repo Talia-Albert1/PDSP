@@ -237,9 +237,10 @@ for receptor in receptors:
     if receptor['Receptor'].lower() == 'at2':
         ligand_vol = ligand_vol * 2
     
-    # If using GR125743, account for 1/10 Ci concentration, do not need overage in this case
+    # If using GR125743, account for 1/10 Ci concentration
     if receptor['3H-Ligand'] == '3H-GR125743':
-        ligand_vol = ligand_vol * (1/overage_percent) * 10
+        ligand_vol = ligand_vol * 10
+    ############### Exceptions #######################
 
     receptor.update({'Ligand Volume (uL)':ligand_vol})
     log_write(receptor['Receptor'] + ' buffer volume, ligdand volume, number of plates, and number of pellets calculated.')
