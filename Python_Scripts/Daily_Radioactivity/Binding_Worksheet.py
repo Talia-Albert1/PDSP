@@ -33,6 +33,14 @@ archivedir = currentdir + 'archive\\'
 formatted_date = datetime.date.today().strftime('%Y%m%d')
 
 log_file_path = archivedir + formatted_date + '_log.txt'
+def create_directory(directory_path):
+    if not os.path.exists(directory_path):
+        try:
+            os.makedirs(directory_path)
+            print(f"Directory '{directory_path}' created.")
+        except OSError as e:
+            print(f"Error creating directory '{directory_path}': {e}")
+
 def log_write(message):
     # Get the current date and time
     current_datetime = datetime.datetime.now()
@@ -50,6 +58,9 @@ def log_write(message):
     with open(log_file_path, 'a') as log_file:
         log_file.write(log_message + '\n')
 
+create_directory(inputdir)
+create_directory(archivedir)
+create_directory(outputdir)
 log_write('Modules Loaded')
 
 # Create and open the Worklist.txt file, unless it already exists
