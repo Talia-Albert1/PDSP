@@ -23,7 +23,18 @@ if not os.path.exists(outputdir):
 if not os.path.exists(archivedir):
     os.makedirs(archivedir)
 
+# Create directories if they do not exist
+def create_directory(directory_path):
+    if not os.path.exists(directory_path):
+        try:
+            os.makedirs(directory_path)
+            print(f"Directory '{directory_path}' created.")
+        except OSError as e:
+            print(f"Error creating directory '{directory_path}': {e}")
 
+create_directory(inputdir)
+create_directory(archivedir)
+create_directory(outputdir)
 
 
 

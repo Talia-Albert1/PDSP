@@ -58,6 +58,7 @@ def log_write(message):
     with open(log_file_path, 'a') as log_file:
         log_file.write(log_message + '\n')
 
+# Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
 create_directory(outputdir)

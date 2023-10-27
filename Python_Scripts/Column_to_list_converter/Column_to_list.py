@@ -17,6 +17,19 @@ outputdir = currentdir + 'output\\'
 data_filesdir = currentdir + 'data_files\\'
 archivedir = currentdir + 'archive\\'
 
+# Create directories if they do not exist
+def create_directory(directory_path):
+    if not os.path.exists(directory_path):
+        try:
+            os.makedirs(directory_path)
+            print(f"Directory '{directory_path}' created.")
+        except OSError as e:
+            print(f"Error creating directory '{directory_path}': {e}")
+
+create_directory(inputdir)
+create_directory(archivedir)
+create_directory(outputdir)
+
 # Get text file path
 file_name = input('Enter Plate name:')
 text_file_path = inputdir + file_name + '.txt'
