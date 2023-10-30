@@ -15,8 +15,11 @@
         - Protein Concentration (ug/uL) = (OD@595 nm - 0.094) / (0.503)
 
 ## Hot Ligand Addition
-3. Prepare ~11 mL Binding Buffer w/BSA (~22 uL)
-4. 
+3. Prepare ~11 mL BB (Binding Buffer) w/BSA (~22 uL)
+4. In an empty 96-well shallow plate:
+    1. Add 330 uL BB to well H and 165 uL BB to well A-G
+    2. Add calculated 3H-Ligand to Well H:
+        - Need starting concentration (nM) and 3H-Ligand Specific Activity (Ci/mmol)
 
 ## Cold Ligand Addition
 
