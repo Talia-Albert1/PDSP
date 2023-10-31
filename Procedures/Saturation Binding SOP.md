@@ -42,4 +42,4 @@ Determined from experimental procedure, equation provided by XP.
 Need:
 - Starting Concentration (nM)
 - 3H-Ligand Specific Activity (Ci/mmol)
-$$\text{3H-Ligand Vol (uL)} = \frac{330 \text{ (uL) * \text{Starting Concentration (nM)} * 5 * 1.2}}{\text{Specific Activity (Ci/mmol)}^{-1}*1000000}$$
+$$ \text{3H-Ligand Vol (uL)} = \frac{ 330 \text{ (uL) } * \text{Starting Concentration (nM)} * 5 * 1.2} }{ \text{Specific Activity (Ci/mmol)}^{-1} * 1000000}$$
