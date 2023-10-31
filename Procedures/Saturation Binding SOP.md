@@ -39,7 +39,7 @@ Need:
 - OD @ 595 nm
 $$\text{Protein Concentration (ug/uL)} = \frac{\text{OD@595 nm} - 0.094}{0.503}$$
 Where:
-- Determined from experimental procedure, equation provided by XP.
+- 0.094 and 0.503 were determined from experimental procedure, provided by XP.
 
 ### Hot Ligand
 Need:
