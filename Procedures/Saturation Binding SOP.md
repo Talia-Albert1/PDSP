@@ -11,14 +11,12 @@
         - 10 uL Lysis Buffer + 790 uL dH20 + 200 uL Bradford Reagent
     - Incubate @ RT 10 min
     - Measure absorbance @ 595 nm
-    - Calculate protein concentration:
-        - Protein Concentration (ug/uL) = (OD@595 nm - 0.094) / (0.503)
-
+    - Calculate protein concentration (Refer to Formulas section or Spreadsheet)
 ## Hot Ligand Addition
 3. Prepare ~11 mL BB (Binding Buffer) w/BSA (~22 uL)
 4. In an empty 96-well shallow plate:
-    1. Add 330 uL BB to well H and 165 uL BB to well A-G
-    2. Add calculated 3H-Ligand to Well H:
+    1. Add **330 uL** BB to well H and **165 uL** BB to well A-G
+    2. Add 3H-Ligand to Well H:
         - Need starting concentration (nM) and 3H-Ligand Specific Activity (Ci/mmol)
 
 ## Cold Ligand Addition
@@ -26,3 +24,7 @@
 ## Membrane Addition
 
 ## Filtering
+
+## Formulas
+# Protein concentration
+Protein Concentration (ug/uL) = $\frac{OD@595 nm - 0.094}{0.503}$
