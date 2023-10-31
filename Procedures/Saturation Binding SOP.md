@@ -12,6 +12,7 @@
     - Incubate @ RT 10 min
     - Measure absorbance @ 595 nm
     - Calculate protein concentration (Refer to Formulas section or Spreadsheet)
+
 ## Hot Ligand Addition
 3. Prepare ~15 mL BB (Binding Buffer) w/BSA (~30 uL)
 4. In an empty 96-well shallow plate (Need one column):
@@ -19,6 +20,7 @@
     2. Add 3H-Ligand to Well H (Refer to Formulas section or Spreadsheet)
     3. Perform a Serial Dilution (1:2) of **165 uL** up from well H to A
     4. Remove **25 uL** from Well A for radioactivity counts
+    5. Using a multichanel pipettor, Transfer **25 uL** into 6 columns of the Drug Plate
 
 ## Cold Ligand Addition
 
@@ -28,18 +30,24 @@
 
 ## Formulas
 Final Volume in each well is **125 uL**
-    - 25 uL Hot Ligand
-    - 25 uL Binding Buffer/Cold Ligand (Reference)
-    - 75 uL Membrane
+- 25 uL Hot Ligand
+- 25 uL Binding Buffer/Cold Ligand (Reference)
+- 75 uL Membrane
 
 ### Protein concentration
 Need:
 - OD @ 595 nm
 $$\text{Protein Concentration (ug/uL)} = \frac{\text{OD@595 nm} - 0.094}{0.503}$$
-Determined from experimental procedure, equation provided by XP.
+Where:
+- Determined from experimental procedure, equation provided by XP.
 
 ### Hot Ligand
 Need:
 - Starting Concentration (nM)
 - 3H-Ligand Specific Activity (Ci/mmol)
 $$\text{3H-Ligand Vol (uL)} = \frac{ 330 \text{ (uL) } * \text{Starting Concentration (nM)} * 5 * 1.2}{ \text{Specific Activity (Ci/mmol)}^{-1} * 1000000}$$
+Where:
+- 330 uL is double the volume of 165 uL, (25 uL * 6 wells * 1.1 overage), so we can perform a serial dilution
+- 5 is a Dilution Factor, the final volume in each well is 125 uL, we add 25 uL from the Hot-Ligand plate, (125/25=5)
+- 1.2 is a 20% overage
+- 1000000 is for unit conversion
