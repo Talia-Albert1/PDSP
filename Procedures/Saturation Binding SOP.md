@@ -17,7 +17,7 @@
 4. In an empty 96-well shallow plate (Need one column):
     1. Add **330 uL** BB to well H and **165 uL** BB to well A-G
     2. Add 3H-Ligand to Well H (Refer to Formulas section or Spreadsheet)
-    3. Perform a Serial Dilution (1:2) of **165 uL** up from well H through A
+    3. Perform a Serial Dilution (1:2) of **165 uL** up from well H to A
     4. Remove **25 uL** from Well A for radioactivity counts
 
 ## Cold Ligand Addition
@@ -33,12 +33,13 @@ Final Volume in each well is **125 uL**
     - 75 uL Membrane
 
 ### Protein concentration
-Need: - OD @ 595 nm
+Need:
+- OD @ 595 nm
 $$\text{Protein Concentration (ug/uL)} = \frac{\text{OD@595 nm} - 0.094}{0.503}$$
 Determined from experimental procedure, equation provided by XP.
 
 ### Hot Ligand
-Need: - Starting Concentration (nM)
-      - 3H-Ligand Specific Activity (Ci/mmol)
-
-3H-Ligand Vol (uL) = 
+Need:
+- Starting Concentration (nM)
+- 3H-Ligand Specific Activity (Ci/mmol)
+$$\text{3H-Ligand Vol (uL)} = \frac{330 \text{ (uL) * \text{Starting Concentration (nM)} * 5 * 1.2}}{\text{Specific Activity (Ci/mmol)}^{-1}*1000000} $$
