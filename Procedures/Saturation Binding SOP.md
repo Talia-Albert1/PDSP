@@ -77,7 +77,7 @@ Where:
 Need:
 - Protein Concentration (ug/uL) (Determined previously)
 - Protein/Well (ug) (XP will provide this)
-$$\text{Volume of Protein (uL)} = \frac{\text{Protein/Well (ug)} * 4000 \text{ uL}}}{ \text{Protein Concentration (ug/uL)} * 75 \text{ uL}}$$
+$$\text{Volume of Protein (uL)} = \frac{\text{Protein/Well (ug)} * 4000 \text{ uL}}{ \text{Protein Concentration (ug/uL)} * 75 \text{ uL}}$$
 $$\text{Volume of BB (uL)} = 4000 \text{ uL} - \text{Volume of Protein (uL)}$$
 Where:
 - 75 uL is the volume that will be dispensed into each well
