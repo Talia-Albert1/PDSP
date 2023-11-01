@@ -63,9 +63,10 @@ Where:
 
 ### Cold Ligand
 Usually need **4 uL** Reference compound and **800 uL** BB
+
 Need:
 - Concentration of Cold Ligand (Reference) Stock (most are 10 mM)
-$$\text{Reference Vol} = \frac{800 \text{ uL } * 10 \text{ uM Final Concentration} * 5}{10000 \text{ uM Starting Concentration}}$$
+$$\text{Reference Vol} = \frac{800 \text{ uL} * 10 \text{ uM Final Concentration} * 5}{10000 \text{ uM Starting Concentration}}$$
 Where:
 - 800 uL is approixmate volume we need (8 Wells/Column * 3 Columns * 25 uL/Well * 1.1 overage = 660), use 800 so pulling from reference is easier
 - Final concentration of Cold Ligand (Reference) in each well is 10 uM
@@ -76,7 +77,7 @@ Where:
 Need:
 - Protein Concentration (ug/uL) (Determined previously)
 - Protein/Well (ug) (XP will provide this)
-$$\text{Volume of Protein (uL)} = \frac{\text{Protein/Well (ug) * 4000 \text{ uL}}}{ \text{Protein Concentration (ug/uL)} * 75 \text{ uL}}$$
+$$\text{Volume of Protein (uL)} = \frac{\text{Protein/Well (ug)} * 4000 \text{ uL}}}{ \text{Protein Concentration (ug/uL)} * 75 \text{ uL}}$$
 $$\text{Volume of BB (uL)} = 4000 \text{ uL} - \text{Volume of Protein (uL)}$$
 Where:
 - 75 uL is the volume that will be dispensed into each well
