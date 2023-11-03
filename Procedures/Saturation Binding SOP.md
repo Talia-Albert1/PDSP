@@ -78,7 +78,7 @@ Need:
 - Protein Concentration (ug/uL) (Determined previously)
 - Protein/Well (ug) (XP will provide this)
 $$\text{Volume of Protein (uL)} = \frac{\text{Protein/Well (ug)} * 4000 \text{ uL}}{ \text{Protein Concentration (ug/uL)} * 75 \text{ uL}}$$
-$$\text{Volume of BB (uL)} = 4000 \text{ uL} - \text{Volume of Protein (uL)}$$
+$$\text{Volume of BB (uL)} = 4000 \text{ (uL)} - \text{Volume of Protein (uL)}$$
 Where:
 - 75 uL is the volume that will be dispensed into each well
 - 4000 uL is approixmate volume we need (8 Wells/Column * 6 Columns * 75 uL/Well * 1.1 overage = 3960 uL), round to 4000 uL for convience
@@ -89,7 +89,7 @@ After obtaining actual radioactive counts (dpm) starting concentration (concentr
 Need:
 - Specific Activity (Ci/mmol)
 - Actual Counts (dpm)
-$$\text{Starting Concentration (nM)} = \frac{\text{Actual Counts (dpm)} * 10^9 \text{ nM/M} * 2^7}{2.22*10^{12} \text{ dpm/Ci} * \text{Specific Activity (Ci/mmol)} * 0.125 \text{ mL/Well}}$$
+$$\text{Starting Concentration (nM)} = \frac{\text{Actual Counts (dpm)} * 10^9 \text{ nM/M} * 2^7}{2.22*10^{12} \text{ (dpm/Ci)} * \text{Specific Activity (Ci/mmol)} * 0.125 \text{ (mL/Well)}}$$
 Where:
 - $10^9$ in a unit conversion to nM from M
 - $2^7$ is for the 7 serial 1:2 dilutions
