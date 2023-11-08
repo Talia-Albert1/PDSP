@@ -1,0 +1,268 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{bm}
+\title{Saturation Binding SOP}
+\author{
+    Talia Albert
+    \and
+    Charles ``Mitch'' Boudreau
+}
+\date{\today}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Overview}
+Uses 6 columns of 96-well shallow plate, can test 2 membrane/protein per plate. Final Volume in each well is \textbf{125 $\bm{\mu}$L}
+\begin{itemize}
+    \item \textbf{25 $\bm{\mu}$L} 3H Hot Ligand
+    \item \textbf{25 $\bm{\mu}$L} Binding Buffer (BB)/Cold Ligand (Reference)
+    \item \textbf{75 $\bm{\mu}$L} Membrane (Protein)
+\end{itemize}
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{|l|lll|lll|}
+        \hline
+        & Columns 1/7         & Columns 2/8         & Columns 3/9         & Columns 4/10         & Columns 5/11         & Columns 6/12         \\ \hline
+        A & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        B & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        C & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        D & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        E & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        F & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        G & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        H & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
+        & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
+        \end{tabular}
+    \caption{Contents of drug plate after completion of procedure, adding Membrane (Protein)}
+    \end{center}
+\end{table}
+
+
+
+\section{Determining Protein Concentration}
+\begin{enumerate}
+    \item Resuspend pellet in 12 mL Lysis Buffer (10mM Tris + 5\% Sucrose, pH 7.4):
+    \begin{enumerate}
+        \item Use 1 mL Lysis Buffer to break up pellet
+        \item Fill to ~12 mL with Lysis Buffer
+        \item Pool pellets into one tube (if multiple pellets)
+    \end{enumerate}
+
+    \item Perform Bradford Protein Concentration Assay:
+    \begin{enumerate}
+        \item \textbf{Sample Prep:} 10 $\mu$L \emph{Pellet Suspension} + 790 $\mu$L dH20 + 200 $\mu$L Bradford Reagent
+        \item \textbf{Blank Prep:} 10 $\mu$L \emph{Lysis Buffer} + 790 $\mu$L dH20 + 200 $\mu$L Bradford Reagent
+        \item Incubate @ RT 10 min
+        \item Measure absorbance @ 595 nm
+        \item Calculate protein concentration (Refer to Formulas section or Spreadsheet)
+    \end{enumerate}
+\end{enumerate}
+
+\section{Hot Ligand Addition}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Prepare $\sim$15 mL appropriate BB w/BSA ($\sim$30 $\mu$L) in trough
+    \item In an empty 96-well shallow plate (need one column):
+    \begin{enumerate}
+        \item Add \textbf{330 $\bm{\mu}$L} BB to well H and \textbf{165 $\bm{\mu}$L} BB to well A-G
+        \item Add 3H-Ligand to Well H (Refer to Formulas section or Spreadsheet)
+        \item Perform a Serial Dilution (1:2) of \textbf{165 $\bm{\mu}$L} up from well H to A
+        \item Remove \textbf{25 $\bm{\mu}$L} from Well A for radioactivity counts
+        \item Using a multichanel pipettor, Transfer \textbf{25 $\bm{\mu}$L} into 6 columns of the Drug Plate
+    \end{enumerate}
+\end{enumerate}
+
+\subsection{Table}
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{|l|l|}
+            \hline
+              & Empty Column \\ \hline
+            A & \textbf{165 $\bm{\mu}$L} \\ \hline
+            B & \textbf{165 $\bm{\mu}$L} \\ \hline
+            C & \textbf{165 $\bm{\mu}$L} \\ \hline
+            D & \textbf{165 $\bm{\mu}$L} \\ \hline
+            E & \textbf{165 $\bm{\mu}$L} \\ \hline
+            F & \textbf{165 $\bm{\mu}$L} \\ \hline
+            G & \textbf{165 $\bm{\mu}$L} \\ \hline
+            H & \textbf{165 $\bm{\mu}$L} \\ \hline
+        \end{tabular}
+    \caption{Contents in empty column of 96 well plate, after step 5.(a)}
+    \end{center}
+\end{table}
+
+
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{|l|lll|lll|}
+        \hline
+        & Columns 1/7         & Columns 2/8         & Columns 3/9         & Columns 4/10         & Columns 5/11         & Columns 6/12         \\ \hline
+        A & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        B & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        C & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        D & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        E & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        F & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        G & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        H & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\ \hline
+        \end{tabular}
+    \caption{Contents of drug plate after completion of Hot Ligand Addition}
+    \end{center}
+\end{table}
+
+\section{Cold Ligand (Reference) Addition}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Add \textbf{25 $\bm{\mu}$L} BB to first 3 columns
+    \item Prepare Cold Ligand (Reference):
+    \begin{enumerate}
+        \item Usually, add \textbf{4 $\bm{\mu}$L} Reference compound into \textbf{800 $\bm{\mu}$L} BB in an eppendorf tube
+        \item Using a single channel pipettor, add \textbf{25 $\bm{\mu}$L} Reference Compound into the last 3 columns
+    \end{enumerate}
+\end{enumerate}
+
+\subsection{Table}
+\begin{table}[h]
+    \begin{center}
+        \begin{tabular}{|l|lll|lll|}
+        \hline
+        & Columns 1/7         & Columns 2/8         & Columns 3/9         & Columns 4/10         & Columns 5/11         & Columns 6/12         \\ \hline
+        A & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        B & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        C & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        D & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        E & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        F & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        G & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        H & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H        & 25 $\mu$L 3H         & 25 $\mu$L 3H         & 25 $\mu$L 3H         \\
+        & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\ \hline
+        \end{tabular}
+    \caption{Contents of drug plate after completion of Cold Ligand (Reference) Addition}
+    \end{center}
+\end{table}
+
+
+\section{Membrane (Protein) Addition}
+\begin{enumerate}
+    \setcounter{enumi}{7}
+    \item Prepare $\sim$4 mL membrane receptor:
+    \begin{enumerate}
+        \item Add BB volume to new trough (Refer to Formulas section or Spreadsheet)
+        \item Add protein to volume new trough (Refer to Formulas section or Spreadsheet)
+        \item Using a multichannel pipettor, add \textbf{75 $\bm{\mu}$L} protein dilution into all 6 columns
+    \end{enumerate}
+    \item Incubate plates in drawer @ RT for 1 hour
+\end{enumerate}
+
+
+
+\section{Formulas}
+\subsection{Protein Concentration calculation}
+Need:
+\begin{itemize}
+    \item OD \@ 595 nm
+\end{itemize}
+Formula:
+\[\text{Protein Concentration ($\mu$g/$\mu$L)} = \frac{\text{OD@595 nm} - 0.094}{0.503}\]
+Where:
+\begin{itemize}
+    \item 0.094 and 0.503 were determined from experimental procedure, provided by XP
+\end{itemize}
+
+
+
+\subsection{3H Hot Ligand calculation}
+Need: \begin{itemize}
+    \item Starting Concentration (nM)
+    \item 3H-Ligand Specific Activity (Ci/mmol)
+\end{itemize}
+Formula:
+\[\text{3H-Ligand Vol ($\mu$L)} = \frac{ 330 \text{ ($\mu$L) } * \text{Starting Concentration (nM)} * 5 * 1.2}{ \text{Specific Activity (Ci/mmol)}^{-1} * 1000000}\]
+Where:
+\begin{itemize}
+    \item 330 $\mu$L is double the volume of 165 $\mu$L, (25 $\mu$L * 6 wells * 1.1 overage = 165 $\mu$L), so we can perform a serial dilution
+    \item 5 is a Dilution Factor, the final volume in each well is 125 $\mu$L, we add 25 $\mu$L from the Hot-Ligand plate, (125/25=5)
+    \item 1.2 is a 20\% overage
+    \item 1000000 is for unit conversion
+\end{itemize}
+
+
+
+\subsection{Cold Ligand calculation}
+Usually need \textbf{4 $\bm{\mu}$L} Reference compound and \textbf{800 $\bm{\mu}$L} BB
+\\Need:
+\begin{itemize}
+    \item Concentration of Cold Ligand (Reference) Stock (most are 10 mM = 10000 $\mu$M)
+\end{itemize}
+Formula:
+\[\text{Reference Vol ($\mu$L)} = \frac{800 \text{ $\mu$L} * 10 \text{ $\mu$M Final Concentration} * 5}{10000 \text{ $\mu$M Starting Concentration}}\]
+Where:
+\begin{itemize}
+    \item 800 $\mu$L is approixmate volume we need (8 Wells/Column * 3 Columns * 25 $\mu$L/Well * 1.1 overage = 660), use 800 so pulling from reference is easier
+    \item Final concentration of Cold Ligand (Reference) in each well is 10 $\mu$M
+    \item 5 is a Dilution Factor, the final volume in each well is 125 $\mu$L, we add 25 $\mu$L from the Hot-Ligand plate, (125/25=5)
+    \item 10000 $\mu$M or 10 mM is starting reference concentration, usually
+\end{itemize}
+
+
+
+\subsection{Membrane Receptor calculation}
+Need:
+\begin{itemize}
+    \item Protein Concentration ($\mu$g/$\mu$L) (Found from ``Determining Protein Concentration'')
+    \item Protein/Well ($\mu$g) (XP will provide this)
+\end{itemize}
+Formula:
+\[\text{Volume of Protein ($\mu$L)} = \frac{\text{Protein/Well ($\mu$g)} * 4000 \text{ ($\mu$L)}}{ \text{Protein Concentration ($\mu$g/$\mu$L)} * 75 \text{ ($\mu$L)}}\]
+\[\text{Volume of BB ($\mu$L)} = 4000 \text{ ($\mu$L)} - \text{Volume of Protein ($\mu$L)}\]
+Where:
+\begin{itemize}
+    \item 75 $\mu$L is the volume that will be dispensed into each well
+    \item 4000 $\mu$L is approixmate volume we need (8 Wells/Column * 6 Columns * 75 $\mu$L/Well * 1.1 overage = 3960 $\mu$L), round to 4000 $\mu$L for convience
+\end{itemize}
+
+
+
+\subsection{Determining Starting Concentration calculation}
+After obtaining actual radioactive counts (dpm) starting concentration (concentration of 3H-Ligand in Well H) can be determined.
+\\Need:
+\begin{itemize}
+    \item Specific Activity (Ci/mmol)
+    \item Actual Counts (dpm)
+\end{itemize}
+Formula:
+\[\text{Starting Concentration (nM)} = \frac{\text{Actual Counts (dpm)} * 10^9 \text{ (nM/M)} * 2^7}{2.22*10^{12} \text{ (dpm/Ci)} * \text{Specific Activity (Ci/mmol)} * 0.125 \text{ (mL/Well)}}\]
+Where:
+\begin{itemize}
+    \item $10^9$ in a unit conversion to nM from M
+    \item $2^7$ is for the 7 serial 1:2 dilutions
+    \item $2.22*10^{12} \text{ dpm/Ci}$ is a constant
+    \item 0.125 mL/Well is the final volume in each well
+\end{itemize}
+
+\end{document}
