@@ -15,4 +15,6 @@
 /Python_Scripts/Barcode_Converter/input
 /Python_Scripts/Barcode_Converter/output
 
-
+/Procedures/*.aux
+/Procedures/*.log
+/Procedures/*.toc
