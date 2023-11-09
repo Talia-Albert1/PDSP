@@ -51,7 +51,7 @@ Uses 6 columns of 96-well shallow plate, can test 2 membrane/protein per plate. 
         & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{BB} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} & 25 $\mu$L \emph{Ref} \\
         & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem       & 75 $\mu$L Mem        & 75 $\mu$L Mem        & 75 $\mu$L Mem        \\ \hline
         \end{tabular}
-    \caption{Contents of drug plate after completion of procedure, adding Membrane (Protein)}
+    \caption{Contents of drug plate after completion of procedure, adding Membrane (Protein)}\label{tab:completedrugplate}
     \end{center}
 \end{table}
 
@@ -92,23 +92,22 @@ Uses 6 columns of 96-well shallow plate, can test 2 membrane/protein per plate. 
 
 \subsection{Table}
 \begin{table}[h]
-    \begin{center}
-        \begin{tabular}{|l|l|}
-            \hline
-              & Empty Column \\ \hline
-            A & \textbf{165 $\bm{\mu}$L} \\ \hline
-            B & \textbf{165 $\bm{\mu}$L} \\ \hline
-            C & \textbf{165 $\bm{\mu}$L} \\ \hline
-            D & \textbf{165 $\bm{\mu}$L} \\ \hline
-            E & \textbf{165 $\bm{\mu}$L} \\ \hline
-            F & \textbf{165 $\bm{\mu}$L} \\ \hline
-            G & \textbf{165 $\bm{\mu}$L} \\ \hline
-            H & \textbf{165 $\bm{\mu}$L} \\ \hline
-        \end{tabular}
-    \caption{Contents in empty column of 96 well plate, after step 5.(a)}
-    \end{center}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|c|}
+    \hline
+      & \multicolumn{1}{c|}{Inital} & \multicolumn{1}{c|}{Transfer}       & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Serial\\ Dilution\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Actual\\ Counts\end{tabular}} & \multicolumn{1}{c|}{Final} & \begin{tabular}[c]{@{}c@{}}3H-Ligand\\ Ratio\end{tabular} \\ \hline
+    A & \textbf{165 $\bm{\mu}$L}    &                                     & \textbf{330 $\bm{\mu}$L}                                                       & $\rightarrow$ \textbf{25 $\bm{\mu}$L}                                        & \textbf{305 $\bm{\mu}$L}   & 1:128                                                     \\ \hline
+    B & \textbf{165 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:64                                                      \\ \hline
+    C & \textbf{165 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:32                                                      \\ \hline
+    D & \textbf{165 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:16                                                      \\ \hline
+    E & \textbf{165 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:8                                                       \\ \hline
+    F & \textbf{165 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:4                                                       \\ \hline
+    G & \textbf{165 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:2                                                       \\ \hline
+    H & \textbf{330 $\bm{\mu}$L}    & $\uparrow$ \textbf{165 $\bm{\mu}$}L & \textbf{165 $\bm{\mu}$L}                                                       &                                                                              & \textbf{165 $\bm{\mu}$L}   & 1:1                                                       \\ \hline
+    \end{tabular}
+    \caption{Contents of column in empty 96-well plate after step 5.(d)}
+    \label{tab:my-table}
 \end{table}
-
 
 \begin{table}[h]
     \begin{center}
@@ -173,8 +172,9 @@ Uses 6 columns of 96-well shallow plate, can test 2 membrane/protein per plate. 
     \item Prepare $\sim$4 mL membrane receptor:
     \begin{enumerate}
         \item Add BB volume to new trough (Refer to Formulas section or Spreadsheet)
-        \item Add protein to volume new trough (Refer to Formulas section or Spreadsheet)
+        \item Add protein to BB in trough (Refer to Formulas section or Spreadsheet)
         \item Using a multichannel pipettor, add \textbf{75 $\bm{\mu}$L} protein dilution into all 6 columns
+        \item Refer to Table~\ref{tab:completedrugplate} for plate contents
     \end{enumerate}
     \item Incubate plates in drawer @ RT for 1 hour
 \end{enumerate}
