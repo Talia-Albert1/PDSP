@@ -18,8 +18,8 @@ Alpha1D,3H-Prazosin,1,2,2,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl a
 Alpha2A,3H-Rauwolscine,1.5,0.25,0.2,Alpha2,Oxymetazoline hydrochloride,
 Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
 Alpha2C,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Oxymetazoline hydrochloride,
-Beta1,3H-CGP12177,1,1,1,Beta,Alprenolol,
-Beta2,3H-CGP12177,1,1,1,Beta,Alprenolol,
+Beta1,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
+Beta2,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
 BZP,3H-Flunitrazepam,2.5,1,1,BZP,Clonzaepam,Rat P2 Pellet
 D1,3H-SCH23390,2,1,1,Dopamine,(+)-Butaclamol,
 D2,3H-Methylspiperone,1.5,1,1,Dopamine,Haloperidol,
