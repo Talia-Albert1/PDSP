@@ -71,12 +71,7 @@ if os.path.exists(worklist_filename):
 else:
     with open(worklist_filename, 'w') as worklist_file:
         worklist_file.write('')
-    
-    try:
-        # Open the text file with Notepad
-        subprocess.Popen(['notepad.exe', worklist_filename])
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+    os.startfile(worklist_filename)
 
 # Create and open the Barcodes.txt file, unless it already exists
 barcodes_filename = inputdir + f'{formatted_date}_Barcodes.txt'
@@ -85,11 +80,7 @@ if os.path.exists(barcodes_filename):
 else:
     with open(barcodes_filename, 'w') as barcodes_file:
         barcodes_file.write('')
-    try:
-        # Open the text file with Notepad
-        subprocess.Popen(['notepad.exe', barcodes_filename])
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+    os.startfile(barcodes_filename)
 
 
 
