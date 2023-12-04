@@ -18,3 +18,5 @@
 /Procedures/*.aux
 /Procedures/*.log
 /Procedures/*.toc
+
+/Python_Scripts/Unique_hotligands/*.xlsx

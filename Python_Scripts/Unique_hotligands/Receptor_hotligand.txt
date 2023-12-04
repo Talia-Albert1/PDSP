@@ -1,0 +1,100 @@
+5-HT1A	[3H]WAY100635
+5-HT1B	[3H]5-CT
+5-HT1D	[3H]5-CT
+5-HT1E	[3H]5HT
+5-HT2A	[125I]DOI
+5-HT2B	[3H]LSD
+5-HT2C	[3H]Mesulergine
+5-HT3	[3H]Tropistron
+5-HT4	[3H]GR113808
+5-HT5A	[3H]LSD
+5-HT6	[3H]LSD
+5-HT7A	[3H]LSD
+A1	[3H]CPX
+A2A	[3H]CGS21680
+A2B	[3H]CGS21680
+AMPA	[3H]Quisqualate
+AT2	[3H]Angiotensin II
+CB1	[3H]CP55940
+CB2	[3H]CP55940
+D1	[3H]SCH23390
+D2	[3H]N-Methylspiperone
+D3	[3H]N-Methylspiperone
+D4	[3H]N-Methylspiperone
+D5	[3H]SCH23390
+DAT	[3H]WIN35428
+EP1	[3H]PGE2
+EP2	[3H]PGE2
+EP3	[3H]PGE2
+EP4	[3H]PGE2
+GABAA a1	[3H]Flunitrazepam
+GABAA a2	[3H]Flunitrazepam
+GABAA a3	[3H]Flunitrazepam
+GABAA a5	[3H]Flunitrazepam
+GABAA a6	[3H]Flunitrazepam
+H1	[3H]Pyrilamine
+H2	[125I]Iodo-aminopotentidine
+H3	[3H]Alpha-methylhistamine
+H4	[3H]Histamine
+HCA2	[3H]Nicotinic Acid
+HERG	[3H]Dofetilide
+M1	[3H]QNB
+M1 D	[3H]QNB
+M2	[3H]QNB
+M2 D	[3H]QNB
+M3	[3H]QNB
+M3D	[3H]QNB
+M4	[3H]QNB
+M4 D	[3H]QNB
+M5	[3H]QNB
+M5 D	[3H]QNB
+mGluR5	[3H]MPEP
+mGluR5 (Rat Brain)	[3H]MPEP
+NET	[3H]Nisoxetine
+NK1	[3H]Substance P
+NMDA	[3H]MK801
+NOP	[3H]Nociceptin
+NR2B	[3H]Ifenprodil
+NTS1	Unknown
+NTS2	[3H]Neurotensin
+OT	[3H]Oxytocin
+PBR	[3H]PK11195
+PKCAlpha	[3H]PDBU
+PKCGamma	[3H]PDBU
+PKCDelta	[3H]PDBU
+PKCEpsilon	[3H]PDBU
+PKCBeta I	[3H]PDBU
+SERT	[3H]Citalopram
+Sigma 1 GP	[3H]Pentazocine(+)
+Sigma 2 PC12	[3H]DTG
+V1A	[3H]Vasopressin
+V1B	[3H]Vasopressin
+V2	[3H]Vasopressin
+Alpha1A	[3H]Prazosin
+Alpha1B	[3H]Prazosin
+Alpha1D	[3H]Prazosin
+Alpha2A	[3H]-Rauwolscine
+Alpha2B	[3H]-Rauwolscine
+Alpha2C	[3H]-Rauwolscine
+Alpha2Beta2	[3H]Epibatidine
+Alpha2Beta4	[3H]Epibatidine
+Alpha3Beta2	[3H]Epibatidine
+Alpha3Beta4	[3H]Epibatidine
+Alpha4Beta4	[3H]Epibatidine
+Beta1	[3H]CGP12177
+Beta2	[3H]CGP12177
+Beta3	[125I]Pindolol
+DOR	[3H]DADLE
+KOR	[3H]U69593 (2007-07-27)
+MOR	[3H]DAMGO (2007-07-27)
+A2A Mouse	[3H]ZM241385
+Ca channel human	[3H]Nitrendipine
+Sigma 1	[3H]Pentazocine(+)
+Sigma 2	[3H]DTG
+GABAA	[3H]Muscimol
+5-HT7	[3H]LSD
+BZP Rat Brain Site	[3H]Flunitrazepam
+Oxytocin	[3H]Oxytocin
+Smoothened	[3H]Cyclopamine
+A2	[3H]NECA
+KA	[3H]Kainic Acid
