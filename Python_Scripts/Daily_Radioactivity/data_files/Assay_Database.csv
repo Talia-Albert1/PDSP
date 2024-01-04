@@ -38,7 +38,7 @@ M2,3H-QNB,1,1.5,1.5,Muscarinic,Atropine,
 M3,3H-QNB,1,1.5,1.5,Muscarinic,Atropine,
 M4,3H-QNB,1,1.5,1.5,Muscarinic,Atropine,
 M5,3H-QNB,1,1,1,Muscarinic,Atropine,
-MOR,3H-DAMGO,2,1,1,Standard,morphine,
+MOR,3H-DAMGO,2,2,2,Standard,morphine,
 NET,3H-Nisoxetine,2,1,1,Transporter,Desipramine,
 NMDA,3H-MK-801,10,1,1,NMDA,Glutamate,Rat P5 Pellet & Glycine+Glutamate@100uM in pellet binding buffer
 NOP,3H-Nociceptin,1,1,1,Standard,SB 62111,
