@@ -63,6 +63,10 @@ create_directory(archivedir)
 create_directory(outputdir)
 log_write('Modules Loaded')
 
+
+# Tell user to close and save Radioactivity Archive xlsx sheet if it is open
+log_write('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
+
 # Create and open the Worklist.txt file, unless it already exists
 worklist_filename = inputdir + f'{formatted_date}_Worklist.txt'
 if os.path.exists(worklist_filename):
