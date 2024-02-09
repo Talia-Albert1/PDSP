@@ -8,7 +8,7 @@ Receptor,3H-Ligand,Assay Conc. (nM),PRIM Pellet/Plate Ratio,SEC Pellet/Plate Rat
 5-HT2C,3H-Mesulergine,2.5,1,0.67,Standard,Ritanserin,
 5-HT3,3H-Tropistron,1.5,1,1,Standard,Zacopride HCl,
 5-HT5A,3H-LSD,3,1,1,Standard,Ergotamine tartrate,
-5-HT6,3H-LSD,5,0.5,0.33,Standard,Clozapine,
+5-HT6,3H-LSD,5,0.5,0.25,Standard,Clozapine,
 5-HT7A,3H-LSD,4,0.5,0.5,Standard,Clozapine,
 A2A,3H-ZM241385,4,1,1,Adenosine,ZM241385,
 AT2,3H-Ang II,4,4,4,Standard,PD123319,Double ligand volume
