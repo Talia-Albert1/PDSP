@@ -13,7 +13,7 @@ Receptor,3H-Ligand,Assay Conc. (nM),PRIM Pellet/Plate Ratio,SEC Pellet/Plate Rat
 A2A,3H-ZM241385,4,1,1,Adenosine,ZM241385,
 AT2,3H-Ang II,4,4,4,Standard,PD123319,Double ligand volume
 Alpha1A,3H-Prazosin,1,0.25,0.25,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
-Alpha1B,3H-Prazosin,1,1,1,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
+Alpha1B,3H-Prazosin,1,0.5,0.5,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha1D,3H-Prazosin,1,2,2,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha2A,3H-Rauwolscine,1.5,0.25,0.2,Alpha2,Oxymetazoline hydrochloride,
 Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
