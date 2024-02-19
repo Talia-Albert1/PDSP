@@ -1,7 +1,7 @@
 3H-Ligand,Batch Number,Specific Activity (Ci/mmol),uCi/uL,Notes
 3H-5HT,0064-0323,33.2,1,
 3H-5-CT,0080-0423 (#2),112.4,1,
-3H-Ang II,0119-0621,60,1,
+3H-Ang II,0119-0621,60,0.5,2x Normal Ligand Volume
 3H-CGP12177,0133-0823,52.9,1,
 3H-Citalopram,0109-0523 (#2),80,1,
 3H-CP55940,0075-0216,175,1,
