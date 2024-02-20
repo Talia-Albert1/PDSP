@@ -147,7 +147,7 @@ if total_plates != len(barcodes):
     elif total_plates > len(barcodes):
         log_write('Too few barcodes entered')
     
-    sys.sleep(15)
+    time.sleep(15)
     sys.exit(1)
    
 # Read 3H-Ligand Database
@@ -171,7 +171,7 @@ log_write('Assay Database loaded: ' + Assay_DB_path)
 """ 
 Create Dictionary for each Plate
 Plate Name, Binding Type, Receptor, Barcode 0, Barcode 1, Barcode 2, 3H-Ligand,
-Batch Number, Specific Activity, 
+Batch Number, Specific Activity, uCi/uL
 """
 #Create dictionary
 receptors = []
@@ -225,6 +225,7 @@ for receptor in receptors:
     receptor['PRIM Pellet/Plate Ratio'] = float(receptor['PRIM Pellet/Plate Ratio'])
     receptor['SEC Pellet/Plate Ratio'] = float(receptor['SEC Pellet/Plate Ratio'])
     receptor['Specific Activity (Ci/mmol)'] = float(receptor['Specific Activity (Ci/mmol)'])
+    receptor['uCi/uL'] = float(receptor['uCi/uL'])
     if receptor['Binding Type'].lower() == 'prim':
         receptor.update({'Buffer Volume (mL)':float(5)})
         receptor.update({'Number of Plate(s)':float(1)})
@@ -236,19 +237,11 @@ for receptor in receptors:
 
     dilution_factor = 2.5
     overage_percent = 1.44
-    ligand_vol = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent
-    
-    ############### Exceptions #######################
-    # If AT2 receptor, double ligand_vol
-    if receptor['Receptor'].lower() == 'at2':
-        ligand_vol = ligand_vol * 2
-    
-    # If using GR125743, account for 1/10 Ci concentration
-    if receptor['3H-Ligand'] == '3H-GR125743':
-        ligand_vol = ligand_vol * 10
-    ############### Exceptions #######################
+    uCi = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent 
+    ligand_vol = uCi / receptor['uCi/uL']
 
     receptor.update({'Ligand Volume (uL)':ligand_vol})
+    receptor.update({'uCi':uCi})
     log_write(receptor['Receptor'] + ' buffer volume, ligdand volume, number of plates, and number of pellets calculated.')
 
 """
@@ -278,9 +271,11 @@ for unique_receptor in receptors_summary:
             reference = receptor['Reference']
             ligand = receptor['3H-Ligand']
             buffer = receptor['Assay BB']
+            Assay_Conc = receptor['Assay Conc. (nM)']
     unique_receptor.update({'Buffer Volume (mL)':buffer_vol,'Ligand Volume (uL)':round(ligand_vol,2),
                             'Number of Plates':plate_number, 'Number of Pellets':pellet_number,
-                            'Reference':reference, '3H-Ligand':ligand, 'Assay BB':buffer})
+                            'Reference':reference, '3H-Ligand':ligand, 'Assay BB':buffer,
+                            'Assay Conc. (nM)':Assay_Conc})
     log_write(unique_receptor['Receptor'] + ' summary information determined')
 log_write('Unique receptors and summary information determined')
 
@@ -330,7 +325,8 @@ elif gray_switch == '1':
 columns = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-    'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD'
+    'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD',
+    'AE', 'AF', 'AG', 'AH'
 ]
 
 last_row = ws.max_row
@@ -366,9 +362,13 @@ for index, receptor in enumerate(receptors):
     ws.cell(row_index, 25, receptor['Number of Pellet(s)'])
     ws.cell(row_index, 26, receptor['Buffer Volume (mL)'])
     ws.cell(row_index, 27, round(receptor['Ligand Volume (uL)'], 2))
-    ws.cell(row_index, 28, receptor['Assay BB'])
-    ws.cell(row_index, 29, receptor['PRIM Pellet/Plate Ratio'])
-    ws.cell(row_index, 30, receptor['SEC Pellet/Plate Ratio'])
+    ws.cell(row_index, 28, receptor['uCi/uL'])
+    ws.cell(row_index, 29, round(receptor['uCi'], 2))
+    ws.cell(row_index, 30, round(receptor['uCi']*0.8, 2))
+    ws.cell(row_index, 31, round(receptor['uCi']*0.2, 2))
+    ws.cell(row_index, 32, receptor['Assay BB'])
+    ws.cell(row_index, 33, receptor['PRIM Pellet/Plate Ratio'])
+    ws.cell(row_index, 34, receptor['SEC Pellet/Plate Ratio'])
     
     for column in columns:
         current_cell_str = column + str(row_index) 
@@ -488,34 +488,40 @@ for index, receptor in enumerate(receptors_summary):
 log_write('Receptors and Pellet summary populated to Binding Template')
 
 # Receptor information
+start_row = 15
 for index, receptor in enumerate(receptors_summary):
-    ws.cell(index + 14, 1, receptor['Receptor'])
-    ws.cell(index + 14, 2, receptor['Assay BB'])
-    ws.cell(index + 14, 3, receptor['Buffer Volume (mL)'])
-    ws.cell(index + 14, 4, receptor['3H-Ligand'])
-    ws.cell(index + 14, 5, receptor['Ligand Volume (uL)'])
-    ws.cell(index + 14, 6, receptor['Number of Plates'])
-    ws.cell(index + 14, 7, receptor['Number of Pellets'])
-    ws.cell(index + 14, 8, receptor['Reference'])
+    ws.cell(index + start_row, 1, receptor['Receptor'])
+    ws.cell(index + start_row, 2, receptor['3H-Ligand'])
+    ws.cell(index + start_row, 3, receptor['Assay BB'])
+    ws.cell(index + start_row, 4, receptor['Buffer Volume (mL)'])
+    ws.cell(index + start_row, 5, receptor['Ligand Volume (uL)'])
+    ws.cell(index + start_row, 6, receptor['Number of Plates'])
+    ws.cell(index + start_row, 7, receptor['Number of Pellets'])
+    ws.cell(index + start_row, 8, receptor['Reference'])
+    ws.cell(index + start_row, 9, receptor['Assay Conc. (nM)'])
 log_write('Receptor information added')
 
 # Plate Names and Barcodes
 for index, receptor in enumerate(receptors):
     if index < PRIM_count and receptor['Binding Type'].lower() == 'prim':
-        ws.cell(index + 4, 9, receptor['Plate Name'])
-        ws.cell(index + 4, 10, index + 4)
-        ws.cell(index + 4, 11, receptor['Barcode 0'])
+        ws.cell(index + 4, 10, receptor['Plate Name'])
+        ws.cell(index + 4, 11, 'P')
+        ws.cell(index + 4, 12, index + 4)
+        ws.cell(index + 4, 13, receptor['Barcode 0'])
     elif index >= PRIM_count and receptor['Binding Type'].lower() == 'sec':
         sec_index = 3*(index - PRIM_count) + PRIM_count
-        ws.cell(sec_index + 4, 9, receptor['Plate Name'])
-        ws.cell(sec_index + 5, 9, receptor['Plate Name'])
-        ws.cell(sec_index + 6, 9, receptor['Plate Name'])
-        ws.cell(sec_index + 4, 10, sec_index + 4)
-        ws.cell(sec_index + 5, 10, sec_index + 5)
-        ws.cell(sec_index + 6, 10, sec_index + 6)
-        ws.cell(sec_index + 4, 11, receptor['Barcode 0'])
-        ws.cell(sec_index + 5, 11, receptor['Barcode 1'])
-        ws.cell(sec_index + 6, 11, receptor['Barcode 2'])
+        ws.cell(sec_index + 4, 10, receptor['Plate Name'])
+        ws.cell(sec_index + 5, 10, receptor['Plate Name'])
+        ws.cell(sec_index + 6, 10, receptor['Plate Name'])
+        ws.cell(sec_index + 4, 11, 'S')
+        ws.cell(sec_index + 5, 11, 'S')
+        ws.cell(sec_index + 6, 11, 'S')
+        ws.cell(sec_index + 4, 12, sec_index + 4)
+        ws.cell(sec_index + 5, 12, sec_index + 5)
+        ws.cell(sec_index + 6, 12, sec_index + 6)
+        ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
+        ws.cell(sec_index + 5, 13, receptor['Barcode 1'])
+        ws.cell(sec_index + 6, 13, receptor['Barcode 2'])
 log_write('Barcodes and plate names added')
 
 binding_output_path = outputdir + formatted_date + ' - Binding Printout.xlsx'
