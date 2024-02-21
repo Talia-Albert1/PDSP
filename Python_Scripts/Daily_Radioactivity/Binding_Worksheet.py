@@ -18,7 +18,7 @@ import time
 print('Modules Loaded')
 """ Create text files and fill them in, only progress script later"""
 
-
+radioactive_disposal_name = "Talia"
 
 
 # Get current directory
@@ -244,6 +244,8 @@ for receptor in receptors:
     receptor.update({'uCi':uCi})
     log_write(receptor['Receptor'] + ' buffer volume, ligdand volume, number of plates, and number of pellets calculated.')
 
+
+
 """
 Gather unique receptor information and unique ligand information
 """
@@ -260,45 +262,62 @@ for unique_receptor in unique_receptors_list:
 for unique_receptor in receptors_summary:
     buffer_vol = 0
     ligand_vol = 0
+    uCi_total = 0
     plate_number = 0
     pellet_number = 0
     for receptor in receptors:
         if unique_receptor['Receptor'] == receptor['Receptor']:
             buffer_vol += receptor['Buffer Volume (mL)']
             ligand_vol += receptor['Ligand Volume (uL)']
+            uCi_total += receptor['uCi']
             plate_number += receptor['Number of Plate(s)']
             pellet_number += receptor['Number of Pellet(s)']
             reference = receptor['Reference']
             ligand = receptor['3H-Ligand']
             buffer = receptor['Assay BB']
             Assay_Conc = receptor['Assay Conc. (nM)']
-    unique_receptor.update({'Buffer Volume (mL)':buffer_vol,'Ligand Volume (uL)':round(ligand_vol,2),
-                            'Number of Plates':plate_number, 'Number of Pellets':pellet_number,
-                            'Reference':reference, '3H-Ligand':ligand, 'Assay BB':buffer,
+    unique_receptor.update({'Buffer Volume (mL)':buffer_vol,
+                            'Ligand Volume (uL)':round(ligand_vol,2),
+                            'uCi':round(uCi_total, 2),
+                            'Number of Plates':plate_number,
+                            'Number of Pellets':pellet_number,
+                            'Reference':reference,
+                            '3H-Ligand':ligand,
+                            'Assay BB':buffer,
                             'Assay Conc. (nM)':Assay_Conc})
     log_write(unique_receptor['Receptor'] + ' summary information determined')
 log_write('Unique receptors and summary information determined')
 
+# Create unique ligands list
 unique_ligands_list = []
 for receptor in receptors:
     if receptor['3H-Ligand'] not in unique_ligands_list:
         unique_ligands_list.append(receptor['3H-Ligand'])
 unique_ligands_list = sorted(unique_ligands_list)
 
+# From the unique (and sorted) ligands list, create the ligand summary list
 ligands_summary = []
 for ligand in unique_ligands_list:
     ligands_summary.append({'3H-Ligand':ligand})
 
+# Determine total ligand volume used, and batch number
 for ligand in ligands_summary:
     ligand_vol = 0
+    uCi_total = 0
     for receptor in receptors:
         if ligand['3H-Ligand'] == receptor['3H-Ligand']:
             ligand_vol += receptor['Ligand Volume (uL)']
+            uCi_total += receptor['uCi']
             batch_number = receptor['Batch Number']
             specific_activity = receptor['Specific Activity (Ci/mmol)']
-    ligand.update({'Ligand Volume (uL)':round(ligand_vol,2), 'Batch Number':batch_number, 'Specific Activity (Ci/mmol)':specific_activity})
+    ligand.update({'Ligand Volume (uL)':round(ligand_vol,2),
+                   'uCi':round(uCi_total,2),
+                   'Batch Number':batch_number,
+                   'Specific Activity (Ci/mmol)':specific_activity})
     log_write(ligand['3H-Ligand'] + ' summary information determined')
 log_write('Unique ligands and summary information determined')
+
+
 
 """
 Write data to Archive excel sheet
@@ -464,6 +483,25 @@ log_write('Previous files in output directory moved to archive')
 
 
 """
+Write data to montly sink disposal sheet
+"""
+radioactive_disposal_log_path = 'Radioactive_Disposal_log.xlsx'
+wb = openpyxl.load_workbook(radioactive_disposal_log_path)
+ws = wb['Sheet1']
+last_row = ws.max_row
+
+for index, ligand in enumerate(ligands_summary):
+    row_index = index + last_row + 1
+    ws.cell(row_index, 1, sheet_date)
+    ws.cell(row_index, 2, ligand['3H-Ligand'])
+    ws.cell(row_index, 3, ligand['uCi'])
+    ws.cell(row_index, 4, round((ligand['uCi']*0.8), 2))
+    ws.cell(row_index, 5, round((ligand['uCi']*0.2), 2))
+    ws.cell(row_index, 6, radioactive_disposal_name)
+
+wb.save(radioactive_disposal_log_path)
+
+"""
 Write data to binding excel sheet
 """
 binding_worksheet_path = data_filesdir + 'Binding_Printout_Template.xlsx'
@@ -479,6 +517,7 @@ for index, ligand in enumerate(ligands_summary):
     ws.cell(index + 4, 3, ligand['Batch Number'])
     ws.cell(index + 4, 4, ligand['Specific Activity (Ci/mmol)'])
     ws.cell(index + 4, 5, ligand['Ligand Volume (uL)'])
+    ws.cell(index + 4, 6, ligand['uCi'])
 log_write('Ligand summary populated to Binding Template')
 
 # Pellet Summary
