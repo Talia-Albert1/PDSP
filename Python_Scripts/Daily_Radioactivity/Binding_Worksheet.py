@@ -181,7 +181,7 @@ for entry in worklist_receptors:
 
 # Elucidate receptor name
 for receptor in receptors:
-    receptor_basename = receptor['Plate Name'].replace('-0', '').replace('-1', '').replace('-2', '').replace('-3', '').replace('-4', '').replace('-5','').replace('-6','').replace('-7','').replace('-8','').replace('-9','').replace('Rat Brain Site', '').rstrip()
+    receptor_basename = receptor['Plate Name'].replace('-0', '').replace('-1', '').replace('-2', '').replace('-3', '').replace('-4', '').replace('-5','').replace('-6','').replace('-7','').replace('-8','').replace('-9','').replace('Rat Brain Site', '').replace('Rat Brain', '').rstrip()
     receptor.update({'Receptor':receptor_basename})
     log_write(receptor_basename)
 
