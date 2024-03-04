@@ -24,7 +24,6 @@ radioactive_disposal_name = "Talia"
 # Get current directory
 currentdir = os.getcwd() + '\\'
 inputdir = currentdir + 'input\\'
-outputdir = currentdir + 'output\\'
 data_filesdir = currentdir + 'data_files\\'
 archivedir = currentdir + 'archive\\'
 
@@ -60,7 +59,6 @@ def log_write(message):
 # Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
-create_directory(outputdir)
 log_write('Modules Loaded')
 
 
@@ -463,24 +461,6 @@ log_write('Radicoactivity Archive Sheet saved')
 with open(gray_switch_path, 'w') as text_file:
     text_file.write(gray_switch)
 
-"""
-Move input and old output Files to archive
-"""
-# Move Barcode to archive
-shutil.move(barcodes_filename, archivedir)
-log_write('Barcode file moved to archive')
-
-# Move Worklist to archive
-shutil.move(worklist_filename, archivedir)
-log_write('Worklist file moved to archive')
-
-# Move contents of output to archive
-output_files = os.listdir(outputdir)
-for file in output_files:
-    shutil.move(outputdir + file, archivedir)
-log_write('Previous files in output directory moved to archive')
-
-
 
 """
 Write data to montly sink disposal sheet
@@ -563,10 +543,22 @@ for index, receptor in enumerate(receptors):
         ws.cell(sec_index + 6, 13, receptor['Barcode 2'])
 log_write('Barcodes and plate names added')
 
-binding_output_path = outputdir + formatted_date + ' - Binding Printout.xlsx'
+binding_output_path = archivedir + formatted_date + ' - Binding Printout.xlsx'
 wb.save(binding_output_path)
 log_write('Binding printout generated :' + binding_output_path)
 
+"""
+Move input files to archive
+"""
+# Move Barcode to archive
+shutil.move(barcodes_filename, archivedir)
+log_write('Barcode file moved to archive')
+
+# Move Worklist to archive
+shutil.move(worklist_filename, archivedir)
+log_write('Worklist file moved to archive')
+
+# Print binding sheet and open archive sheet
 log_write('Binding sheet being printed')
 os.startfile(binding_output_path, 'print')
 log_write('Opening Radioactivity Archive Sheet:' + archive_sheet_path)

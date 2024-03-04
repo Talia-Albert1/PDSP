@@ -49,6 +49,7 @@ Ensure there are no duplicate files in both input and archive, and output and ar
 
 If the script ran, but a mistake was made, the following can be done to undo the changes:
 1. Cut and Paste today's Worklist and Barcode files from archive > input
-2. Delete the printout in output
-3. Open Radioactivity_Archive.xlsx and delete the rows from the most recent run (don't forget to save and close)
-4. Open Gray_Switch.txt and change the number back to 0 or 1. If the last rows of Radioactivity_Archive are gray, change to 1, if they are white, change to 0.
+2. Delete the printout from archive
+3. Open Radioactivity_Archive.xlsx and delete recent rows (don't forget to save and close)
+4. Open Gray_Switch.txt and change the number back to 0 or 1. (If the last rows of Radioactivity_Archive are gray, change to 1, if they are white, change to 0.)
+5. Delete the entries added to Radioactive_Disposal_log
