@@ -54,8 +54,8 @@ NR2B,3H-Ifenprodil,6,1,1,NMDA,Ifenprodil,
 OT,3H-Oxytocin,2,2,2,Oxytocin,Oxytocin,
 PBR,3H-PK11195,1,1,1,BZP,"Ro5-4864 / 4'-Chlorodiazepam	",Rat P2 Pellet
 SERT,3H-Citalopram,2,0.5,0.67,Transporter,Amitriptyline,
-Sigma1,3H-Pentazocine,5.5,1,1,Sigma,Haloperidol,
-Sigma2,3H-DTG,5,0.5,0.5,Sigma,Haloperidol,
+Sigma 1,3H-Pentazocine,5.5,1,1,Sigma,Haloperidol,
+Sigma 2,3H-DTG,5,0.5,0.5,Sigma,Haloperidol,
 V1A,3H-Vasopressin,2,1,1,Vasopressin,Vasopressin,Manually add Vasopressin reference
 V1B,3H-Vasopressin,1.5,1,1,Vasopressin,Vasopressin,Manually add Vasopressin reference
 V2,3H-Vasopressin,2,1,1,Vasopressin,Vasopressin,Manually add Vasopressin reference
