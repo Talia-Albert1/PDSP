@@ -224,6 +224,7 @@ for receptor in receptors:
     receptor['SEC Pellet/Plate Ratio'] = float(receptor['SEC Pellet/Plate Ratio'])
     receptor['Specific Activity (Ci/mmol)'] = float(receptor['Specific Activity (Ci/mmol)'])
     receptor['uCi/uL'] = float(receptor['uCi/uL'])
+    receptor['Decay Factor'] = float(receptor['Decay Factor'])
     if receptor['Binding Type'].lower() == 'prim':
         receptor.update({'Buffer Volume (mL)':float(5)})
         receptor.update({'Number of Plate(s)':float(1)})
@@ -236,7 +237,7 @@ for receptor in receptors:
     dilution_factor = 2.5
     overage_percent = 1.44
     uCi = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent 
-    ligand_vol = uCi / receptor['uCi/uL']
+    ligand_vol = uCi / ( receptor['uCi/uL'] * receptor['Decay Factor'])
 
     receptor.update({'Ligand Volume (uL)':ligand_vol})
     receptor.update({'uCi':uCi})

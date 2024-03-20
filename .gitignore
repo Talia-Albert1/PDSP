@@ -23,3 +23,9 @@ Python_Scripts/Daily_Radioactivity/data_files/Gray_Switch.txt
 Python_Scripts/Daily_Radioactivity/Radioactivity_Archive.xlsx
 Python_Scripts/Daily_Radioactivity/Radioactive_Disposal_log.xlsx
 .DS_Store
+Python_Scripts/I125_Binding/~$125I-Radioactivity_Archive.xlsx
+/Python_Scripts/I125_Binding/archive
+Python_Scripts/I125_Binding/125I-Radioactive_Disposal_log.xlsx
+Python_Scripts/I125_Binding/125I-Radioactivity_Archive.xlsx
+Python_Scripts/I125_Binding/125I_Binding_Worksheet.py
+Python_Scripts/I125_Binding/125I_Binding_Worksheet.py
