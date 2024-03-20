@@ -1,1 +1,2 @@
-125I-Ligand,Batch Number,Specific Activity (Ci/mmol),uCi/uL,Notes
+125I-Ligand,Batch Number,Specific Activity (Ci/mmol),uCi/uL,Calibration Date,Use Date,Decay Factor,Notes
+125I-Aminopotentidine,0031-0224,2200,0.1,2/23/2024,3/20/2024,0.741,
