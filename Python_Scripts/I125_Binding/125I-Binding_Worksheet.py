@@ -59,6 +59,7 @@ def log_write(message):
 # Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
+log_write('I125 Binding')
 log_write('Modules Loaded')
 
 

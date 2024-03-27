@@ -1,2 +1,3 @@
 125I-Ligand,Batch Number,Specific Activity (Ci/mmol),uCi/uL,Calibration Date,Use Date,Decay Factor,Notes
 125I-Aminopotentidine,0031-0224,2200,0.1,2/23/2024,3/20/2024,0.741,
+125I-Icyanopindolol,0054-0324,2200,0.1,4/5/2024,3/27/2024,1.122,Since we are using before Cal date-add 1/"Decay Factor" instead of normal Decay Factor
