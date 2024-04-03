@@ -527,7 +527,7 @@ for index, receptor in enumerate(receptors):
     if index < PRIM_count and receptor['Binding Type'].lower() == 'prim':
         ws.cell(index + 4, 10, receptor['Plate Name'])
         ws.cell(index + 4, 11, 'P')
-        ws.cell(index + 4, 12, index + 4)
+        ws.cell(index + 4, 12, index + 1)
         ws.cell(index + 4, 13, receptor['Barcode 0'])
     elif index >= PRIM_count and receptor['Binding Type'].lower() == 'sec':
         sec_index = 3*(index - PRIM_count) + PRIM_count
@@ -537,9 +537,9 @@ for index, receptor in enumerate(receptors):
         ws.cell(sec_index + 4, 11, 'S')
         ws.cell(sec_index + 5, 11, 'S')
         ws.cell(sec_index + 6, 11, 'S')
-        ws.cell(sec_index + 4, 12, sec_index + 4)
-        ws.cell(sec_index + 5, 12, sec_index + 5)
-        ws.cell(sec_index + 6, 12, sec_index + 6)
+        ws.cell(sec_index + 4, 12, sec_index + 1)
+        ws.cell(sec_index + 5, 12, sec_index + 2)
+        ws.cell(sec_index + 6, 12, sec_index + 3)
         ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
         ws.cell(sec_index + 5, 13, receptor['Barcode 1'])
         ws.cell(sec_index + 6, 13, receptor['Barcode 2'])
