@@ -6,6 +6,7 @@ Created on Tue Sep  5 14:43:49 2023
 """
 
 import openpyxl
+import math
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
 from openpyxl.formatting.rule import FormulaRule
 import shutil
@@ -27,8 +28,9 @@ inputdir = currentdir + 'input\\'
 data_filesdir = currentdir + 'data_files\\'
 archivedir = currentdir + 'archive\\'
 
-# Format the date as 'YYYY-MM-DD'
+# Format the date as 'YYYYMMDD'
 formatted_date = datetime.date.today().strftime('%Y%m%d')
+
 
 log_file_path = archivedir + formatted_date + '_log.txt'
 def create_directory(directory_path):
@@ -56,12 +58,38 @@ def log_write(message):
     with open(log_file_path, 'a') as log_file:
         log_file.write(log_message + '\n')
 
+def copy_and_rename(source_path, destination_path):
+    if not os.path.exists(destination_path):
+        shutil.copy(source_path, destination_path)
+        log_write(f"File created at {destination_path}")
+
+def parse_date(date_str):
+    # Split the date string into month, day, and year
+    month_str, day_str, year_str = date_str.split('/')
+    
+    # Convert the extracted strings to integers
+    month = int(month_str)
+    day = int(day_str)
+    year = int(year_str)
+
+    # Create a datetime object from the extracted components
+    return datetime.datetime(year, month, day)
+
 # Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
+
+# Create Archive/disposal sheets if they do not exist
+archive_source_dir = data_filesdir + '125I-Radioactivity_Archive_blank.xlsx'
+archive_destination_dir = currentdir + '125I-Radioactivity_Archive.xlsx'
+copy_and_rename(archive_source_dir, archive_destination_dir)
+
+waste_source_dir = data_filesdir + '125I-Radioactive_Disposal_log_blank.xlsx'
+waste_destination_dir = currentdir + '125I-Radioactive_Disposal_log.xlsx'
+copy_and_rename(waste_source_dir, waste_destination_dir)
+
 log_write('I125 Binding')
 log_write('Modules Loaded')
-
 
 # Tell user to close and save Radioactivity Archive xlsx sheet if it is open
 log_write('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
@@ -218,14 +246,13 @@ for index, receptor in enumerate(receptors):
         log_write(receptor['Binding Type'] + ' ' + barcodes[index])
 log_write('Barcodes matched to receptors')
 
-# Change str's to float's, add Buffer Vol's, add Ligand Vol's
+# Change str's to float's
 for receptor in receptors:
     receptor['Assay Conc. (nM)'] = float(receptor['Assay Conc. (nM)'])
     receptor['PRIM Pellet/Plate Ratio'] = float(receptor['PRIM Pellet/Plate Ratio'])
     receptor['SEC Pellet/Plate Ratio'] = float(receptor['SEC Pellet/Plate Ratio'])
     receptor['Specific Activity (Ci/mmol)'] = float(receptor['Specific Activity (Ci/mmol)'])
     receptor['uCi/uL'] = float(receptor['uCi/uL'])
-    receptor['Decay Factor'] = float(receptor['Decay Factor'])
     if receptor['Binding Type'].lower() == 'prim':
         receptor.update({'Buffer Volume (mL)':float(5)})
         receptor.update({'Number of Plate(s)':float(1)})
@@ -235,6 +262,17 @@ for receptor in receptors:
         receptor.update({'Number of Plate(s)':float(3)})
         receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['SEC Pellet/Plate Ratio'] * 4) / 4})
 
+
+# Calculate Decay Factor
+for receptor in receptors:
+    cal_date = datetime.datetime.strptime(receptor['Calibration Date'], "%m/%d/%Y").date()
+    todays_date = datetime.date.today()
+    days_since_cal = (todays_date - cal_date).days
+    decay_factor = math.exp((-0.693/60.1)*days_since_cal)
+    receptor.update({'Decay Factor':decay_factor})
+
+# Add Buffer Vol's, add Ligand Vol's
+for receptor in receptors:
     dilution_factor = 2.5
     overage_percent = 1.44
     uCi = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent 
@@ -345,7 +383,7 @@ columns = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
     'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD',
-    'AE', 'AF', 'AG', 'AH'
+    'AE', 'AF', 'AG', 'AH', 'AI', 'AJ'
 ]
 
 last_row = ws.max_row
@@ -388,6 +426,8 @@ for index, receptor in enumerate(receptors):
     ws.cell(row_index, 32, receptor['Assay BB'])
     ws.cell(row_index, 33, receptor['PRIM Pellet/Plate Ratio'])
     ws.cell(row_index, 34, receptor['SEC Pellet/Plate Ratio'])
+    ws.cell(row_index, 35, receptor['Calibration Date'])
+    ws.cell(row_index, 36, receptor['Decay Factor'])
     
     for column in columns:
         current_cell_str = column + str(row_index) 
@@ -409,7 +449,7 @@ for index, receptor in enumerate(receptors):
 
         # Add formula to automatically calculate postion in plate counter
         if column == 'E' and index == 0:
-            current_cell.value = 4
+            current_cell.value = 1
         
         elif column == 'E':
             formula = '=IF(A' + str(row_index - 1) + '="SEC", K' + str(row_index - 1) + ' + 1, E' + str(row_index - 1) + ' + 1)'
