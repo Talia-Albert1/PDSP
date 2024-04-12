@@ -56,11 +56,25 @@ def log_write(message):
     with open(log_file_path, 'a') as log_file:
         log_file.write(log_message + '\n')
 
+def copy_and_rename(source_path, destination_path):
+    if not os.path.exists(destination_path):
+        shutil.copy(source_path, destination_path)
+        log_write(f"File created at {destination_path}")
+
 # Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
 log_write('Modules Loaded')
 
+
+# Create Archive/disposal sheets if they do not exist
+archive_source_dir = data_filesdir + 'Radioactivity_Archive_blank.xlsx'
+archive_destination_dir = currentdir + 'Radioactivity_Archive.xlsx'
+copy_and_rename(archive_source_dir, archive_destination_dir)
+
+waste_source_dir = data_filesdir + 'Radioactive_Disposal_log_blank.xlsx'
+waste_destination_dir = currentdir + 'Radioactive_Disposal_log.xlsx'
+copy_and_rename(waste_source_dir, waste_destination_dir)
 
 # Tell user to close and save Radioactivity Archive xlsx sheet if it is open
 log_write('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
