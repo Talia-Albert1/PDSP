@@ -63,18 +63,6 @@ def copy_and_rename(source_path, destination_path):
         shutil.copy(source_path, destination_path)
         log_write(f"File created at {destination_path}")
 
-def parse_date(date_str):
-    # Split the date string into month, day, and year
-    month_str, day_str, year_str = date_str.split('/')
-    
-    # Convert the extracted strings to integers
-    month = int(month_str)
-    day = int(day_str)
-    year = int(year_str)
-
-    # Create a datetime object from the extracted components
-    return datetime.datetime(year, month, day)
-
 # Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
