@@ -51,7 +51,7 @@ NET,3H-Nisoxetine,2,1,1,Transporter,Desipramine,
 NMDA,3H-MK-801,3.5,3,3,NMDA,MK-801 hydrogen maleate,Rat P5 Pellet & Glycine+Glutamate@100uM in pellet binding buffer
 NOP,3H-Nociceptin,1,1,1,Standard,SB 62111,
 NR2B,3H-Ifenprodil,6,1,1,NMDA,Ifenprodil,
-OT,3H-Oxytocin,2,2,2,Oxytocin,Oxytocin,
+OT,3H-Oxytocin,2,2,2,Oxytocin,Cligosiban,
 PBR,3H-PK11195,1,1,1,BZP,"Ro5-4864 / 4'-Chlorodiazepam	",Rat P2 Pellet
 SERT,3H-Citalopram,2,0.5,0.67,Transporter,Amitriptyline,
 Sigma 1,3H-Pentazocine,5.5,1,1,Sigma,Haloperidol,
