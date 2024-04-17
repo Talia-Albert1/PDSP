@@ -262,7 +262,7 @@ for receptor in receptors:
 # Add Buffer Vol's, add Ligand Vol's
 for receptor in receptors:
     dilution_factor = 2.5
-    overage_percent = 1.44
+    overage_percent = 1.2
     uCi = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent 
     ligand_vol = uCi / ( receptor['uCi/uL'] * receptor['Decay Factor'])
 
