@@ -22,7 +22,7 @@ Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
 Alpha2C,3H-Rauwolscine,1,1,1,Alpha2,Oxymetazoline hydrochloride,
 Beta1,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
 Beta2,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
-BZP,3H-Flunitrazepam,2.5,1,1,BZP,clonazepam,Trying 1 p/p with newest batch
+BZP,3H-Flunitrazepam,2.5,1,1,BZP,clonazepam,
 D1,3H-SCH23390,2,1,1,Dopamine,(+)-Butaclamol,
 D2,3H-Methylspiperone,1.5,1,1,Dopamine,Haloperidol,
 D3,3H-Methylspiperone,1.5,1,1,Dopamine,Nemonapride,
@@ -58,4 +58,4 @@ Sigma 1,3H-Pentazocine,5.5,1,1,Sigma,Haloperidol,
 Sigma 2,3H-DTG,5,0.5,0.5,Sigma,Haloperidol,
 V1A,3H-Vasopressin,2,1,1,Vasopressin,Vasopressin,Manually add Vasopressin reference
 V1B,3H-Vasopressin,1.5,1,1,Vasopressin,Vasopressin,Manually add Vasopressin reference
-V2,3H-Vasopressin,2,1,1,Vasopressin,Vasopressin,Manually add Vasopressin reference
+V2,3H-Vasopressin,2,1,1,Vasopressin,Conivaptan,
