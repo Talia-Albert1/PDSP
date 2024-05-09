@@ -1,7 +1,7 @@
 3H-Ligand,Batch Number,Specific Activity (Ci/mmol),uCi/uL,Notes
 3H-5HT,0064-0323,33.2,1,
 3H-5-CT,0080-0423 (#2),112.4,1,
-3H-Ang II,0119-0621,60,0.5,
+3H-Ang II,0119-0621,60,1,
 3H-CGP12177,0133-0823,52.9,1,
 3H-Citalopram,0222-1223,80,1,
 3H-CP55940,0075-0216,175,1,
@@ -14,7 +14,7 @@
 3H-Histamine,0157-0821,16.4,1,
 3H-Ifenprodil,0031-0223,37.6,1,
 3H-Ketanserin,0122-0722 (#1),22.8,1,
-3H-LSD,0219-1223 (#5),83.1,1,
+3H-LSD,0216-1223 (#4),83.1,1,
 3H-Mesulergine,0225-1223 (#2),82.2,1,
 3H-MethylHistamine,0068-0424,75.7,1,
 3H-Methylspiperone,0218-1223,82,1,
