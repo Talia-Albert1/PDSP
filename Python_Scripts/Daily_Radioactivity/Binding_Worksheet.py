@@ -335,6 +335,8 @@ log_write('Unique ligands and summary information determined')
 # Calculate radioactive disposal information for log book
 for ligand in ligands_summary:
     mCi = math.ceil(ligand['uCi'])/1000
+    if mCi < 0.002:
+        mCi = 0.002
     mCi_dry_waste = math.floor(math.ceil(ligand['uCi'])*0.2)/1000
     if mCi_dry_waste < 0.001:
         mCi_dry_waste = 0.001
