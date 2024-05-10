@@ -14,6 +14,7 @@ import os
 import csv
 import sys
 import time
+import math
 
 print('Modules Loaded')
 """ Create text files and fill them in, only progress script later"""
@@ -231,7 +232,7 @@ for index, receptor in enumerate(receptors):
         log_write(receptor['Binding Type'] + ' ' + barcodes[index])
 log_write('Barcodes matched to receptors')
 
-# Change str's to float's, add Buffer Vol's, add Ligand Vol's
+# Change str's to float's, add Buffer Vol's
 for receptor in receptors:
     receptor['Assay Conc. (nM)'] = float(receptor['Assay Conc. (nM)'])
     receptor['PRIM Pellet/Plate Ratio'] = float(receptor['PRIM Pellet/Plate Ratio'])
@@ -246,7 +247,11 @@ for receptor in receptors:
         receptor.update({'Buffer Volume (mL)':float(15)})
         receptor.update({'Number of Plate(s)':float(3)})
         receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['SEC Pellet/Plate Ratio'] * 4) / 4})
+    log_write(receptor['Receptor'] + ' buffer volume, number of plates, and number of pellets calculated.')
 
+
+# Calculate ligand vols for record keeping purposes
+for receptor in receptors:
     dilution_factor = 2.5
     overage_percent = 1.44
     uCi = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent 
@@ -254,9 +259,7 @@ for receptor in receptors:
 
     receptor.update({'Ligand Volume (uL)':ligand_vol})
     receptor.update({'uCi':uCi})
-    log_write(receptor['Receptor'] + ' buffer volume, ligdand volume, number of plates, and number of pellets calculated.')
-
-
+    log_write(receptor['Receptor'] + ' uCi & ligand vol calculated.')
 
 """
 Gather unique receptor information and unique ligand information
@@ -329,6 +332,16 @@ for ligand in ligands_summary:
     log_write(ligand['3H-Ligand'] + ' summary information determined')
 log_write('Unique ligands and summary information determined')
 
+# Calculate radioactive disposal information for log book
+for ligand in ligands_summary:
+    mCi = math.ceil(ligand['uCi'])/1000
+    mCi_dry_waste = math.floor(math.ceil(ligand['uCi'])*0.2)/1000
+    if mCi_dry_waste < 0.001:
+        mCi_dry_waste = 0.001
+    mCi_sink_waste = round(mCi - mCi_dry_waste, 3)
+    ligand.update({'mCi':mCi,
+                   'mCi Dry Waste':mCi_dry_waste,
+                   'mCi Sink Waste':mCi_sink_waste})
 
 
 """
@@ -488,10 +501,11 @@ for index, ligand in enumerate(ligands_summary):
     row_index = index + last_row + 1
     ws.cell(row_index, 1, sheet_date)
     ws.cell(row_index, 2, ligand['3H-Ligand'])
-    ws.cell(row_index, 3, ligand['uCi'])
-    ws.cell(row_index, 4, round((ligand['uCi']*0.8), 2))
-    ws.cell(row_index, 5, round((ligand['uCi']*0.2), 2))
-    ws.cell(row_index, 6, radioactive_disposal_name)
+    ws.cell(row_index, 3, ligand['Batch Number'])
+    ws.cell(row_index, 4, ligand['mCi'])
+    ws.cell(row_index, 5, ligand['mCi Sink Waste'])
+    ws.cell(row_index, 6, ligand['mCi Dry Waste'])
+    ws.cell(row_index, 7, radioactive_disposal_name)
 
 wb.save(radioactive_disposal_log_path)
 
@@ -511,7 +525,7 @@ for index, ligand in enumerate(ligands_summary):
     ws.cell(index + 4, 3, ligand['Batch Number'])
     ws.cell(index + 4, 4, ligand['Specific Activity (Ci/mmol)'])
     ws.cell(index + 4, 5, ligand['Ligand Volume (uL)'])
-    ws.cell(index + 4, 6, ligand['uCi'])
+    ws.cell(index + 4, 6, ligand['mCi'])
 log_write('Ligand summary populated to Binding Template')
 
 # Pellet Summary
