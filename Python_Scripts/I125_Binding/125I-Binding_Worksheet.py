@@ -343,7 +343,18 @@ for ligand in ligands_summary:
     log_write(ligand['125I-Ligand'] + ' summary information determined')
 log_write('Unique ligands and summary information determined')
 
-
+# Calculate radioactive disposal information for log book
+for ligand in ligands_summary:
+    mCi = math.ceil(ligand['uCi'])/1000
+    if mCi < 0.002:
+        mCi = 0.002
+    mCi_dry_waste = math.floor(math.ceil(ligand['uCi'])*0.2)/1000
+    if mCi_dry_waste < 0.001:
+        mCi_dry_waste = 0.001
+    mCi_sink_waste = round(mCi - mCi_dry_waste, 3)
+    ligand.update({'mCi':mCi,
+                   'mCi Dry Waste':mCi_dry_waste,
+                   'mCi Sink Waste':mCi_sink_waste})
 
 """
 Write data to Archive excel sheet
@@ -504,10 +515,11 @@ for index, ligand in enumerate(ligands_summary):
     row_index = index + last_row + 1
     ws.cell(row_index, 1, sheet_date)
     ws.cell(row_index, 2, ligand['125I-Ligand'])
-    ws.cell(row_index, 3, ligand['uCi'])
-    ws.cell(row_index, 4, round((ligand['uCi']*0.8), 2))
-    ws.cell(row_index, 5, round((ligand['uCi']*0.2), 2))
-    ws.cell(row_index, 6, radioactive_disposal_name)
+    ws.cell(row_index, 3, ligand['Batch Number'])
+    ws.cell(row_index, 4, ligand['mCi'])
+    ws.cell(row_index, 5, ligand['mCi Sink Waste'])
+    ws.cell(row_index, 6, ligand['mCi Dry Waste'])
+    ws.cell(row_index, 7, radioactive_disposal_name)
 
 wb.save(radioactive_disposal_log_path)
 
@@ -527,7 +539,7 @@ for index, ligand in enumerate(ligands_summary):
     ws.cell(index + 4, 3, ligand['Batch Number'])
     ws.cell(index + 4, 4, ligand['Specific Activity (Ci/mmol)'])
     ws.cell(index + 4, 5, ligand['Ligand Volume (uL)'])
-    ws.cell(index + 4, 6, ligand['uCi'])
+    ws.cell(index + 4, 6, ligand['mCi'])
 log_write('Ligand summary populated to Binding Template')
 
 # Pellet Summary
