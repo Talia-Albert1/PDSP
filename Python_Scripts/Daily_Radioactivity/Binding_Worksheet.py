@@ -142,6 +142,10 @@ with open(barcodes_filename, 'r') as text_file:
         log_write(columns)
 log_write('Barcode Loaded')
 
+# Remove blank lines
+barcodes = list(filter(None, barcodes))
+worklist_receptors = list(filter(lambda x: x != [''], worklist_receptors))
+
 # Check that number of barcodes matches what we expect
 PRIM_count = 0
 SEC_count = 0
@@ -194,7 +198,7 @@ for entry in worklist_receptors:
 
 # Elucidate receptor name
 for receptor in receptors:
-    receptor_basename = receptor['Plate Name'].replace('-0', '').replace('-1', '').replace('-2', '').replace('-3', '').replace('-4', '').replace('-5','').replace('-6','').replace('-7','').replace('-8','').replace('-9','').replace('Rat Brain Site', '').replace('Rat Brain', '').rstrip()
+    receptor_basename = receptor['Plate Name'].strip('-0').strip('-1').strip('-2').strip('-3').strip('-4').strip('-5').strip('-6').strip('-7').strip('-8').strip('-9').strip('Rat').strip('Brain').strip('Site').strip()
     receptor.update({'Receptor':receptor_basename})
     log_write(receptor_basename)
 
@@ -551,14 +555,16 @@ for index, receptor in enumerate(receptors_summary):
 log_write('Receptor information added')
 
 # Plate Names and Barcodes
+sec_index = 0
+sec_count = 0
 for index, receptor in enumerate(receptors):
-    if index < PRIM_count and receptor['Binding Type'].lower() == 'prim':
-        ws.cell(index + 4, 10, receptor['Plate Name'])
-        ws.cell(index + 4, 11, 'P')
-        ws.cell(index + 4, 12, index + 4)
-        ws.cell(index + 4, 13, receptor['Barcode 0'])
-    elif index >= PRIM_count and receptor['Binding Type'].lower() == 'sec':
-        sec_index = 3*(index - PRIM_count) + PRIM_count
+    sec_index = index + (sec_count * 2)
+    if receptor['Binding Type'].lower() == 'prim':
+        ws.cell(sec_index + 4, 10, receptor['Plate Name'])
+        ws.cell(sec_index + 4, 11, 'P')
+        ws.cell(sec_index + 4, 12, sec_index + 4)
+        ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
+    elif receptor['Binding Type'].lower() == 'sec':
         ws.cell(sec_index + 4, 10, receptor['Plate Name'])
         ws.cell(sec_index + 5, 10, receptor['Plate Name'])
         ws.cell(sec_index + 6, 10, receptor['Plate Name'])
@@ -571,6 +577,7 @@ for index, receptor in enumerate(receptors):
         ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
         ws.cell(sec_index + 5, 13, receptor['Barcode 1'])
         ws.cell(sec_index + 6, 13, receptor['Barcode 2'])
+        sec_count += 1
 log_write('Barcodes and plate names added')
 
 binding_output_path = archivedir + formatted_date + ' - Binding Printout.xlsx'
