@@ -80,15 +80,6 @@ copy_and_rename(waste_source_dir, waste_destination_dir)
 # Tell user to close and save Radioactivity Archive xlsx sheet if it is open
 log_write('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
 
-# Create and open the Worklist.txt file, unless it already exists
-worklist_filename = inputdir + f'{formatted_date}_Worklist.txt'
-if os.path.exists(worklist_filename):
-    log_write('Worklist text file already exists')
-else:
-    with open(worklist_filename, 'w') as worklist_file:
-        worklist_file.write('')
-    os.startfile(worklist_filename)
-
 # Create and open the Barcodes.txt file, unless it already exists
 barcodes_filename = inputdir + f'{formatted_date}_Barcodes.txt'
 if os.path.exists(barcodes_filename):
@@ -97,6 +88,15 @@ else:
     with open(barcodes_filename, 'w') as barcodes_file:
         barcodes_file.write('')
     os.startfile(barcodes_filename)
+
+# Create and open the Worklist.txt file, unless it already exists
+worklist_filename = inputdir + f'{formatted_date}_Worklist.txt'
+if os.path.exists(worklist_filename):
+    log_write('Worklist text file already exists')
+else:
+    with open(worklist_filename, 'w') as worklist_file:
+        worklist_file.write('')
+    os.startfile(worklist_filename)
 
 
 
