@@ -15,9 +15,9 @@ Python_Scripts/Daily_Radioactivity/data_files/Gray_Switch.txt
 /Python_Scripts/Barcode_Converter/input
 /Python_Scripts/Barcode_Converter/output
 
-/Procedures/*.aux
-/Procedures/*.log
-/Procedures/*.toc
+/Procedures/**/*.aux
+/Procedures/**/*.log
+/Procedures/**/*.toc
 
 /Python_Scripts/Unique_hotligands/~$*
 Python_Scripts/Daily_Radioactivity/Radioactivity_Archive.xlsx
