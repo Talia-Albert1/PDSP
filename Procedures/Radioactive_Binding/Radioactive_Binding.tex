@@ -1,0 +1,317 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{placeins}
+\usepackage{amsmath}
+\usepackage{bm}
+\title{Radioactive Binding SOP}
+\author{Talia Albert}
+\date{\today}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Preparation}
+
+\section{Bench Work}
+\subsection{Preparation}
+\subsection{Adding to drug plate}
+\subsection{Filtering}
+
+\section{Data Submission}
+
+\section{Book Keeping}
+How do we sign out the log book?
+
+\subsection{Log Book essientals}
+The online system is only sensitive enough to record 0.001 \textbf{\emph{mCi}} for sink waste or dry waste. Even though we calculate how much mCi we need for assay's usually to 0.00001 (for example, 8.32 uCi = 0.00832 mCi, which we \emph{round up} to 0.009 mCi) There are 3 values which needed to be recorded.
+\begin{itemize}
+    \item \textbf{Total mCi} removed from vial
+    \item mCi disposed down \textbf{sink} (80\% of Total mCi removed, called \emph{sink waste})
+    \item mCi disposed through \textbf{dry} waste (20\% of Total mCi removed, called \emph{dry waste})
+\end{itemize}
+\[ \text{Total mCi} = \text{Sink Waste} + \text{Dry Waste} \]
+
+\subsection{Calculations}
+\begin{enumerate}
+    \item When calculating the \textbf{Total mCi} removed from the vial, \emph{always round total mCi up} to the nearest 0.001 mCi.
+    \item Calculate the \textbf{Dry Waste} by
+    \[ \text{Dry Waste} = \text{Total mCi} * 0.2 \]
+    \emph{always round Dry Waste down} to the nearest 0.001 mCi
+    \item Calculate \textbf{Sink Waste} by
+    \[ \text{Sink Waste} = \text{Total mCi} - \text{Dry Waste} \]
+\end{enumerate}
+
+The \emph{minimum} value for sink waste and dry waste is 0.001 mCi, therefore the minimum value for the Total mCi removed from the vial is 0.002 mCi.
+
+\subsection{Examples}
+\subsubsection{Example 1}
+0.94 uCi Pyrilamine used
+\begin{enumerate}
+    \item Convert units from uCi to mCi, 0.94 uCi to 0.00094 mCi
+    \item Determine \textbf{Total mCi}, \emph{round up} to nearest 0.001 mCi,
+    \[ \text{Total mCi} = 0.00094 \text{ mCi}  \rightarrow 0.001 \text{ mCi} \]
+    but, the minimum value for the Total mCi removed from the vial is 0.002 mCi
+    \[ \text{Total mCi} = 0.001 \text{ mCi}  \rightarrow 0.002 \text{ mCi} \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.002 &  &  \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine \textbf{Dry Waste}
+    \[ \text{Dry Waste} = \text{Total mCi} * 0.2 \]
+    \[ \text{Dry Waste} = 0.002 * 0.2 \]
+    \[ \text{Dry Waste} = 0.0004 \]
+    \emph{always round Dry Waste down} to the nearest 0.001 mCi
+    \[ \text{Dry Waste} = 0.0004 \rightarrow 0.000 \]
+    but the \emph{minimum} value for sink waste and dry waste is 0.001 mCi,
+    \[ \text{Dry Waste} = 0.000 \rightarrow 0.001 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.002 & & 0.001 \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine the \textbf{Sink Waste}
+    \[ \text{Sink Waste} = \text{Total mCi} - \text{Dry Waste} \]
+    \[ \text{Sink Waste} = 0.002 - 0.001 \]
+    \[ \text{Sink Waste} = 0.001 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.002 & 0.001 & 0.001 \\
+            \hline
+        \end{tabular}
+    \end{table}
+\end{enumerate}
+
+\FloatBarrier
+
+\subsubsection{Example 2}
+2.58 uCi PK11195
+\begin{enumerate}
+    \item Convert units from uCi to mCi, 2.58 uCi to 0.00258 mCi
+    \item Determine \textbf{Total mCi}, \emph{round up} to nearest 0.001 mCi,
+    \[ \text{Total mCi} = 0.00258 \text{ mCi}  \rightarrow 0.003 \text{ mCi} \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.003 &  &  \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine \textbf{Dry Waste}
+    \[ \text{Dry Waste} = \text{Total mCi} * 0.2 \]
+    \[ \text{Dry Waste} = 0.003 * 0.2 \]
+    \[ \text{Dry Waste} = 0.0006 \]
+    \emph{always round Dry Waste down} to the nearest 0.001 mCi
+    \[ \text{Dry Waste} = 0.0006 \rightarrow 0.000 \]
+    but the \emph{minimum} value for sink waste and dry waste is 0.001 mCi,
+    \[ \text{Dry Waste} = 0.000 \rightarrow 0.001 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.003 & & 0.001 \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine the \textbf{Sink Waste}
+    \[ \text{Sink Waste} = \text{Total mCi} - \text{Dry Waste} \]
+    \[ \text{Sink Waste} = 0.003 - 0.001 \]
+    \[ \text{Sink Waste} = 0.002 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.003 & 0.002 & 0.001 \\
+            \hline
+        \end{tabular}
+    \end{table}
+\end{enumerate}
+
+\FloatBarrier
+
+\subsubsection{Example 3}
+8.64 uCi Citalopram
+\begin{enumerate}
+    \item Convert units from uCi to mCi, 8.64 uCi to 0.00864 mCi
+    \item Determine \textbf{Total mCi}, \emph{round up} to nearest 0.001 mCi,
+    \[ \text{Total mCi} = 0.00864 \text{ mCi}  \rightarrow 0.009 \text{ mCi} \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.009 &  &  \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine \textbf{Dry Waste}
+    \[ \text{Dry Waste} = \text{Total mCi} * 0.2 \]
+    \[ \text{Dry Waste} = 0.009 * 0.2 \]
+    \[ \text{Dry Waste} = 0.0018 \]
+    \emph{always round Dry Waste down} to the nearest 0.001 mCi
+    \[ \text{Dry Waste} = 0.0018 \rightarrow 0.001 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.009 & & 0.001 \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine the \textbf{Sink Waste}
+    \[ \text{Sink Waste} = \text{Total mCi} - \text{Dry Waste} \]
+    \[ \text{Sink Waste} = 0.009 - 0.001 \]
+    \[ \text{Sink Waste} = 0.008 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.009 & 0.008 & 0.001 \\
+            \hline
+        \end{tabular}
+    \end{table}
+\end{enumerate}
+
+\FloatBarrier
+
+\subsubsection{Example 4}
+33.62 uCi GR125743
+\begin{enumerate}
+    \item Convert units from uCi to mCi, 33.62 uCi to 0.03362 mCi
+    \item Determine \textbf{Total mCi}, \emph{round up} to nearest 0.001 mCi,
+    \[ \text{Total mCi} = 0.03362 \text{ mCi}  \rightarrow 0.034 \text{ mCi} \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.034 &  &  \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine \textbf{Dry Waste}
+    \[ \text{Dry Waste} = \text{Total mCi} * 0.2 \]
+    \[ \text{Dry Waste} = 0.034 * 0.2 \]
+    \[ \text{Dry Waste} = 0.0068 \]
+    \emph{always round Dry Waste down} to the nearest 0.001 mCi
+    \[ \text{Dry Waste} = 0.0068 \rightarrow 0.006 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.034 & & 0.006 \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \item Determine the \textbf{Sink Waste}
+    \[ \text{Sink Waste} = \text{Total mCi} - \text{Dry Waste} \]
+    \[ \text{Sink Waste} = 0.034 - 0.006 \]
+    \[ \text{Sink Waste} = 0.028 \]
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\
+            \hline
+            0.034 & 0.028 & 0.006 \\
+            \hline
+        \end{tabular}
+    \end{table}
+\end{enumerate}
+
+\FloatBarrier
+
+\subsection{Chart}
+The following chart contains the associated sink waste and dry waste values for Total mCi values from 0.002 to 0.026.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Total mCi} & \textbf{Sink Waste} & \textbf{Dry Waste} \\ \hline
+    0.002              & 0.001               & 0.001              \\ \hline
+    0.003              & 0.002               & 0.001              \\ \hline
+    0.004              & 0.003               & 0.001              \\ \hline
+    \textbf{0.005}     & \textbf{0.004}      & \textbf{0.001}     \\ \hline
+    0.006              & 0.005               & 0.001              \\ \hline
+    0.007              & 0.006               & 0.001              \\ \hline
+    0.008              & 0.007               & 0.001              \\ \hline
+    0.009              & 0.008               & 0.001              \\ \hline
+    \textbf{0.010}     & \textbf{0.008}      & \textbf{0.002}     \\ \hline
+    0.011              & 0.009               & 0.002              \\ \hline
+    0.012              & 0.010               & 0.002              \\ \hline
+    0.013              & 0.011               & 0.002              \\ \hline
+    0.014              & 0.012               & 0.002              \\ \hline
+    \textbf{0.015}     & \textbf{0.012}      & \textbf{0.003}     \\ \hline
+    0.016              & 0.013               & 0.003              \\ \hline
+    0.017              & 0.014               & 0.003              \\ \hline
+    0.018              & 0.015               & 0.003              \\ \hline
+    0.019              & 0.016               & 0.003              \\ \hline
+    \textbf{0.020}     & \textbf{0.016}      & \textbf{0.004}     \\ \hline
+    0.021              & 0.017               & 0.004              \\ \hline
+    0.022              & 0.018               & 0.004              \\ \hline
+    0.023              & 0.019               & 0.004              \\ \hline
+    0.024              & 0.020               & 0.004              \\ \hline
+    \textbf{0.025}     & \textbf{0.020}      & \textbf{0.005}     \\ \hline
+    0.026              & 0.021               & 0.005              \\ \hline
+    \end{tabular}
+\end{table}
+
+\FloatBarrier
+
+\subsubsection{Quick trick to calculate Dry Waste}
+You may notice that every 0.005, the Dry Waste increases by 0.001. You can quickly determine the Dry waste values of larger numbers by looking for the nearest multiple of 0.005 that is less than or equal to the Total mCi number. For example, 0.048 mCi total waste, 0.045 is the nearest mutiple of 0.005, and $ 9 * 0.005 = 0.045 $ therefore, the dry waste value is 0.009.
+
+\subsection{Finishing a hot ligand}
+
+
+\section{Formulas \& Calculations}
+\subsection{uCi \& uL Needed}
+\subsubsection{Need}
+\begin{itemize}
+    \item Specific Activity (Ci/mmol) (S.A.)
+    \item Assay Conc (nM)
+    \item Buffer Volume (mL) (Buffer Vol (mL) = Number of Plates * 5 $\frac{\text{mL}}{\text{Plate}}$)
+    \item uCi/uL ratio
+\end{itemize}
+
+\subsubsection{Formula}
+\[ \text{uCi} = \frac{\text{S.A. (Ci/mmol)} * \text{Buffer Vol (mL)} * \text{Assay Conc (nM)} * 2.5 * 1.44}{1000} \]
+\[ \text{uL} = \text{uCi needed} * \frac{\text{uL}}{\text{uCi}} \text{(Ratio)} \]
+\subsubsection{Where}
+\begin{itemize}
+    \item 2.5 is the Dilution Factor, we add 50 uL of our hot ligand solution into each well, which then has a final volume of 125 uL. Therefore, we need to make our hotligand concentration $\frac{125}{50} = 2.5$ times stronger to account for this.
+    \item 1.44 is an overage percent; we take 44\% more than what we need.
+    \item 1000 is to handle the net results of converting units.
+\end{itemize}
+We calculate how much uCi is necessary to perfom the assay, then we can determine what volume of ligand (uL) to remove from the vial to perform the assay at the specified concentration by multiplying the uCi needed by the uCi/uL ratio.
+\end{document}
