@@ -11,6 +11,8 @@ from openpyxl.formatting.rule import FormulaRule
 import shutil
 import datetime
 import os
+import subprocess
+import platform
 import csv
 import sys
 import time
@@ -23,15 +25,15 @@ radioactive_disposal_name = "Talia"
 
 
 # Get current directory
-currentdir = os.getcwd() + '\\'
-inputdir = currentdir + 'input\\'
-data_filesdir = currentdir + 'data_files\\'
-archivedir = currentdir + 'archive\\'
+currentdir = os.getcwd()
+inputdir = os.path.join(currentdir, 'input')
+data_filesdir = os.path.join(currentdir, 'data_files')
+archivedir = os.path.join(currentdir, 'archive')
 
 # Format the date as 'YYYY-MM-DD'
 formatted_date = datetime.date.today().strftime('%Y%m%d')
 
-log_file_path = archivedir + formatted_date + '_log.txt'
+log_file_path = os.path.join(archivedir, formatted_date + '_log.txt')
 def create_directory(directory_path):
     if not os.path.exists(directory_path):
         try:
@@ -62,6 +64,34 @@ def copy_and_rename(source_path, destination_path):
         shutil.copy(source_path, destination_path)
         log_write(f"File created at {destination_path}")
 
+def open_file(filepath):
+    try:
+        if platform.system() == 'Windows':
+            os.startfile(filepath)
+        elif platform.system() == 'Darwin':  # macOS
+            subprocess.call(('open', filepath))
+        else:  # Linux and other Unix-like systems
+            subprocess.call(('xdg-open', filepath))
+    except Exception as e:
+        print(f"Failed to open {filepath}: {e}")
+
+def print_file(filepath):
+    try:
+        if platform.system() == 'Windows':
+            # Windows: Use startfile with print argument
+            os.startfile(filepath, 'print')
+        elif platform.system() == 'Darwin':  # macOS
+            # macOS: Use LibreOffice to print
+            subprocess.run(['libreoffice', '--headless', '--print-to-file', '--outdir', '/tmp', filepath], check=True)
+            subprocess.run(['lp', '/tmp/' + os.path.basename(filepath) + '.ps'], check=True)
+        else:  # Linux and other Unix-like systems
+            # Linux: Use LibreOffice to print
+            subprocess.run(['libreoffice', '--headless', '--print-to-file', '--outdir', '/tmp', filepath], check=True)
+            subprocess.run(['lp', '/tmp/' + os.path.basename(filepath) + '.ps'], check=True)
+    except Exception as e:
+        print(f"Failed to print {filepath}: {e}")
+
+
 # Create directories if they do not exist
 create_directory(inputdir)
 create_directory(archivedir)
@@ -69,34 +99,34 @@ log_write('Modules Loaded')
 
 
 # Create Archive/disposal sheets if they do not exist
-archive_source_dir = data_filesdir + 'Radioactivity_Archive_blank.xlsx'
-archive_destination_dir = currentdir + 'Radioactivity_Archive.xlsx'
+archive_source_dir = os.path.join(data_filesdir, 'Radioactivity_Archive_blank.xlsx')
+archive_destination_dir = os.path.join(currentdir, 'Radioactivity_Archive.xlsx')
 copy_and_rename(archive_source_dir, archive_destination_dir)
 
-waste_source_dir = data_filesdir + 'Radioactive_Disposal_log_blank.xlsx'
-waste_destination_dir = currentdir + 'Radioactive_Disposal_log.xlsx'
+waste_source_dir = os.path.join(data_filesdir, 'Radioactive_Disposal_log_blank.xlsx')
+waste_destination_dir = os.path.join(currentdir, 'Radioactive_Disposal_log.xlsx')
 copy_and_rename(waste_source_dir, waste_destination_dir)
 
 # Tell user to close and save Radioactivity Archive xlsx sheet if it is open
 log_write('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
 
 # Create and open the Barcodes.txt file, unless it already exists
-barcodes_filename = inputdir + f'{formatted_date}_Barcodes.txt'
+barcodes_filename = os.path.join(inputdir, f'{formatted_date}_Barcodes.txt')
 if os.path.exists(barcodes_filename):
     log_write('Barcode text file already exists')
 else:
     with open(barcodes_filename, 'w') as barcodes_file:
         barcodes_file.write('')
-    os.startfile(barcodes_filename)
+    open_file(barcodes_filename)
 
 # Create and open the Worklist.txt file, unless it already exists
-worklist_filename = inputdir + f'{formatted_date}_Worklist.txt'
+worklist_filename = os.path.join(inputdir, f'{formatted_date}_Worklist.txt')
 if os.path.exists(worklist_filename):
     log_write('Worklist text file already exists')
 else:
     with open(worklist_filename, 'w') as worklist_file:
         worklist_file.write('')
-    os.startfile(worklist_filename)
+    open_file(worklist_filename)
 
 
 
@@ -168,7 +198,7 @@ if total_plates != len(barcodes):
     sys.exit(1)
    
 # Read 3H-Ligand Database
-Ligand_DB_path = data_filesdir + '3H-Ligand_Database.csv'
+Ligand_DB_path = os.path.join(data_filesdir, '3H-Ligand_Database.csv')
 with open(Ligand_DB_path, 'r') as csvfile:
     Ligand_DB = []
     csvreader = csv.DictReader(csvfile)
@@ -177,7 +207,7 @@ with open(Ligand_DB_path, 'r') as csvfile:
 log_write('3H-Ligand Database loaded: ' + Ligand_DB_path)
 
 # Read Assay Database
-Assay_DB_path = data_filesdir + 'Assay_Database.csv'
+Assay_DB_path = os.path.join(data_filesdir, 'Assay_Database.csv')
 with open(Assay_DB_path, 'r') as csvfile:
     Assay_DB = []
     csvreader = csv.DictReader(csvfile)
@@ -196,9 +226,16 @@ for entry in worklist_receptors:
     temp_dict = {'Plate Name':entry[1].rstrip(), 'Binding Type':entry[0].rstrip()}
     receptors.append(temp_dict)
 
+# List of elements we want to replace
+elements_remove = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9',
+                   '-10', '-11', '-12', '-13', '-14', '-15', 'Rat Brain Site',
+                   'Rat Brain']
+
 # Elucidate receptor name
 for receptor in receptors:
-    receptor_basename = receptor['Plate Name'].replace('-0', '').replace('-1', '').replace('-2', '').replace('-3', '').replace('-4', '').replace('-5','').replace('-6','').replace('-7','').replace('-8','').replace('-9','').replace('Rat Brain Site', '').replace('Rat Brain', '').rstrip()
+    receptor_basename = receptor['Plate Name'].rstrip()
+    for element in elements_remove:
+        receptor_basename = receptor_basename.replace(element, '')
     receptor.update({'Receptor':receptor_basename})
     log_write(receptor_basename)
 
@@ -353,8 +390,8 @@ for ligand in ligands_summary:
 """
 Write data to Archive excel sheet
 """
-archive_sheet_path = currentdir + 'Radioactivity_Archive.xlsx'
-gray_switch_path = data_filesdir + 'Gray_Switch.txt'
+archive_sheet_path = os.path.join(currentdir, 'Radioactivity_Archive.xlsx')
+gray_switch_path = os.path.join(data_filesdir, 'Gray_Switch.txt')
 sheet_date = datetime.date.today().strftime('%m/%d/%Y')
 wb = openpyxl.load_workbook(archive_sheet_path)
 ws = wb['Sheet1']
@@ -498,7 +535,7 @@ with open(gray_switch_path, 'w') as text_file:
 """
 Write data to montly sink disposal sheet
 """
-radioactive_disposal_log_path = 'Radioactive_Disposal_log.xlsx'
+radioactive_disposal_log_path = os.path.join(currentdir, 'Radioactive_Disposal_log.xlsx')
 wb = openpyxl.load_workbook(radioactive_disposal_log_path)
 ws = wb['Sheet1']
 last_row = ws.max_row
@@ -518,7 +555,7 @@ wb.save(radioactive_disposal_log_path)
 """
 Write data to binding excel sheet
 """
-binding_worksheet_path = data_filesdir + 'Binding_Printout_Template.xlsx'
+binding_worksheet_path = os.path.join(data_filesdir, 'Binding_Printout_Template.xlsx')
 wb = openpyxl.load_workbook(binding_worksheet_path)
 ws = wb['Sheet1']
 ws.cell(2, 2, sheet_date)
@@ -580,7 +617,7 @@ for index, receptor in enumerate(receptors):
         sec_count += 1
 log_write('Barcodes and plate names added')
 
-binding_output_path = archivedir + formatted_date + ' - Binding Printout.xlsx'
+binding_output_path = os.path.join(archivedir, formatted_date + ' - Binding Printout.xlsx')
 wb.save(binding_output_path)
 log_write('Binding printout generated :' + binding_output_path)
 
@@ -596,9 +633,9 @@ shutil.move(worklist_filename, archivedir)
 log_write('Worklist file moved to archive')
 
 # Print binding sheet and open archive sheet
-log_write('Binding sheet being printed')
-os.startfile(binding_output_path, 'print')
 log_write('Opening Radioactivity Archive Sheet:' + archive_sheet_path)
-os.startfile(archive_sheet_path)
+open_file(archive_sheet_path)
+log_write('Binding sheet being printed')
+print_file(binding_output_path)
 time.sleep(15)
 
