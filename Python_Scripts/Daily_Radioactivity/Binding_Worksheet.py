@@ -233,9 +233,10 @@ elements_remove = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9',
 
 # Elucidate receptor name
 for receptor in receptors:
-    receptor_basename = receptor['Plate Name'].rstrip()
+    receptor_basename = receptor['Plate Name']
     for element in elements_remove:
         receptor_basename = receptor_basename.replace(element, '')
+    receptor_basename = receptor_basename.rstrip()
     receptor.update({'Receptor':receptor_basename})
     log_write(receptor_basename)
 
