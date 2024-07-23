@@ -228,8 +228,8 @@ for entry in worklist_receptors:
 
 # List of elements we want to replace
 elements_remove = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9',
-                   '-10', '-11', '-12', '-13', '-14', '-15', 'Rat Brain Site',
-                   'Rat Brain']
+                   '-10', '-11', '-12', '-13', '-14', '-15', 'Rat', 'Brain',
+                   'Site', 'rat', 'brain', 'site']
 
 # Elucidate receptor name
 for receptor in receptors:
