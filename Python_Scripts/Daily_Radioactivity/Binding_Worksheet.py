@@ -97,6 +97,11 @@ create_directory(inputdir)
 create_directory(archivedir)
 log_write('Modules Loaded')
 
+# Create Gray_Switch.txt on the first run of the script, clears up github repo
+gray_switch_dir = os.path.join(data_filesdir, 'Gray_Switch.txt')
+if not os.path.exists(gray_switch_dir):
+    with open(gray_switch_dir, 'w') as text_file:
+        text_file.write('1')
 
 # Create Archive/disposal sheets if they do not exist
 archive_source_dir = os.path.join(data_filesdir, 'Radioactivity_Archive_blank.xlsx')
@@ -392,13 +397,12 @@ for ligand in ligands_summary:
 Write data to Archive excel sheet
 """
 archive_sheet_path = os.path.join(currentdir, 'Radioactivity_Archive.xlsx')
-gray_switch_path = os.path.join(data_filesdir, 'Gray_Switch.txt')
 sheet_date = datetime.date.today().strftime('%m/%d/%Y')
 wb = openpyxl.load_workbook(archive_sheet_path)
 ws = wb['Sheet1']
 
 log_write('Radioactivity Archive Sheet opened: ' + archive_sheet_path)
-with open(gray_switch_path, 'r') as text_file:
+with open(gray_switch_dir, 'r') as text_file:
     for line in text_file:
         gray_switch = line.strip()
 
@@ -529,7 +533,7 @@ log_write('Radioactivity Archive Sheet written to')
 wb.save(archive_sheet_path)
 log_write('Radicoactivity Archive Sheet saved')
 
-with open(gray_switch_path, 'w') as text_file:
+with open(gray_switch_dir, 'w') as text_file:
     text_file.write(gray_switch)
 
 
