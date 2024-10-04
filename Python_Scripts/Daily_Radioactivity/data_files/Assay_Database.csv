@@ -5,7 +5,7 @@ Receptor,3H-Ligand,Assay Conc. (nM),PRIM Pellet/Plate Ratio,SEC Pellet/Plate Rat
 5-HT1E,3H-5HT,5,1,1,Standard,5-HT,
 5-HT1F,3H-LSD,4,1,1,Standard,Lasmiditan,
 5-HT2A,3H-Ketanserin,1.5,2,2,Standard,Clozapine,
-5-HT2B,3H-LSD,1,2,2,Standard,SB 206553,
+5-HT2B,3H-LSD,1,4,4,Standard,SB 206553,
 5-HT2C,3H-Mesulergine,2.5,1,0.67,Standard,Ritanserin,
 5-HT3,3H-Tropistron,1.5,1,1,Standard,Zacopride HCl,
 5-HT4,3H-SB-207145,0.5,1,1,Standard,SDZ205557,
