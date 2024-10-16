@@ -34,3 +34,7 @@ Python_Scripts/I125_Binding/data_files/Gray_Switch.txt
 /Python_Scripts/Mirror_SBA_Results/output
 /Python_Scripts/Rotate_Results/archive
 /Python_Scripts/Rotate_Results/output
+/Python_Scripts/__pycache__
+/Python_Scripts/Worklist/archive
+/Python_Scripts/Worklist/input
+/Python_Scripts/Worklist/output
