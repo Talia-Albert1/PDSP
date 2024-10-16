@@ -18,7 +18,7 @@ import utils
 current_dir, archive_dir, input_dir, output_dir = utils.setup_dir(create_data_files_dir='n')
 
 # Format the date as 'YYYY-MM-DD'
-formatted_date = datetime.date.today().strftime('%Y-%m-%d')
+formatted_date = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
 # Setup logging functionality
 utils.setup_logging(archive_dir,log_filename=formatted_date + '_log.log')
