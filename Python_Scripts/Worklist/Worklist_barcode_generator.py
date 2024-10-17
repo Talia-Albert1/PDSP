@@ -3,11 +3,7 @@ import shutil
 import datetime
 import os
 import logging
-import platform
-import csv
 import sys
-import time
-import math
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 sys.path.insert(0, parent_dir)
@@ -17,8 +13,12 @@ import utils
 # Get directories & create those which do not exist
 current_dir, archive_dir, input_dir, output_dir = utils.setup_dir(create_data_files_dir='n')
 
-# Format the date as 'YYYY-MM-DD'
-formatted_date = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+# Format the date as 'YYYY-MM-DD' for tomorrow's day, unless it is Fri -> Mon
+day_of_week = datetime.date.today().weekday()
+if day_of_week == 4:
+    formatted_date = (datetime.date.today() + datetime.timedelta(days=3)).strftime('%Y-%m-%d')
+else:
+    formatted_date = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
 # Setup logging functionality
 utils.setup_logging(archive_dir,log_filename=formatted_date + '_log.log')
