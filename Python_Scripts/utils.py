@@ -247,7 +247,7 @@ def load_data_from_file(file_path, delimiter=None, log_message=None):
 
     return data
 
-def read_csv_file(file_path, header_option=False):
+def read_csv_file(file_path, remove_header=False):
     # Check if the file exists
     if not os.path.exists(file_path):
         logging.error(f"File not found: {file_path}")
@@ -262,7 +262,7 @@ def read_csv_file(file_path, header_option=False):
             csvreader = csv.reader(csvfile)
             
             # Read the header row (optional)
-            if header_option:
+            if remove_header:
                 next(csvreader)
 
             # Read each row and add it to the data list

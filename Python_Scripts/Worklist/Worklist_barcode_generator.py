@@ -28,7 +28,7 @@ worklist_file_dir = utils.select_file_from_input_dir(input_dir)
 
 # Import the CSV into python (without header)
 # Structure is Compound_Number,Receptor,Reference,Assay,PDSP_Number
-worklist = utils.read_csv_file(worklist_file_dir)
+worklist = utils.read_csv_file(worklist_file_dir, remove_header = True)
 
 # Determine if it is primary or secondary
 if worklist[0][3] == 'p':
