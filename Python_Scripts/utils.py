@@ -62,7 +62,7 @@ def setup_dir(create_output_dir='y', create_data_files_dir='y'):
         return current_dir, archive_dir, input_dir
 
 # Select a file from input
-def select_file_from_input_dir(input_dir):
+def select_file_from_input_dir(input_dir, return_filename=False):
     # Get a list of files in the input directory
     try:
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
@@ -75,32 +75,36 @@ def select_file_from_input_dir(input_dir):
         logging.info("No files found in the input directory.")
         sys.exit(1)
     
-    # If there is only one file, return that file
+    # If there is only one file, use that file
     if len(files) == 1:
         logging.info(f"Only one file found: {files[0]}")
-        return os.path.join(input_dir, files[0])
+        selected_file = files[0]
+    else:
+        # If there are multiple files, display them and prompt the user to select one
+        logging.info("Select a file from the list:")
+        for i, file_name in enumerate(files):
+            logging.info(f"{i + 1}: {file_name}")
+        
+        # Get the user's selection
+        while True:
+            try:
+                choice = int(input(f"Enter a number (1-{len(files)}): "))
+                if 1 <= choice <= len(files):
+                    selected_file = files[choice - 1]
+                    break
+                else:
+                    logging.warning(f"Invalid choice. Please select a number between 1 and {len(files)}.")
+            except ValueError:
+                logging.warning("Invalid input. Please enter a number.")
     
-    # If there are multiple files, display them and prompt the user to select one
-    logging.info("Select a file from the list:")
-    for i, file_name in enumerate(files):
-        logging.info(f"{i + 1}: {file_name}")
+    # Construct the full path
+    full_path = os.path.join(input_dir, selected_file)
     
-    # Get the user's selection
-    while True:
-        try:
-            choice = int(input(f"Enter a number (1-{len(files)}): "))
-            if 1 <= choice <= len(files):
-                selected_file = files[choice - 1]
-                break
-            else:
-                logging.warning(f"Invalid choice. Please select a number between 1 and {len(files)}.")
-        except ValueError:
-            logging.warning("Invalid input. Please enter a number.")
-    
-    # Return the full path of the selected file
-    return os.path.join(input_dir, selected_file)
-
-
+    # Return both values, depending on `return_filename`
+    if return_filename:
+        return full_path, selected_file  # Returns full path and file name separately
+    else:
+        return full_path  # Only returns the full path
 
 
 
@@ -243,7 +247,7 @@ def load_data_from_file(file_path, delimiter=None, log_message=None):
 
     return data
 
-def read_csv_file(file_path):
+def read_csv_file(file_path, header_option=False):
     # Check if the file exists
     if not os.path.exists(file_path):
         logging.error(f"File not found: {file_path}")
@@ -258,7 +262,8 @@ def read_csv_file(file_path):
             csvreader = csv.reader(csvfile)
             
             # Read the header row (optional)
-            header = next(csvreader)
+            if header_option:
+                next(csvreader)
 
             # Read each row and add it to the data list
             for row in csvreader:
@@ -299,4 +304,10 @@ def write_list_to_csv(file_path, data_list):
         # Write the list as a row
         for item in data_list:
             writer.writerow([item])
+
+def write_lists_to_file(file_path, list_of_lists):
+    with open(file_path, 'a') as file:
+        for sublist in list_of_lists:
+            line = '\t'.join(map(str, sublist))  # Convert each element to a string and join with tabs
+            file.write(line + '\n')  # Write the line to the file with a newline at the end
 
