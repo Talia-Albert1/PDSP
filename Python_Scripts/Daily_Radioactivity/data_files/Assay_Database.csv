@@ -22,7 +22,7 @@ Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
 Alpha2C,3H-Rauwolscine,1,1,1,Alpha2,Oxymetazoline hydrochloride,
 Beta1,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
 Beta2,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
-BZP,3H-Flunitrazepam,2.5,0.5,0.5,BZP,clonazepam,Rat P2 pellet
+BZP,3H-Flunitrazepam,2,1,1,BZP,clonazepam,Rat P2 pellet
 Ca channel human,3H-Nitrendipine,4.5,1,1,Ca channel BB,Nifedipine,CaV 1.2 pellet & Reference is light sensitive
 D1,3H-SCH23390,2,0.5,0.5,Dopamine,(+)-Butaclamol,
 D2,3H-Methylspiperone,1.5,1,1,Dopamine,Haloperidol,
@@ -37,7 +37,7 @@ H3,3H-MethylHistamine,1.7,1,1,Histamine,Histamine,
 H4,3H-Histamine,2,2,2,Histamine,Clozapine,
 HERG,3H-Dofetilide,4,0.5,0.5,HERG,Dofetilide,
 KOR,3H-U69593,1,1,1,Standard,Salvinorin A,
-M1,3H-QNB,1,1.5,1.5,Muscarinic,Atropine,
+M1,3H-QNB,1,1,1,Muscarinic,Atropine,
 M1D,3H-QNB,2,1,1,Muscarinic,Atropine,
 M2,3H-QNB,1,1,1,Muscarinic,Atropine,
 M2D,3H-QNB,2,2,2,Muscarinic,Atropine,
