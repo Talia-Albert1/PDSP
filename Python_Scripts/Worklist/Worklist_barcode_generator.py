@@ -64,8 +64,30 @@ for receptor in unique_receptors_wNum:
 unique_receptors = sorted(list(set(unique_receptors_woNum)))
 
 """ Create name of worklist """
-receptors_combined = ' '.join(unique_receptors)
-worklist_name = formatted_date + ' ' + receptors_combined + ' ' + prim_sec
+# Step 1: Group receptors by prefix
+grouped_receptors = {}
+for receptor in unique_receptors:
+    # Split at the first digit to find the prefix
+    for i, char in enumerate(receptor):
+        if char.isdigit():
+            prefix = receptor[:i]
+            suffix = receptor[i:]
+            if prefix in grouped_receptors:
+                grouped_receptors[prefix].append(suffix)
+            else:
+                grouped_receptors[prefix] = [suffix]
+            break
+    else:
+        # For receptors without a digit suffix (like 'DAT')
+        grouped_receptors[receptor] = []
+
+# Step 2: Build the shortened name with spaces between groups
+shortened_name = ' '.join(
+    f"{prefix}{''.join(suffixes)}" if suffixes else prefix
+    for prefix, suffixes in grouped_receptors.items()
+)
+
+worklist_name = formatted_date + ' ' + shortened_name + ' ' + prim_sec
 
 
 """ Create csv files of unique compounds """
@@ -76,18 +98,17 @@ utils.move_dir_files(output_dir, archive_dir)
 unique_compounds = utils.unique_column_in_list(worklist,0)
 
 # Determine how many plates are necessary
-if len(unique_compounds) > 96:
+upper_bound = len(unique_compounds)
+if upper_bound > 96:
     worklist_barcode1_dir = os.path.join(output_dir, worklist_name + ' barcode-1.csv')
     worklist_barcode2_dir = os.path.join(output_dir, worklist_name + ' barcode-2.csv')
-    upper_bound = len(unique_compounds)
     utils.write_list_to_csv(worklist_barcode1_dir, unique_compounds[0:96])
     utils.write_list_to_csv(worklist_barcode2_dir, unique_compounds[96:upper_bound])
     shutil.copy(worklist_file_dir, archive_dir)
     utils.move_and_rename_file(worklist_file_dir, output_dir, worklist_name + '.csv')
     
-elif len(unique_compounds) <= 96:
+elif upper_bound <= 96:
     worklist_barcode_dir = os.path.join(output_dir, worklist_name + ' barcode.csv')
-    upper_bound = len(unique_compounds)
     utils.write_list_to_csv(worklist_barcode_dir, unique_compounds[0:upper_bound])
     shutil.copy(worklist_file_dir, archive_dir)
     utils.move_and_rename_file(worklist_file_dir, output_dir, worklist_name + '.csv')

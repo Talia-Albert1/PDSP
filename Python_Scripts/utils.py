@@ -164,9 +164,23 @@ def move_dir_files(source_dir, destination_dir):
     # Loop through the files and move each one to destination_dir
     for file_name in files:
         file_path = os.path.join(source_dir, file_name)
+        
         if os.path.isfile(file_path):  # Only move files, not directories
-            shutil.move(file_path, destination_dir)
-            logging.info(f"Moved: {file_name} to {destination_dir}")
+            dest_path = os.path.join(destination_dir, file_name)
+
+            # If file with same name exists in destination, add suffix
+            if os.path.exists(dest_path):
+                base_name, extension = os.path.splitext(file_name)
+                counter = 1
+                while os.path.exists(dest_path):
+                    # Add (counter) suffix before the extension
+                    new_name = f"{base_name}({counter}){extension}"
+                    dest_path = os.path.join(destination_dir, new_name)
+                    counter += 1
+
+            # Move the file to the new destination with the appropriate name
+            shutil.move(file_path, dest_path)
+            logging.info(f"Moved: {file_name} to {dest_path}")
 
 def move_and_rename_file(source_path, destination_dir, new_name):
     # Check if the source file exists
