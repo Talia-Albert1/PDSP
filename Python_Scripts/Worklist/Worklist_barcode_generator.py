@@ -30,6 +30,9 @@ worklist_file_dir = utils.select_file_from_input_dir(input_dir)
 # Structure is Compound_Number,Receptor,Reference,Assay,PDSP_Number
 worklist = utils.read_csv_file(worklist_file_dir, remove_header = True)
 
+# Create sorted worklist by second column
+sorted_worklist = sorted(worklist, key=lambda x: x[1])
+
 # Determine if it is primary or secondary
 if worklist[0][3] == 'p':
     prim_sec = 'PRIM'
@@ -86,7 +89,6 @@ shortened_name = ' '.join(
     f"{prefix}{''.join(suffixes)}" if suffixes else prefix
     for prefix, suffixes in grouped_receptors.items()
 )
-
 worklist_name = formatted_date + ' ' + shortened_name + ' ' + prim_sec
 
 
