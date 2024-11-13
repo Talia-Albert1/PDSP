@@ -31,7 +31,7 @@ worklist_file_dir = utils.select_file_from_input_dir(input_dir)
 worklist = utils.read_csv_file(worklist_file_dir, remove_header = True)
 
 # Create sorted worklist by second column
-sorted_worklist = sorted(worklist, key=lambda x: x[1])
+worklist_sorted = sorted(worklist, key=lambda x: x[1])
 
 # Determine if it is primary or secondary
 if worklist[0][3] == 'p':
