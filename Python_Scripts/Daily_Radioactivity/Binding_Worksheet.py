@@ -21,7 +21,7 @@ import math
 print('Modules Loaded')
 """ Create text files and fill them in, only progress script later"""
 
-radioactive_disposal_name = "Talia"
+radioactive_disposal_name = "Paloma"
 
 
 # Get current directory
