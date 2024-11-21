@@ -69,10 +69,11 @@ unique_receptors = sorted(list(set(unique_receptors_woNum)))
 """ Create name of worklist """
 # Step 1: Group receptors by prefix
 grouped_receptors = {}
-for receptor in unique_receptors:
+for receptor in receptors:
     # Split at the first digit to find the prefix
     for i, char in enumerate(receptor):
         if char.isdigit():
+            # Treat everything before the first digit as the prefix
             prefix = receptor[:i]
             suffix = receptor[i:]
             if prefix in grouped_receptors:
