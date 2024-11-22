@@ -112,7 +112,7 @@ if upper_bound > 96:
     
 elif upper_bound <= 96:
     worklist_barcode_dir = os.path.join(output_dir, worklist_name + ' barcode.csv')
-    utils.write_list_to_csv(worklist_barcode_dir, unique_compounds[0:upper_bound])
+    utils.write_list_to_csv(worklist_barcode_dir, unique_compounds)
     shutil.copy(worklist_file_dir, archive_dir)
     utils.move_and_rename_file(worklist_file_dir, output_dir, worklist_name + '.csv')
 
