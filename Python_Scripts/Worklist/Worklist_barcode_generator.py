@@ -4,6 +4,7 @@ import datetime
 import os
 import logging
 import sys
+import openpyxl
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 sys.path.insert(0, parent_dir)
@@ -93,6 +94,7 @@ shortened_name = ' '.join(
 worklist_name = formatted_date + ' ' + shortened_name + ' ' + prim_sec
 
 
+
 """ Create csv files of unique compounds """
 # move files from output into archive
 utils.move_dir_files(output_dir, archive_dir)
@@ -117,3 +119,44 @@ elif upper_bound <= 96:
     utils.move_and_rename_file(worklist_file_dir, output_dir, worklist_name + '.csv')
 
 
+
+""" Open Excel sheet to copy onto worklist """
+google_sheet_dir = os.path.join(output_dir, worklist_name + '_google_sheet.xlsx')
+wb = openpyxl.Workbook()
+ws = wb.active
+
+# Add color to PRIM/SEC column
+yellow_hex_code = 'FDFF31'
+green_hex_code = '6CA953'
+if prim_sec == 'PRIM':
+    fillable_color = green_hex_code
+elif prim_sec == 'SEC':
+    fillable_color = yellow_hex_code
+else:
+    fillable_color = '000000'
+
+fill_color = openpyxl.styles.PatternFill(start_color=fillable_color,  # Hex color code for yellow
+                         end_color=fillable_color,
+                         fill_type="solid")
+
+# Add arial font
+arial_font = openpyxl.styles.Font(name="Arial", size=10, bold=False, italic=False)
+
+# Add worklist name
+ws.cell(1,1, worklist_name)
+ws.cell(1,1).font = arial_font
+
+# Populate PRIM/SEC and Plate columns
+for index, plate in enumerate(unique_receptors_wNum):
+    position = index + 1
+    ws.cell(position, 2, prim_sec)
+    ws.cell(position, 2).font = arial_font
+    ws.cell(position, 2).fill = fill_color
+    ws.cell(position, 3, plate)
+    ws.cell(position, 3).font = arial_font
+
+# Save excel sheet
+wb.save(google_sheet_dir)
+
+# Open excel sheet
+utils.open_file(google_sheet_dir)

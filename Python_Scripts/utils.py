@@ -300,15 +300,20 @@ def unique_column_in_list(data, column_index):
     if column_index < 0 or column_index >= len(data[0]):
         raise ValueError("Invalid column index.")
 
-    # Initialize a set to store unique entries
-    unique_entries = set()
+    # Initialize a set to track seen values and a list to maintain order
+    seen = set()
+    unique_entries = []
 
-    # Loop through each row and add the specified column entry to the set
+    # Loop through each row and process the specified column entry
     for row in data:
-        unique_entries.add(row[column_index])
+        value = row[column_index]
+        if value not in seen:
+            seen.add(value)
+            unique_entries.append(value)
 
-    # Convert the set to a list and return it
-    return list(unique_entries)
+    # Return the ordered list of unique entries
+    return unique_entries
+
 
 def write_list_to_csv(file_path, data_list):
     # Open the file in write mode
