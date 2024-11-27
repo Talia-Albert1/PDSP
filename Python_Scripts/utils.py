@@ -206,13 +206,35 @@ def intial_files(data_files_dir, current_dir, inital_name, final_name):
     copy_and_rename(source_dir, destination_dir)
 
 # Gray switch file creation
-def create_gray_switch(data_files_dir):
-    gray_switch_dir = os.path.join(data_files_dir, 'Gray_Switch.txt')
-    if not os.path.isfile(gray_switch_dir):
-        with open(gray_switch_dir, 'w') as text_file:
-            text_file.write('1')
-            logging.info(f"Gray_Switch.txt created at {data_files_dir}")
-    return gray_switch_dir
+def create_file(directory, file_name):
+    """
+    Create an empty file in the specified directory if it does not exist.
+    
+    Args:
+        directory (str): The directory where the file should be created.
+        file_name (str): The name of the file to create.
+    
+    Returns:
+        str: The full path of the created or existing file.
+    """
+    # Ensure the directory exists
+    os.makedirs(directory, exist_ok=True)
+    
+    file_path = os.path.join(directory, file_name)
+    
+    try:
+        if not os.path.isfile(file_path):
+            # Create the file if it doesn't exist
+            with open(file_path, 'w') as file:
+                pass
+            logging.info(f"File '{file_name}' created at '{file_path}'")
+        else:
+            logging.info(f"File '{file_name}' already exists at '{file_path}'")
+    except Exception as e:
+        logging.error(f"Error creating file '{file_name}' in '{directory}': {e}")
+        raise
+    
+    return file_path
 
 # Create Barcodes.txt or worklist.txt
 def create_inital_txtfile(input_dir, txt_name):
