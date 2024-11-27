@@ -237,10 +237,9 @@ def create_file(directory, file_name):
     return file_path
 
 # Create Barcodes.txt or worklist.txt
-def create_inital_txtfile(input_dir, txt_name):
-    text_file_dir = os.path.join(input_dir, txt_name + '.txt')
+def create_inital_txtfile(text_file_dir):
     if os.path.exists(text_file_dir):
-        logging.info(f'{txt_name} text file already exists')
+        logging.info('text file already exists')
     else:
         with open(text_file_dir, 'w') as file:
             file.write('')

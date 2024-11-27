@@ -30,7 +30,7 @@ current_dir, archive_dir, data_files_dir, input_dir = utils.setup_dir(create_out
 formatted_date = datetime.date.today().strftime('%Y%m%d')
 
 # Setup logging functionality
-log_file_name = formatted_date + '_3H_bind_log.log'
+log_file_name = f'{formatted_date}_3H_bind_log.log'
 utils.setup_logging(archive_dir, log_filename=log_file_name)
 
 # Create gray_switch.txt on the first run of the script
@@ -61,13 +61,8 @@ utils.copy_and_rename(waste_source_dir, waste_destination_dir)
 logging.info('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
 
 # Create and open the Barcodes.txt file, unless it already exists
-barcodes_filename = os.path.join(input_dir, f'{formatted_date}_Barcodes.txt')
-if os.path.exists(barcodes_filename):
-    logging.info('Barcode text file already exists')
-else:
-    with open(barcodes_filename, 'w') as barcodes_file:
-        barcodes_file.write('')
-    utils.open_file(barcodes_filename)
+barcodes_file_dir = os.path.join(input_dir, f'{formatted_date}_Barcodes.txt')
+utils.create_inital_txtfile(barcodes_file_dir)
 
 # Create and open the Worklist.txt file, unless it already exists
 worklist_filename = os.path.join(input_dir, f'{formatted_date}_Worklist.txt')
@@ -111,7 +106,7 @@ with open(worklist_filename, 'r') as text_file:
 logging.info('Worklist Loaded')
 
 # Read barcodes text file
-with open(barcodes_filename, 'r') as text_file:
+with open(barcodes_file_dir, 'r') as text_file:
     # Initialize an empty list to store the table data
     barcodes = []
     
@@ -575,7 +570,7 @@ logging.info('Binding printout generated :' + binding_output_path)
 Move input files to archive
 """
 # Move Barcode to archive
-shutil.move(barcodes_filename, archive_dir)
+shutil.move(barcodes_file_dir, archive_dir)
 logging.info('Barcode file moved to archive')
 
 # Move Worklist to archive
