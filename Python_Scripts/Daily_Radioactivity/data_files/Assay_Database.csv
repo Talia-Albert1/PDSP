@@ -61,4 +61,4 @@ V1A,3H-Vasopressin,2,1,1,Vasopressin,TC-OT-39,
 V1B,3H-Vasopressin,1.5,1,1,Vasopressin,TASP0390325,
 V2,3H-Vasopressin,2,1,1,Vasopressin,Conivaptan,
 XP_MCHR1,3H-SNAP84947,5,1,1,MCHR1,refrence,For XP 1ug/well
-XP_MOR,3H-Naloxone,5,0.25,0.25,Standard,morphine,Special assay conditions for XP research
+XP_MOR,3H-Naloxone,2,0.6,0.6,Standard,morphine,Special assay conditions for XP research
