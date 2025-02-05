@@ -48,7 +48,7 @@ M4D,3H-QNB,2,1,1,Muscarinic,Atropine,
 M5,3H-QNB,1,0.5,0.5,Muscarinic,Atropine,
 M5D,3H-QNB,2,1,1,Muscarinic,Atropine,
 MOR,3H-DAMGO,2,0.5,0.5,Standard,morphine,
-NET,3H-Nisoxetine,2,1,1,Transporter,Desipramine,
+NET,3H-Nisoxetine,2,0.5,0.5,Transporter,Desipramine,
 NMDA,3H-MK-801,3.5,1,1,NMDA,MK-801 hydrogen maleate,Rat P5 Pellet & Glycine+Glutamate@100uM in pellet binding buffer
 NOP,3H-Nociceptin,1,1,1,Standard,SB612111,
 NR2B,3H-Ifenprodil,6,1,1,NMDA,Ifenprodil,
