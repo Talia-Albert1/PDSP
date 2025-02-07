@@ -16,7 +16,7 @@ A2A,3H-ZM241385,4,1,1,Adenosine,ZM241385,
 AT2,3H-Ang II,4,4,4,Standard,PD123319,
 Alpha1A,3H-Prazosin,1,0.25,0.25,Alpha1,Prazosin HCL,Cut back on pellet/plate when more than 9 plates. SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha1B,3H-Prazosin,1,0.5,0.5,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
-Alpha1D,3H-Prazosin,1,2,2,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
+Alpha1D,3H-Prazosin,1,0.67,0.67,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha2A,3H-Rauwolscine,1.5,0.25,0.25,Alpha2,Oxymetazoline hydrochloride,Cut back on pellet/plate by 30% when more than 9 plates
 Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
 Alpha2C,3H-Rauwolscine,0.9,3,3,Alpha2,Oxymetazoline hydrochloride,
@@ -24,7 +24,7 @@ Beta1,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
 Beta2,3H-CGP12177,1,0.5,0.5,Beta,alprenolol HCl,
 BZP,3H-Flunitrazepam,2,1.5,1.5,BZP,clonazepam,Rat P2 pellet
 Ca channel human,3H-Nitrendipine,4.5,1,1,Ca channel BB,Nifedipine,CaV 1.2 pellet & Reference is light sensitive
-D1,3H-SCH23390,2,1,1,Dopamine,(+)-Butaclamol,
+D1,3H-SCH23390,2,0.5,0.5,Dopamine,(+)-Butaclamol,
 D2,3H-Methylspiperone,1.5,1,1,Dopamine,Haloperidol,
 D3,3H-Methylspiperone,1.5,1,1,Dopamine,Nemonapride,
 D4,3H-Methylspiperone,1.5,1,1,Dopamine,Nemonapride,
