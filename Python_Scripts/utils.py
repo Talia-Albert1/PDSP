@@ -62,7 +62,7 @@ def setup_dir(create_output_dir='y', create_data_files_dir='y'):
         return current_dir, archive_dir, input_dir
 
 # Select a file from input
-def select_file_from_input_dir(input_dir, return_filename=False):
+def select_file_from_input_dir(input_dir, message, return_filename=False):
     # Get a list of files in the input directory
     try:
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
@@ -81,14 +81,14 @@ def select_file_from_input_dir(input_dir, return_filename=False):
         selected_file = files[0]
     else:
         # If there are multiple files, display them and prompt the user to select one
-        logging.info("Select a file from the list:")
+        logging.info(f"{message}")
         for i, file_name in enumerate(files):
             logging.info(f"{i + 1}: {file_name}")
         
         # Get the user's selection
         while True:
             try:
-                choice = int(input(f"Enter a number (1-{len(files)}): "))
+                choice = int(input(f"'{message}' (1-{len(files)}): "))
                 if 1 <= choice <= len(files):
                     selected_file = files[choice - 1]
                     break
