@@ -20,7 +20,8 @@ formatted_date = datetime.date.today().strftime('%Y%m%d')
 utils.setup_logging(archive_dir,log_filename=formatted_date + '_log.log')
 
 # Get the scanner's csv file directory
-scannercsv_file_dir, scannercsv_file_name = utils.select_file_from_input_dir(input_dir,return_filename=True)
+message = "Select the scanner's \"'csv\" file"
+scannercsv_file_dir, scannercsv_file_name = utils.select_file_from_input_dir(input_dir, message, return_filename=True)
 
 # Import the CSV into python (without header)
 # Structure is DateScanned,Time,Column,Row,CompoundNumber
