@@ -25,7 +25,8 @@ else:
 utils.setup_logging(archive_dir,log_filename=formatted_date + '_log.log')
 
 # Get the worklist.csv file directory
-worklist_file_dir = utils.select_file_from_input_dir(input_dir)
+message = "Please select the worklist file: "
+worklist_file_dir = utils.select_file_from_input_dir(input_dir, message)
 
 # Import the CSV into python (without header)
 # Structure is Compound_Number,Receptor,Reference,Assay,PDSP_Number

@@ -58,20 +58,26 @@ for i in  range(verso_num_files):
 
 
 
+
 # Select Worklist file
 worklist_num_files = int(input("Enter the number of Worklist files: "))
-worklist_data_frames = []
+worklist_df = []
 for i in range(worklist_num_files):
     worklist_message = "Select the worklist associated with this plate map file (should end in \".csv\")"
     worklist_file = utils.select_file_from_input_dir(input_dir, message = worklist_message)
     try:
         # Read the file as a DataFrame
         df = pd.read_csv(worklist_file, sep=',')
-        worklist_data_frames.append(df)
+        worklist_df.append(df)
     except Exception as e:
         print(f"Error reading file {i + 1}: {e}")
 
+# Convert Barcode "CMPD" to string
+for i in  range(verso_num_files):
+    worklist_df[i]['CMPD'] = worklist_df[i]['CMPD'].astype(str)  # Convert int to string
+    worklist_df[i] = worklist_df[i][worklist_df[i]['CMPD'] != '-1']
 
+unique_receptors = worklist_df[0]['Rec'].unique()
 
 
 
