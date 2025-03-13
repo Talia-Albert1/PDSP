@@ -77,9 +77,20 @@ for i in  range(verso_num_files):
     worklist_df[i]['CMPD'] = worklist_df[i]['CMPD'].astype(str)  # Convert int to string
     worklist_df[i] = worklist_df[i][worklist_df[i]['CMPD'] != '-1']
 
-unique_receptors = worklist_df[0]['Rec'].unique()
+
+# Receptor Mapping
+# Extract unique CMPD-Ref pairs (keeping 'Ref' if any row has it for a CMPD)
+ref_map = worklist_df[0].groupby('CMPD').agg({'Ref': 'first', 'PDSP': 'first'}).reset_index()
 
 
+# Create a pivot table to reshape the data (binary receptor presence)
+df_pivot = worklist_df[0].pivot_table(index='CMPD', columns='Rec', values= 'PDSP',aggfunc=lambda x: 1, fill_value=0)
+df_pivot.reset_index(inplace=True)
+
+# Merge with Ref column to retain that information
+df_final = ref_map.merge(df_pivot, on='CMPD', how='left')
+
+merged_df = verso_plate_map_df[0].merge(df_final, left_on='Barcode', right_on='CMPD', how='left').drop(columns=['CMPD'])
 
 
 
@@ -93,6 +104,7 @@ for row in plate_rows:
         well_number += 1
         well_id = str(row) + str(column)
         row_column_list.append([well_id, well_number])
+
 
 
 # https://stackoverflow.com/questions/15370432/writing-multi-line-strings-into-cells-using-openpyxl
