@@ -22,7 +22,7 @@ Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
 Alpha2C,3H-Rauwolscine,0.9,3,3,Alpha2,Oxymetazoline hydrochloride,
 Beta1,3H-CGP12177,1,1,1,Beta,alprenolol HCl,
 Beta2,3H-CGP12177,1,0.5,0.5,Beta,alprenolol HCl,
-BZP,3H-Flunitrazepam,2,1.5,1.5,BZP,clonazepam,Rat P2 pellet
+BZP,3H-Flunitrazepam,4,1.5,1.5,BZP,clonazepam,Rat P2 pellet
 Ca channel human,3H-Nitrendipine,4.5,1,1,Ca channel BB,Nifedipine,CaV 1.2 pellet & Reference is light sensitive
 D1,3H-SCH23390,2,0.5,0.5,Dopamine,(+)-Butaclamol,
 D2,3H-Methylspiperone,1.5,1,1,Dopamine,Haloperidol,
@@ -53,7 +53,7 @@ NMDA,3H-MK-801,3.5,1,1,NMDA,MK-801 hydrogen maleate,Rat P5 Pellet & Glycine+Glut
 NOP,3H-Nociceptin,1,1,1,Standard,SB612111,
 NR2B,3H-Ifenprodil,6,1,1,NMDA,Ifenprodil,
 OT,3H-Oxytocin,2,2,2,Oxytocin,Cligosiban,
-PBR,3H-PK11195,1,1,1,BZP,"Ro5-4864 / 4'-Chlorodiazepam	",Rat P2 Pellet
+PBR,3H-PK11195,2,1,1,BZP,"Ro5-4864 / 4'-Chlorodiazepam	",Rat P2 Pellet
 SERT,3H-Citalopram,2,0.5,0.67,Transporter,Amitriptyline,
 Sigma 1,3H-Pentazocine,5,0.66,0.66,Sigma,Haloperidol,
 Sigma 2,3H-DTG,5,0.5,0.5,Sigma,Haloperidol,
