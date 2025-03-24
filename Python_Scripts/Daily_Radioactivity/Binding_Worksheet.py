@@ -229,11 +229,11 @@ for receptor in receptors:
     if receptor['Binding Type'].lower() == 'prim':
         receptor.update({'Buffer Volume (mL)':float(5)})
         receptor.update({'Number of Plate(s)':float(1)})
-        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['PRIM Pellet/Plate Ratio'] * 4) / 4})
+        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['PRIM Pellet/Plate Ratio'] * 8) / 8})
     elif receptor['Binding Type'].lower() == 'sec':
         receptor.update({'Buffer Volume (mL)':float(15)})
         receptor.update({'Number of Plate(s)':float(3)})
-        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['SEC Pellet/Plate Ratio'] * 4) / 4})
+        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['SEC Pellet/Plate Ratio'] * 8) / 8})
     logging.info(receptor['Receptor'] + ' buffer volume, number of plates, and number of pellets calculated.')
 
 

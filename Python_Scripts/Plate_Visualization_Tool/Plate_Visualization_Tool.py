@@ -25,92 +25,59 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 sys.path.insert(0, parent_dir)
 import utils
 
-"""
 # Get directories
-current_dir, archive_dir, data_files_dir, input_dir, output_dir = utils.setup_dir(create_output_dir = 'y')
+current_dir, archive_dir, data_files_dir, input_dir, output_dir = utils.setup_dir(create_output_dir = "y")
 
-# Format the date as 'YYYY-MM-DD'
-formatted_date = datetime.date.today().strftime('%Y%m%d')
+# Format the date as 'YYYYMMDD'
+formatted_date = datetime.date.today().strftime("%Y%m%d")
 
 # Setup logging functionality
-log_file_name = f'{formatted_date}_Plate_Visualization_Tool_log.log'
+log_file_name = f"{formatted_date}_Plate_Visualization_Tool_log.log"
 utils.setup_logging(archive_dir, log_filename=log_file_name)
 
 
 # Select Verso Plate Map
 verso_num_files = int(input("Enter the number of Verso Plate Map files: "))
-verso_plate_map_df = pd.DataFrame()  # Initialize an empty DataFrame
+verso_file_path_list = []
 
 for i in range(verso_num_files):
     verso_message = f"Select the {i + 1} Plate Map file from the Verso (should end in \".txt\")"
     verso_plate_map_dir = utils.select_file_from_input_dir(input_dir, message=verso_message)
-    verso_plate_map_file_name = os.path.basename(verso_plate_map_dir)
-
-    try:
-        # Read the file and add a 'Source' column
-        df = pd.read_csv(verso_plate_map_dir, sep='\t')
-        df['Verso_Source_File'] = verso_plate_map_file_name
-        
-        # Append data directly to the main DataFrame
-        verso_plate_map_df = pd.concat([verso_plate_map_df, df], ignore_index=True)
-    except Exception as e:
-        print(f"Error reading file {i + 1}: {e}")
+    verso_file_path_list.append(verso_plate_map_dir)
 
 
-# Convert Barcode as Float64 to strings without a ".0", and convert column to string
-verso_plate_map_df['Barcode'] = verso_plate_map_df['Barcode'].fillna(-1).astype('Int64').astype(str)  # Convert int to string
-verso_plate_map_df = verso_plate_map_df[verso_plate_map_df['Barcode'] != '-1']
-
-verso_plate_map_df['Column'] = verso_plate_map_df['Column'].astype(str)
-verso_plate_map_df['Well_id'] = verso_plate_map_df['Row'].astype(str) + verso_plate_map_df['Column']
 
 
 
 
 # Select Worklist file
 worklist_num_files = int(input("Enter the number of Worklist files: "))
-worklist_df = pd.DataFrame()  # Initialize an empty DataFrame
+if worklist_num_files != 0 and worklist_num_files != 1:
+    print("This script is designed to work with 0 or 1 worklist file")
+
+worklist_file_path_list = []
 
 for i in range(worklist_num_files):
     worklist_message = "Select the worklist associated with this plate map file (should end in \".csv\")"
-    worklist_file = utils.select_file_from_input_dir(input_dir, message=worklist_message)
-    worklist_file_name = os.path.basename(worklist_file)  # Extract the filename
-
-    try:
-        # Read the file as a DataFrame and add a 'Source' column
-        df = pd.read_csv(worklist_file, sep=',')
-        df['Worklist_Source_File'] = worklist_file_name  # Add file source column
-
-        # Append to the main DataFrame
-        worklist_df = pd.concat([worklist_df, df], ignore_index=True)
-    except Exception as e:
-        print(f"Error reading file {i + 1}: {e}")
-"""
+    worklist_file_dir = utils.select_file_from_input_dir(input_dir, message=worklist_message)
+    worklist_file_path_list.append(worklist_file_dir)  # Extract the filename
 
 
-# File paths
-map_template_path = ""
-
-worklist_file_path = ""
-verso_file_path = ""
 
 verso_file_name = os.path.basename(verso_file_path)
 worklist_file_name = os.path.basename(worklist_file_path)
 
-# Load the verso file (20250221 PRIM 1.txt)
-verso_df = pd.read_csv(verso_file_path, sep="\t")
-# Sort by row and then column, to ensure it is A1, A2, ..., H11, H12
-verso_df = verso_df.sort_values(by=['Row', 'Column'], ascending=[True, True])
 
-"""
-# I think we actually want to keep empty barcode entries, so ignoring for now
-# verso_df = verso_df.dropna(subset=['Barcode'])
-"""
-verso_df['Barcode'] = verso_df['Barcode'].fillna(-1).astype('Int64').astype(str)  # Convert int to string
-"""
-# I think we want to ignore this too
-verso_df = verso_df[verso_df['Barcode'] != '-1']
-"""
+
+# Load the verso file
+verso_df = pd.read_csv(verso_file_path, sep="\t")
+
+# Sort by row and then column, to ensure it is A1, A2, ..., H11, H12
+verso_df = verso_df.sort_values(by=["Row", "Column"], ascending=[True, True])
+
+# Convert int to string
+verso_df["Barcode"] = verso_df["Barcode"].fillna(-1).astype('Int64').astype(str)
+
 row_mapping = {'A': 1, 'B': 3, 'C': 5, 'D': 7, 'E': 9, 'F': 11, 'G': 13, 'H': 15}
 excel_row_offset = 3
 excel_column_offset = 1
@@ -120,7 +87,7 @@ verso_df['Excel_Column'] = verso_df['Column'] + excel_column_offset
 
 
 
-# Load the worklist mapping file (2025-02-24 5-HT6 5-HT7A M4 PRIM.csv)
+# Load the worklist mapping file
 worklist_df = pd.read_csv(worklist_file_path)
 worklist_df["CMPD"] = worklist_df["CMPD"].astype(str)
 
