@@ -2,13 +2,13 @@
 /Python_Scripts/**/input
 /Python_Scripts/**/output
 
-/Python_Scripts/Daily_Radioactivity/data_files/Gray_Switch.txt
-/Python_Scripts/Daily_Radioactivity/Radioactivity_Archive_tester.xlsx
-/Python_Scripts/Daily_Radioactivity/Radioactivity_Archive.xlsx
-/Python_Scripts/Daily_Radioactivity/~$Radioactivity_Archive.xlsx
+/Python_Scripts/3H_Binding/data_files/Gray_Switch.txt
+/Python_Scripts/3H_Binding/Radioactivity_Archive_tester.xlsx
+/Python_Scripts/3H_Binding/Radioactivity_Archive.xlsx
+/Python_Scripts/3H_Binding/~$Radioactivity_Archive.xlsx
+/Python_Scripts/3H_Binding/data_files/rad_waste_name.txt
+/Python_Scripts/3H_Binding/Radioactive_Disposal_log.xlsx
 
-/Python_Scripts/Daily_Radioactivity/Radioactivity_Archive.xlsx
-/Python_Scripts/Daily_Radioactivity/Radioactive_Disposal_log.xlsx
 .DS_Store
 
 /Procedures/**/*.aux
@@ -25,4 +25,5 @@
 
 /Python_Scripts/__pycache__
 
-Python_Scripts/Daily_Radioactivity/data_files/rad_waste_name.txt
+
+
