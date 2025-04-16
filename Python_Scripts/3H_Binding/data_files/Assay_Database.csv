@@ -19,7 +19,7 @@ Alpha1B,3H-Prazosin,1,0.5,0.5,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin H
 Alpha1D,3H-Prazosin,1,1.67,1.67,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha2A,3H-Rauwolscine,1.5,0.125,0.125,Alpha2,Oxymetazoline hydrochloride,Cut back on pellet/plate by 30% when more than 9 plates
 Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
-Alpha2C,3H-Rauwolscine,0.9,3,3,Alpha2,Oxymetazoline hydrochloride,
+Alpha2C,3H-Rauwolscine,0.9,1,1,Alpha2,Oxymetazoline hydrochloride,
 Beta1,3H-CGP12177,1,0.33,0.33,Beta,alprenolol HCl,
 Beta2,3H-CGP12177,1,0.5,0.5,Beta,alprenolol HCl,
 BZP,3H-Flunitrazepam,4,1.5,1.5,BZP,clonazepam,Rat P2 pellet
