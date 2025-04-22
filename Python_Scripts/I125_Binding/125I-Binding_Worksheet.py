@@ -4,101 +4,74 @@ Created on Tue Sep  5 14:43:49 2023
 
 @author: TaliaAlbert
 """
+import os
+import sys
+import datetime
+import logging
+import shutil
 
 import openpyxl
-import math
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
 from openpyxl.formatting.rule import FormulaRule
-import shutil
-import datetime
-import os
 import csv
-import sys
+
+import math
 import time
 
-print('Modules Loaded')
-""" Create text files and fill them in, only progress script later"""
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+sys.path.insert(0, parent_dir)
+import utils
 
-radioactive_disposal_name = "Paloma"
 
+# Get directories
+current_dir, archive_dir, data_files_dir, input_dir = utils.setup_dir(create_output_dir = 'n')
 
-# Get current directory
-currentdir = os.getcwd() + '\\'
-inputdir = currentdir + 'input\\'
-data_filesdir = currentdir + 'data_files\\'
-archivedir = currentdir + 'archive\\'
-
-# Format the date as 'YYYYMMDD'
+# Format the date as 'YYYY-MM-DD'
 formatted_date = datetime.date.today().strftime('%Y%m%d')
 
+# Setup logging functionality
+log_file_name = f'{formatted_date}_125I_bind_log.log'
+utils.setup_logging(archive_dir, log_filename=log_file_name)
 
-log_file_path = archivedir + formatted_date + '_log.txt'
-def create_directory(directory_path):
-    if not os.path.exists(directory_path):
-        try:
-            os.makedirs(directory_path)
-            print(f"Directory '{directory_path}' created.")
-        except OSError as e:
-            print(f"Error creating directory '{directory_path}': {e}")
+# Create gray_switch.txt on the first run of the script
+gray_switch_dir = utils.create_file(data_files_dir, 'gray_switch.txt')
+with open(gray_switch_dir, 'r+') as file:
+    # Read content and remove any extra whitespace
+    content = file.read().strip()
+    if not content:  # If the file is blank
+        file.write('1')  # Write '1' to the file
+        file.flush()  # Ensure the data is written
+        logging.info('Initialized file with 1')
 
-def log_write(message):
-    # Get the current date and time
-    current_datetime = datetime.datetime.now()
-
-    # Format the date and time as a string
-    timestamp = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
-
-    # Create the log message with timestamp
-    log_message = f'{timestamp} - {message}'
-
-    # Print the log message to the console
-    print(log_message)
-
-    # Append the log message to the "log.txt" file
-    with open(log_file_path, 'a') as log_file:
-        log_file.write(log_message + '\n')
-
-def copy_and_rename(source_path, destination_path):
-    if not os.path.exists(destination_path):
-        shutil.copy(source_path, destination_path)
-        log_write(f"File created at {destination_path}")
-
-# Create directories if they do not exist
-create_directory(inputdir)
-create_directory(archivedir)
+# Get/create radioactive_waste_name txt file directory
+rad_waste_name_dir = utils.create_file(data_files_dir, 'rad_waste_name.txt')
+with open(rad_waste_name_dir, 'r') as file:
+    rad_waste_name = file.read().strip()
 
 # Create Archive/disposal sheets if they do not exist
-archive_source_dir = data_filesdir + '125I-Radioactivity_Archive_blank.xlsx'
-archive_destination_dir = currentdir + '125I-Radioactivity_Archive.xlsx'
-copy_and_rename(archive_source_dir, archive_destination_dir)
+archive_source_dir = os.path.join(data_files_dir, '125I-Radioactivity_Archive_blank.xlsx')
+archive_destination_dir = os.path.join(current_dir, '125I-Radioactivity_Archive.xlsx')
+utils.copy_and_rename(archive_source_dir, archive_destination_dir)
 
-waste_source_dir = data_filesdir + '125I-Radioactive_Disposal_log_blank.xlsx'
-waste_destination_dir = currentdir + '125I-Radioactive_Disposal_log.xlsx'
-copy_and_rename(waste_source_dir, waste_destination_dir)
-
-log_write('I125 Binding')
-log_write('Modules Loaded')
+waste_source_dir = os.path.join(data_files_dir, '125I-Radioactive_Disposal_log_blank.xlsx')
+waste_destination_dir = os.path.join(current_dir, '125I-Radioactive_Disposal_log.xlsx')
+utils.copy_and_rename(waste_source_dir, waste_destination_dir)
 
 # Tell user to close and save Radioactivity Archive xlsx sheet if it is open
-log_write('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
+logging.info('Don\'t forget to close (& save) the Radioactivity Archive Sheet before proceeding')
+
+# Create and open the Barcodes.txt file, unless it already exists
+barcodes_file_dir = os.path.join(input_dir, '125I_' + f'{formatted_date}_Barcodes.txt')
+utils.create_inital_txtfile(barcodes_file_dir)
 
 # Create and open the Worklist.txt file, unless it already exists
-worklist_filename = inputdir + '125I_' + f'{formatted_date}_Worklist.txt'
+worklist_filename = os.path.join(input_dir, '125I_' + f'{formatted_date}_Worklist.txt')
 if os.path.exists(worklist_filename):
-    log_write('Worklist text file already exists')
+    logging.info('Worklist text file already exists')
 else:
     with open(worklist_filename, 'w') as worklist_file:
         worklist_file.write('')
-    os.startfile(worklist_filename)
-
-# Create and open the Barcodes.txt file, unless it already exists
-barcodes_filename = inputdir + '125I_' + f'{formatted_date}_Barcodes.txt'
-if os.path.exists(barcodes_filename):
-    log_write('Barcode text file already exists')
-else:
-    with open(barcodes_filename, 'w') as barcodes_file:
-        barcodes_file.write('')
-    os.startfile(barcodes_filename)
+    utils.open_file(worklist_filename)
 
 
 
@@ -129,11 +102,11 @@ with open(worklist_filename, 'r') as text_file:
         
         # Append the columns to the table_data list
         worklist_receptors.append(columns)
-        log_write(columns)
-log_write('Worklist Loaded')
+        logging.info(columns)
+logging.info('Worklist Loaded')
 
 # Read barcodes text file
-with open(barcodes_filename, 'r') as text_file:
+with open(barcodes_file_dir, 'r') as text_file:
     # Initialize an empty list to store the table data
     barcodes = []
     
@@ -141,8 +114,12 @@ with open(barcodes_filename, 'r') as text_file:
     for line in text_file:
         columns = line.strip()
         barcodes.append(columns)
-        log_write(columns)
-log_write('Barcode Loaded')
+        logging.info(columns)
+logging.info('Barcode Loaded')
+
+# Remove blank lines
+barcodes = list(filter(None, barcodes))
+worklist_receptors = list(filter(lambda x: x != [''], worklist_receptors))
 
 # Check that number of barcodes matches what we expect
 PRIM_count = 0
@@ -155,33 +132,33 @@ for entry in worklist_receptors:
 
 total_plates = PRIM_count + 3*SEC_count
 
-log_write('There are ' + str(total_plates) + ' plates today!')
+logging.info('There are ' + str(total_plates) + ' plates today!')
 if total_plates != len(barcodes):
     if total_plates < len(barcodes):
-        log_write('More barcodes than plates were entered')
+        logging.info('More barcodes than plates were entered')
     elif total_plates > len(barcodes):
-        log_write('Too few barcodes entered')
+        logging.info('Too few barcodes entered')
     
     time.sleep(15)
     sys.exit(1)
    
 # Read 125I-Ligand Database
-Ligand_DB_path = data_filesdir + '125I-Ligand_Database.csv'
+Ligand_DB_path = os.path.join(data_files_dir, '125I-Ligand_Database.csv')
 with open(Ligand_DB_path, 'r') as csvfile:
     Ligand_DB = []
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         Ligand_DB.append(row)
-log_write('125I-Ligand Database loaded: ' + Ligand_DB_path)
+logging.info('125I-Ligand Database loaded: ' + Ligand_DB_path)
 
 # Read Assay Database
-Assay_DB_path = data_filesdir + '125I-Assay_Database.csv'
+Assay_DB_path = os.path.join(data_files_dir, '125I-Assay_Database.csv')
 with open(Assay_DB_path, 'r') as csvfile:
     Assay_DB = []
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         Assay_DB.append(row)
-log_write('125I-Assay Database loaded: ' + Assay_DB_path)
+logging.info('Assay Database loaded: ' + Assay_DB_path)
 
 """ 
 Create Dictionary for each Plate
@@ -194,11 +171,19 @@ for entry in worklist_receptors:
     temp_dict = {'Plate Name':entry[1].rstrip(), 'Binding Type':entry[0].rstrip()}
     receptors.append(temp_dict)
 
+# List of elements we want to replace
+elements_remove = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9',
+                   '-10', '-11', '-12', '-13', '-14', '-15', 'Rat', 'Brain',
+                   'Site', 'rat', 'brain', 'site']
+
 # Elucidate receptor name
 for receptor in receptors:
-    receptor_basename = receptor['Plate Name'].replace('-0', '').replace('-1', '').replace('-2', '').replace('-3', '').replace('-4', '').replace('-5','').replace('-6','').replace('-7','').replace('-8','').replace('-9','').replace('Rat Brain Site', '').replace('Rat Brain', '').rstrip()
+    receptor_basename = receptor['Plate Name']
+    for element in elements_remove:
+        receptor_basename = receptor_basename.replace(element, '')
+    receptor_basename = receptor_basename.rstrip()
     receptor.update({'Receptor':receptor_basename})
-    log_write(receptor_basename)
+    logging.info(receptor_basename)
 
 
 # Match Assay Information
@@ -206,14 +191,14 @@ for receptor in receptors:
     for assay in Assay_DB:
         if receptor['Receptor'] == assay['Receptor']:
             receptor.update(assay)
-log_write('Assay information matched to Receptors')
+logging.info('Assay information matched to Receptors')
 
 # Match 125I-Ligand Information
 for receptor in receptors:
     for ligand in Ligand_DB:
         if receptor['125I-Ligand'] == ligand['125I-Ligand']:
             receptor.update(ligand)
-log_write('Ligand information matched to receptors')
+logging.info('Ligand information matched to receptors')
 
 # Match Barcodes to plates
 sec_count = 0
@@ -224,17 +209,17 @@ for index, receptor in enumerate(receptors):
         barcode_1 = barcodes[sec_index + 1]
         barcode_2 = barcodes[sec_index + 2]
         receptor.update({'Barcode 0':barcode_0, 'Barcode 1':barcode_1, 'Barcode 2':barcode_2})
-        log_write(receptor['Binding Type'] + ' ' + barcode_0 + ' ' + barcode_1 + ' ' + barcode_2)
+        logging.info(receptor['Binding Type'] + ' ' + barcode_0 + ' ' + barcode_1 + ' ' + barcode_2)
         sec_count += 1
     elif receptor['Binding Type'].lower() == 'prim':
         barcode_0 = barcodes[sec_index]
         barcode_1 = ''
         barcode_2 = ''
         receptor.update({'Barcode 0':barcode_0, 'Barcode 1':barcode_1, 'Barcode 2':barcode_2})
-        log_write(receptor['Binding Type'] + ' ' + barcodes[index])
-log_write('Barcodes matched to receptors')
+        logging.info(receptor['Binding Type'] + ' ' + barcodes[index])
+logging.info('Barcodes matched to receptors')
 
-# Change str's to float's
+# Change str's to float's, add Buffer Vol's
 for receptor in receptors:
     receptor['Assay Conc. (nM)'] = float(receptor['Assay Conc. (nM)'])
     receptor['PRIM Pellet/Plate Ratio'] = float(receptor['PRIM Pellet/Plate Ratio'])
@@ -244,12 +229,12 @@ for receptor in receptors:
     if receptor['Binding Type'].lower() == 'prim':
         receptor.update({'Buffer Volume (mL)':float(5)})
         receptor.update({'Number of Plate(s)':float(1)})
-        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['PRIM Pellet/Plate Ratio'] * 4) / 4})
+        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['PRIM Pellet/Plate Ratio'] * 8) / 8})
     elif receptor['Binding Type'].lower() == 'sec':
         receptor.update({'Buffer Volume (mL)':float(15)})
         receptor.update({'Number of Plate(s)':float(3)})
-        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['SEC Pellet/Plate Ratio'] * 4) / 4})
-
+        receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['SEC Pellet/Plate Ratio'] * 8) / 8})
+    logging.info(receptor['Receptor'] + ' buffer volume, number of plates, and number of pellets calculated.')
 
 # Calculate Decay Factor
 for receptor in receptors:
@@ -259,18 +244,16 @@ for receptor in receptors:
     decay_factor = math.exp((-0.693/60.1)*days_since_cal)
     receptor.update({'Decay Factor':decay_factor})
 
-# Add Buffer Vol's, add Ligand Vol's
+# Calculate ligand vols for record keeping purposes
 for receptor in receptors:
     dilution_factor = 2.5
-    overage_percent = 1.2
+    overage_percent = 1.44
     uCi = receptor['Buffer Volume (mL)'] * receptor['Assay Conc. (nM)'] * receptor['Specific Activity (Ci/mmol)'] * (1/1000) * dilution_factor * overage_percent 
-    ligand_vol = uCi / ( receptor['uCi/uL'] * receptor['Decay Factor'])
+    ligand_vol = uCi / receptor['uCi/uL']
 
     receptor.update({'Ligand Volume (uL)':ligand_vol})
     receptor.update({'uCi':uCi})
-    log_write(receptor['Receptor'] + ' buffer volume, ligdand volume, number of plates, and number of pellets calculated.')
-
-
+    logging.info(receptor['Receptor'] + ' uCi & ligand vol calculated.')
 
 """
 Gather unique receptor information and unique ligand information
@@ -283,7 +266,7 @@ for receptor in receptors:
 receptors_summary = []
 for unique_receptor in unique_receptors_list:
     receptors_summary.append({'Receptor':unique_receptor})
-    log_write(unique_receptor + ' is a unique receptor')
+    logging.info(unique_receptor + ' is a unique receptor')
 
 for unique_receptor in receptors_summary:
     buffer_vol = 0
@@ -311,8 +294,8 @@ for unique_receptor in receptors_summary:
                             '125I-Ligand':ligand,
                             'Assay BB':buffer,
                             'Assay Conc. (nM)':Assay_Conc})
-    log_write(unique_receptor['Receptor'] + ' summary information determined')
-log_write('Unique receptors and summary information determined')
+    logging.info(unique_receptor['Receptor'] + ' summary information determined')
+logging.info('Unique receptors and summary information determined')
 
 # Create unique ligands list
 unique_ligands_list = []
@@ -340,15 +323,15 @@ for ligand in ligands_summary:
                    'uCi':round(uCi_total,2),
                    'Batch Number':batch_number,
                    'Specific Activity (Ci/mmol)':specific_activity})
-    log_write(ligand['125I-Ligand'] + ' summary information determined')
-log_write('Unique ligands and summary information determined')
+    logging.info(ligand['125I-Ligand'] + ' summary information determined')
+logging.info('Unique ligands and summary information determined')
 
 # Calculate radioactive disposal information for log book
 for ligand in ligands_summary:
     mCi = math.ceil(ligand['uCi'])/1000
     if mCi < 0.002:
         mCi = 0.002
-    mCi_dry_waste = math.floor(math.ceil(ligand['uCi'])*0.2)/1000
+    mCi_dry_waste = round(math.ceil(ligand['uCi'])*0.2)/1000
     if mCi_dry_waste < 0.001:
         mCi_dry_waste = 0.001
     mCi_sink_waste = round(mCi - mCi_dry_waste, 3)
@@ -356,17 +339,17 @@ for ligand in ligands_summary:
                    'mCi Dry Waste':mCi_dry_waste,
                    'mCi Sink Waste':mCi_sink_waste})
 
+
 """
 Write data to Archive excel sheet
 """
-archive_sheet_path = currentdir + '125I-Radioactivity_Archive.xlsx'
-gray_switch_path = data_filesdir + 'Gray_Switch.txt'
+archive_sheet_path = os.path.join(current_dir, '125I-Radioactivity_Archive.xlsx')
 sheet_date = datetime.date.today().strftime('%m/%d/%Y')
 wb = openpyxl.load_workbook(archive_sheet_path)
 ws = wb['Sheet1']
 
-log_write('Radioactivity Archive Sheet opened: ' + archive_sheet_path)
-with open(gray_switch_path, 'r') as text_file:
+logging.info('Radioactivity Archive Sheet opened: ' + archive_sheet_path)
+with open(gray_switch_dir, 'r') as text_file:
     for line in text_file:
         gray_switch = line.strip()
 
@@ -382,7 +365,7 @@ columns = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
     'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD',
-    'AE', 'AF', 'AG', 'AH', 'AI', 'AJ'
+    'AE', 'AF', 'AG', 'AH'
 ]
 
 last_row = ws.max_row
@@ -448,7 +431,7 @@ for index, receptor in enumerate(receptors):
 
         # Add formula to automatically calculate postion in plate counter
         if column == 'E' and index == 0:
-            current_cell.value = 1
+            current_cell.value = 4
         
         elif column == 'E':
             formula = '=IF(A' + str(row_index - 1) + '="SEC", K' + str(row_index - 1) + ' + 1, E' + str(row_index - 1) + ' + 1)'
@@ -493,20 +476,20 @@ for index, receptor in enumerate(receptors):
                 formula = '=P' + str(row_index - 1)
                 current_cell.value = formula
 
-    log_write(receptor['Plate Name'] + ' written to Radioactivity Archive Sheet')
-log_write('Radioactivity Archive Sheet written to')
+    logging.info(receptor['Plate Name'] + ' written to Radioactivity Archive Sheet')
+logging.info('Radioactivity Archive Sheet written to')
 
 wb.save(archive_sheet_path)
-log_write('Radicoactivity Archive Sheet saved')
+logging.info('Radicoactivity Archive Sheet saved')
 
-with open(gray_switch_path, 'w') as text_file:
+with open(gray_switch_dir, 'w') as text_file:
     text_file.write(gray_switch)
 
 
 """
 Write data to montly sink disposal sheet
 """
-radioactive_disposal_log_path = '125I-Radioactive_Disposal_log.xlsx'
+radioactive_disposal_log_path = os.path.join(current_dir, '125I-Radioactive_Disposal_log.xlsx')
 wb = openpyxl.load_workbook(radioactive_disposal_log_path)
 ws = wb['Sheet1']
 last_row = ws.max_row
@@ -519,19 +502,19 @@ for index, ligand in enumerate(ligands_summary):
     ws.cell(row_index, 4, ligand['mCi'])
     ws.cell(row_index, 5, ligand['mCi Sink Waste'])
     ws.cell(row_index, 6, ligand['mCi Dry Waste'])
-    ws.cell(row_index, 7, radioactive_disposal_name)
+    ws.cell(row_index, 7, rad_waste_name)
 
 wb.save(radioactive_disposal_log_path)
 
 """
 Write data to binding excel sheet
 """
-binding_worksheet_path = data_filesdir + '125I-Binding_Printout_Template.xlsx'
+binding_worksheet_path = os.path.join(data_files_dir, '125I-Binding_Printout_Template.xlsx')
 wb = openpyxl.load_workbook(binding_worksheet_path)
 ws = wb['Sheet1']
 ws.cell(2, 2, sheet_date)
 
-log_write('Binding template loaded from: ' + binding_worksheet_path)
+logging.info('Binding template loaded from: ' + binding_worksheet_path)
 
 # Ligand Summary
 for index, ligand in enumerate(ligands_summary):
@@ -540,13 +523,13 @@ for index, ligand in enumerate(ligands_summary):
     ws.cell(index + 4, 4, ligand['Specific Activity (Ci/mmol)'])
     ws.cell(index + 4, 5, ligand['Ligand Volume (uL)'])
     ws.cell(index + 4, 6, ligand['mCi'])
-log_write('Ligand summary populated to Binding Template')
+logging.info('Ligand summary populated to Binding Template')
 
 # Pellet Summary
 for index, receptor in enumerate(receptors_summary):
     ws.cell(index + 4, 7, receptor['Receptor'])
     ws.cell(index + 4, 8, receptor['Number of Pellets'])
-log_write('Receptors and Pellet summary populated to Binding Template')
+logging.info('Receptors and Pellet summary populated to Binding Template')
 
 # Receptor information
 start_row = 15
@@ -560,50 +543,53 @@ for index, receptor in enumerate(receptors_summary):
     ws.cell(index + start_row, 7, receptor['Number of Pellets'])
     ws.cell(index + start_row, 8, receptor['Reference'])
     ws.cell(index + start_row, 9, receptor['Assay Conc. (nM)'])
-log_write('Receptor information added')
+logging.info('Receptor information added')
 
 # Plate Names and Barcodes
+sec_index = 0
+sec_count = 0
 for index, receptor in enumerate(receptors):
-    if index < PRIM_count and receptor['Binding Type'].lower() == 'prim':
-        ws.cell(index + 4, 10, receptor['Plate Name'])
-        ws.cell(index + 4, 11, 'P')
-        ws.cell(index + 4, 12, index + 1)
-        ws.cell(index + 4, 13, receptor['Barcode 0'])
-    elif index >= PRIM_count and receptor['Binding Type'].lower() == 'sec':
-        sec_index = 3*(index - PRIM_count) + PRIM_count
+    sec_index = index + (sec_count * 2)
+    if receptor['Binding Type'].lower() == 'prim':
+        ws.cell(sec_index + 4, 10, receptor['Plate Name'])
+        ws.cell(sec_index + 4, 11, 'P')
+        ws.cell(sec_index + 4, 12, sec_index + 4)
+        ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
+    elif receptor['Binding Type'].lower() == 'sec':
         ws.cell(sec_index + 4, 10, receptor['Plate Name'])
         ws.cell(sec_index + 5, 10, receptor['Plate Name'])
         ws.cell(sec_index + 6, 10, receptor['Plate Name'])
         ws.cell(sec_index + 4, 11, 'S')
         ws.cell(sec_index + 5, 11, 'S')
         ws.cell(sec_index + 6, 11, 'S')
-        ws.cell(sec_index + 4, 12, sec_index + 1)
-        ws.cell(sec_index + 5, 12, sec_index + 2)
-        ws.cell(sec_index + 6, 12, sec_index + 3)
+        ws.cell(sec_index + 4, 12, sec_index + 4)
+        ws.cell(sec_index + 5, 12, sec_index + 5)
+        ws.cell(sec_index + 6, 12, sec_index + 6)
         ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
         ws.cell(sec_index + 5, 13, receptor['Barcode 1'])
         ws.cell(sec_index + 6, 13, receptor['Barcode 2'])
-log_write('Barcodes and plate names added')
+        sec_count += 1
+logging.info('Barcodes and plate names added')
 
-binding_output_path = archivedir + formatted_date + ' - 125I-Binding Printout.xlsx'
+binding_output_path = os.path.join(archive_dir, formatted_date + ' - 125I-Binding Printout.xlsx')
 wb.save(binding_output_path)
-log_write('Binding printout generated :' + binding_output_path)
+logging.info('Binding printout generated :' + binding_output_path)
 
 """
 Move input files to archive
 """
 # Move Barcode to archive
-shutil.move(barcodes_filename, archivedir)
-log_write('Barcode file moved to archive')
+shutil.move(barcodes_file_dir, archive_dir)
+logging.info('Barcode file moved to archive')
 
 # Move Worklist to archive
-shutil.move(worklist_filename, archivedir)
-log_write('Worklist file moved to archive')
+shutil.move(worklist_filename, archive_dir)
+logging.info('Worklist file moved to archive')
 
 # Print binding sheet and open archive sheet
-log_write('Binding sheet being printed')
-os.startfile(binding_output_path, 'print')
-log_write('Opening Radioactivity Archive Sheet:' + archive_sheet_path)
-os.startfile(archive_sheet_path)
+logging.info('Opening Radioactivity Archive Sheet:' + archive_sheet_path)
+utils.open_file(archive_sheet_path)
+logging.info('Binding sheet being printed')
+utils.print_file(binding_output_path)
 time.sleep(15)
 
