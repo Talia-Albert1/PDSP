@@ -431,7 +431,7 @@ for index, receptor in enumerate(receptors):
 
         # Add formula to automatically calculate postion in plate counter
         if column == 'E' and index == 0:
-            current_cell.value = 4
+            current_cell.value = 1
         
         elif column == 'E':
             formula = '=IF(A' + str(row_index - 1) + '="SEC", K' + str(row_index - 1) + ' + 1, E' + str(row_index - 1) + ' + 1)'
