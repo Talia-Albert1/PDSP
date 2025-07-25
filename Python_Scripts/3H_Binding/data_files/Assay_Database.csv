@@ -16,7 +16,7 @@ A2A,3H-ZM241385,4,1,1,Adenosine,ZM241385,
 AT2,3H-Ang II,4,4,4,Standard,PD123319,
 Alpha1A,3H-Prazosin,1,0.125,0.125,Alpha1,Prazosin HCL,Cut back on pellet/plate when more than 9 plates. SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha1B,3H-Prazosin,1,0.5,0.5,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
-Alpha1D,3H-Prazosin,1,1.67,1.67,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
+Alpha1D,3H-Prazosin,1,1.25,1.25,Alpha1,Prazosin HCL,SEC Binding: Report Prazosin HCl at -6 conc.
 Alpha2A,3H-Rauwolscine,1.5,0.125,0.125,Alpha2,Oxymetazoline hydrochloride,Cut back on pellet/plate by 30% when more than 9 plates
 Alpha2B,3H-Rauwolscine,1.5,0.5,0.5,Alpha2,Yohimbine,
 Alpha2C,3H-Rauwolscine,0.9,1,1,Alpha2,Oxymetazoline hydrochloride,
