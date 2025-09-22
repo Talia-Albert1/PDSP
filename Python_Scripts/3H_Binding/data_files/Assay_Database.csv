@@ -1,5 +1,5 @@
 Receptor,3H-Ligand,Assay Conc. (nM),PRIM Pellet/Plate Ratio,SEC Pellet/Plate Ratio,Assay BB,Reference,Notes
-5-HT1A,3H-Way100635,1,1,1,Standard,NAD299,
+5-HT1A,3H-Way100635,1,2,2,Standard,NAD299,
 5-HT1B,3H-GR125743,1.5,1,1,Standard,Ergotamine tartrate,
 5-HT1D,3H-GR125743,1.5,1.5,1.5,Standard,Ergotamine tartrate,
 5-HT1E,3H-5HT,5,1,1,Standard,5-HT,
