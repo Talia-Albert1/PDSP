@@ -15,18 +15,26 @@ def setup_logging(log_dir, log_filename='log.log'):
 
     log_file_path = os.path.join(log_dir, log_filename)
 
-    logging.basicConfig(
-        filename=log_file_path,
-        filemode='a',
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        level=logging.INFO
-    )
+    # Get root logger and reset handlers
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)  # capture all messages, let handlers filter
+    logger.handlers.clear()
 
-    # Also add a console handler
+    # --- File handler: logs everything ---
+    file_handler = logging.FileHandler(log_file_path, mode='a')
+    file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(logging.DEBUG)  # log everything to file
+    logger.addHandler(file_handler)
+
+    # --- Console handler: message only ---
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logging.getLogger().addHandler(console_handler)
+    console_formatter = logging.Formatter('%(message)s')
+    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(logging.INFO)  # only INFO+ go to console
+    logger.addHandler(console_handler)
+
+    return logger
 
 
 # Create directories used by *most* scripts
