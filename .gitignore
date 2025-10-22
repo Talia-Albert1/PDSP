@@ -28,3 +28,8 @@
 
 
 Python_Scripts/I125_Binding/data_files/rad_waste_name.txt
+Python_Scripts/Radioligand_Binding/data_files/gray_switch.txt
+Python_Scripts/Radioligand_Binding/Radioactivity_Archive.xlsx
+Python_Scripts/Radioligand_Binding/data_files/user_name.txt
+Python_Scripts/Radioligand_Binding/data_files/user_initials.txt
+*.json
