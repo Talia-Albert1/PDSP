@@ -480,7 +480,7 @@ for index, receptor in enumerate(receptors):
             current_cell.border = thick_border
         
         # Center Number Columns
-        if column == 'E' or column == 'F' or column == 'H' or column == 'I' or column == 'K' or column == 'L' or column == 'M' or column == 'N' or column == 'O' or column == 'P'  or column == 'T' or column == 'U' or column == 'V' or column == 'X' or column == 'Y' or column == 'Z' or column == 'AA' or column == 'AB' or column == 'AC' or column == 'AD':
+        if column == 'E' or column == 'F' or column == 'H' or column == 'I' or column == 'K' or column == 'L' or column == 'M' or column == 'N' or column == 'O' or column == 'P'  or column == 'T' or column == 'U' or column == 'V' or column == 'W' or column == 'X' or column == 'Y' or column == 'Z' or column == 'AA' or column == 'AB' or column == 'AC' or column == 'AD':
             current_cell.alignment = alignment
 
         # Add formula to automatically calculate postion in plate counter
