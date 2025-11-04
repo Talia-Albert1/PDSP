@@ -195,6 +195,7 @@ logging.info('google credientals authenticated')
 google_sheet_name = 'PDSP'
 google_sheet_assay_db_name = 'Assay_Param'
 google_sheet_ligand_db_name = 'Hotligand_Inventory'
+google_sheet_pellet_inventory_name = 'Pellet_Inventory'
 
 # Open Sheet
 sheet = client.open(google_sheet_name)
@@ -208,6 +209,11 @@ logging.debug('assay database accessed')
 worksheet = sheet.worksheet(google_sheet_ligand_db_name)
 ligand_db = worksheet.get_all_records()
 logging.debug('hotligand database accessed')
+
+# load pellet database
+worksheet = sheet.worksheet(google_sheet_pellet_inventory_name)
+pellet_inventory = worksheet.get_all_records()
+logging.debug('pellet inventory accessed')
 
 
 """ 
@@ -225,7 +231,8 @@ for entry in worklist_receptors:
 # List of elements we want to replace
 elements_remove = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9',
                    '-10', '-11', '-12', '-13', '-14', '-15', 'Rat', 'Brain',
-                   'Site', 'rat', 'brain', 'site', '(oxytocin)', '(Oxytocin)']
+                   'Site', 'rat', 'brain', 'site', 'oxytocin', 'Oxytocin',
+                   '(', ')']
 
 # Elucidate receptor name
 for receptor in receptors:
@@ -243,7 +250,7 @@ for receptor in receptors:
         assay_db_receptor_name = assay['Receptor'].replace(' ', '').rstrip()
         if receptor['Receptor'] == assay_db_receptor_name:
             receptor.update(assay)
-logging.info('Assay information matched to Receptors')
+logging.info('Assay information matched to receptors')
 
 # Match 3H-Ligand Information, only match where current vial = TRUE
 for receptor in receptors:
@@ -252,6 +259,16 @@ for receptor in receptors:
         if receptor['Ligand'] == ligand_db_ligand_name and ligand['Current Vial?'] == 'TRUE':
             receptor.update(ligand)  
 logging.info('Ligand information matched to receptors')
+
+# Match pellet inventory to receptor
+for receptor in receptors:
+    for pellet in pellet_inventory:
+        for element in elements_remove:
+            updated_pellet_name = pellet['Receptor'].replace(element,'')
+        if receptor['Receptor'] == updated_pellet_name:
+            receptor.update({'Pellets in Inventory':pellet['Number of Pellets']})
+logging.info('Pellet Inventory info matched to receptors')
+
 
 # Match Barcodes to plates
 sec_count = 0
@@ -332,6 +349,7 @@ for unique_receptor in receptors_summary:
             ligand = receptor['Ligand']
             buffer = receptor['Assay BB']
             Assay_Conc = receptor['Assay Conc. (nM)']
+            pellets_in_inventory = receptor['Pellets in Inventory']
     unique_receptor.update({'Buffer Volume (mL)':buffer_vol,
                             'Ligand Volume (uL)':round(ligand_vol,2),
                             'uCi':round(uCi_total, 2),
@@ -340,7 +358,8 @@ for unique_receptor in receptors_summary:
                             'Reference':reference,
                             'Ligand':ligand,
                             'Assay BB':buffer,
-                            'Assay Conc. (nM)':Assay_Conc})
+                            'Assay Conc. (nM)':Assay_Conc,
+                            'Pellets in Inventory':pellets_in_inventory})
     logging.debug(unique_receptor['Receptor'] + ' summary information determined')
 logging.info('Unique receptors and summary information determined')
 
@@ -392,7 +411,10 @@ for ligand in ligands_summary:
                    'mCi Dry Waste':mCi_dry_waste,
                    'mCi Sink Waste':mCi_sink_waste})
 
-
+# caluclate quantity of ligand remaining
+for ligand in ligands_summary:
+    mci_in_vial_after_use = ligand['mCi in Vial'] - ligand['mCi']
+    ligand.update({'mCi Remaining in Vial':mci_in_vial_after_use})
 
 # =============================================================================
 # #################### Write data to Archive excel sheet ######################
@@ -420,7 +442,7 @@ columns = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
     'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD',
-    'AE', 'AF', 'AG', 'AH', 'AI'
+    'AE', 'AF', 'AG', 'AH', 'AI', 'AJ'
 ]
 
 last_row = ws.max_row
@@ -464,6 +486,7 @@ for index, receptor in enumerate(receptors):
     ws.cell(row_index, 33, receptor['Assay BB'])
     ws.cell(row_index, 34, receptor['PRIM Pellet/Plate Ratio'])
     ws.cell(row_index, 35, receptor['SEC Pellet/Plate Ratio'])
+    ws.cell(row_index, 36, receptor['Pellets in Inventory'])
     
     for column in columns:
         current_cell_str = column + str(row_index) 
@@ -587,14 +610,16 @@ for index, ligand in enumerate(ligands_summary):
     ws.cell(index + 4, 3, ligand['Inventory Control Number'])
     ws.cell(index + 4, 4, ligand['Specific Activity (Ci/mmol)'])
     ws.cell(index + 4, 5, ligand['Ligand Volume (uL)'])
-    ws.cell(index + 4, 6, format(ligand['mCi'], ".3f"))
-    ws.cell(index + 4, 7, format(ligand['mCi in Vial'], ".3f"))
+    ws.cell(index + 4, 6, format(ligand['mCi in Vial'], ".3f"))
+    ws.cell(index + 4, 7, format(ligand['mCi'], ".3f"))
+    ws.cell(index + 4, 8, format(ligand['mCi Remaining in Vial'], ".3f"))
 logging.info('Ligand summary populated to Binding Template')
 
 # Pellet Summary
 for index, receptor in enumerate(receptors_summary):
-    ws.cell(index + 4, 8, receptor['Receptor'])
-    ws.cell(index + 4, 9, receptor['Number of Pellets'])
+    ws.cell(index + 4, 9, receptor['Receptor'])
+    ws.cell(index + 4, 10, receptor['Pellets in Inventory'])
+    ws.cell(index + 4, 11, receptor['Number of Pellets'])
 logging.info('Receptors and Pellet summary populated to Binding Template')
 
 # Receptor information
@@ -608,7 +633,7 @@ for index, receptor in enumerate(receptors_summary):
     ws.cell(index + start_row, 6, receptor['Number of Plates'])
     ws.cell(index + start_row, 7, receptor['Number of Pellets'])
     ws.cell(index + start_row, 8, receptor['Reference'])
-    ws.cell(index + start_row, 9, receptor['Assay Conc. (nM)'])
+    ws.cell(index + start_row, 11, receptor['Assay Conc. (nM)'])
 logging.info('Receptor information added')
 
 # Plate Names and Barcodes
@@ -617,23 +642,23 @@ sec_count = 0
 for index, receptor in enumerate(receptors):
     sec_index = index + (sec_count * 2)
     if receptor['Binding Type'].lower() == 'prim':
-        ws.cell(sec_index + 4, 10, receptor['Plate Name'])
-        ws.cell(sec_index + 4, 11, 'P')
-        ws.cell(sec_index + 4, 12, sec_index + 4)
-        ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
+        ws.cell(sec_index + 4, 12, receptor['Plate Name'])
+        ws.cell(sec_index + 4, 13, 'P')
+        ws.cell(sec_index + 4, 14, sec_index + 4)
+        ws.cell(sec_index + 4, 15, receptor['Barcode 0'])
     elif receptor['Binding Type'].lower() == 'sec':
-        ws.cell(sec_index + 4, 10, receptor['Plate Name'])
-        ws.cell(sec_index + 5, 10, receptor['Plate Name'])
-        ws.cell(sec_index + 6, 10, receptor['Plate Name'])
-        ws.cell(sec_index + 4, 11, 'S')
-        ws.cell(sec_index + 5, 11, 'S')
-        ws.cell(sec_index + 6, 11, 'S')
-        ws.cell(sec_index + 4, 12, sec_index + 4)
-        ws.cell(sec_index + 5, 12, sec_index + 5)
-        ws.cell(sec_index + 6, 12, sec_index + 6)
-        ws.cell(sec_index + 4, 13, receptor['Barcode 0'])
-        ws.cell(sec_index + 5, 13, receptor['Barcode 1'])
-        ws.cell(sec_index + 6, 13, receptor['Barcode 2'])
+        ws.cell(sec_index + 4, 12, receptor['Plate Name'])
+        ws.cell(sec_index + 5, 12, receptor['Plate Name'])
+        ws.cell(sec_index + 6, 12, receptor['Plate Name'])
+        ws.cell(sec_index + 4, 13, 'S')
+        ws.cell(sec_index + 5, 13, 'S')
+        ws.cell(sec_index + 6, 13, 'S')
+        ws.cell(sec_index + 4, 14, sec_index + 4)
+        ws.cell(sec_index + 5, 14, sec_index + 5)
+        ws.cell(sec_index + 6, 14, sec_index + 6)
+        ws.cell(sec_index + 4, 15, receptor['Barcode 0'])
+        ws.cell(sec_index + 5, 15, receptor['Barcode 1'])
+        ws.cell(sec_index + 6, 15, receptor['Barcode 2'])
         sec_count += 1
 logging.info('Barcodes and plate names added')
 
