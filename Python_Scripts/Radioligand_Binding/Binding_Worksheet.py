@@ -625,15 +625,62 @@ logging.info('Receptors and Pellet summary populated to Binding Template')
 # Receptor information
 start_row = 15
 for index, receptor in enumerate(receptors_summary):
-    ws.cell(index + start_row, 1, receptor['Receptor'])
-    ws.cell(index + start_row, 2, receptor['Ligand'])
-    ws.cell(index + start_row, 3, receptor['Assay BB'])
-    ws.cell(index + start_row, 4, receptor['Buffer Volume (mL)'])
-    ws.cell(index + start_row, 5, receptor['Ligand Volume (uL)'])
-    ws.cell(index + start_row, 6, receptor['Number of Plates'])
-    ws.cell(index + start_row, 7, receptor['Number of Pellets'])
-    ws.cell(index + start_row, 8, receptor['Reference'])
-    ws.cell(index + start_row, 11, receptor['Assay Conc. (nM)'])
+    if index % 2 == 0:
+        # white for odd lines
+        cell_fill_color = 'FFFFFF'
+    else:
+        # gray for even lines
+        cell_fill_color = 'D9D9D9'
+    fill_color = PatternFill(start_color=cell_fill_color, end_color=cell_fill_color, fill_type='solid')
+    
+    cell_receptor = ws.cell(index + start_row, 1)
+    cell_receptor.value = receptor['Receptor']
+    cell_receptor.fill = fill_color
+    cell_receptor.border = border_style
+    
+    cell_ligand = ws.cell(index + start_row, 2)
+    cell_ligand.value = receptor['Ligand']
+    cell_ligand.fill = fill_color
+    cell_ligand.border = border_style
+    
+    cell_assay_bb = ws.cell(index + start_row, 3)
+    cell_assay_bb.value = receptor['Assay BB']
+    cell_assay_bb.fill = fill_color
+    cell_assay_bb.border = border_style
+    
+    cell_buff_vol = ws.cell(index + start_row, 4)
+    cell_buff_vol.value = receptor['Buffer Volume (mL)']
+    cell_buff_vol.fill = fill_color
+    cell_buff_vol.border = border_style
+    
+    cell_ligand_vol = ws.cell(index + start_row, 5)
+    cell_ligand_vol.value = receptor['Ligand Volume (uL)']
+    cell_ligand_vol.fill = fill_color
+    cell_ligand_vol.border = border_style
+    
+    cell_num_of_plates = ws.cell(index + start_row, 6)
+    cell_num_of_plates.value = receptor['Number of Plates']
+    cell_num_of_plates.fill = fill_color
+    cell_num_of_plates.border = border_style
+    
+    cell_num_of_pellets = ws.cell(index + start_row, 7)
+    cell_num_of_pellets.value = receptor['Number of Pellets']
+    cell_num_of_pellets.fill = fill_color
+    cell_num_of_pellets.border = border_style
+    
+    cell_reference = ws.cell(index + start_row, 8)
+    cell_reference.value = receptor['Reference']
+    cell_reference.fill = fill_color
+    cell_reference.border = border_style
+    ws.cell(index + start_row, 9).border = border_style
+    ws.cell(index + start_row, 10).border = border_style
+    
+
+    cell_assay_conc = ws.cell(index + start_row, 11)
+    cell_assay_conc.value = receptor['Assay Conc. (nM)']
+    cell_assay_conc.fill = fill_color
+    cell_assay_conc.border = border_style
+
 logging.info('Receptor information added')
 
 # Plate Names and Barcodes
