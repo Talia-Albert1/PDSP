@@ -686,26 +686,46 @@ logging.info('Receptor information added')
 # Plate Names and Barcodes
 sec_index = 0
 sec_count = 0
+
+# format left, middle, and right borders for rows
+border_left = Border(left=Side(style='thin'))
+border_right = Border(right=Side(style='thin'))
+border_middle = Border()
+
 for index, receptor in enumerate(receptors):
     sec_index = index + (sec_count * 2)
+    
+    # format final rows border differently, add thin line on bottom
+    if index == len(receptors)-1:
+        border_final_left = Border(left=Side(style='thin'),
+                              bottom=Side(style='thin'))
+        border_final_right = Border(right=Side(style='thin'),
+                              bottom=Side(style='thin'))
+        border_final_middle = Border(bottom=Side(style='thin'))
+        
+    else:
+        border_final_left = border_left
+        border_final_right = border_right
+        border_final_middle = border_middle
+
     if receptor['Binding Type'].lower() == 'prim':
-        ws.cell(sec_index + 4, 12, receptor['Plate Name'])
-        ws.cell(sec_index + 4, 13, 'P')
-        ws.cell(sec_index + 4, 14, sec_index + 4)
-        ws.cell(sec_index + 4, 15, receptor['Barcode 0'])
+        ws.cell(sec_index + 4, 12, receptor['Plate Name']).border = border_final_left
+        ws.cell(sec_index + 4, 13, 'P').border = border_final_middle
+        ws.cell(sec_index + 4, 14, sec_index + 4).border = border_final_middle
+        ws.cell(sec_index + 4, 15, receptor['Barcode 0']).border = border_final_right
     elif receptor['Binding Type'].lower() == 'sec':
-        ws.cell(sec_index + 4, 12, receptor['Plate Name'])
-        ws.cell(sec_index + 5, 12, receptor['Plate Name'])
-        ws.cell(sec_index + 6, 12, receptor['Plate Name'])
-        ws.cell(sec_index + 4, 13, 'S')
-        ws.cell(sec_index + 5, 13, 'S')
-        ws.cell(sec_index + 6, 13, 'S')
-        ws.cell(sec_index + 4, 14, sec_index + 4)
-        ws.cell(sec_index + 5, 14, sec_index + 5)
-        ws.cell(sec_index + 6, 14, sec_index + 6)
-        ws.cell(sec_index + 4, 15, receptor['Barcode 0'])
-        ws.cell(sec_index + 5, 15, receptor['Barcode 1'])
-        ws.cell(sec_index + 6, 15, receptor['Barcode 2'])
+        ws.cell(sec_index + 4, 12, receptor['Plate Name']).border = border_left
+        ws.cell(sec_index + 5, 12, receptor['Plate Name']).border = border_left
+        ws.cell(sec_index + 6, 12, receptor['Plate Name']).border = border_final_left
+        ws.cell(sec_index + 4, 13, 'S').border = border_middle
+        ws.cell(sec_index + 5, 13, 'S').border = border_middle
+        ws.cell(sec_index + 6, 13, 'S').border = border_final_middle
+        ws.cell(sec_index + 4, 14, sec_index + 4).border = border_middle
+        ws.cell(sec_index + 5, 14, sec_index + 5).border = border_middle
+        ws.cell(sec_index + 6, 14, sec_index + 6).border = border_final_middle
+        ws.cell(sec_index + 4, 15, receptor['Barcode 0']).border = border_right
+        ws.cell(sec_index + 5, 15, receptor['Barcode 1']).border = border_right
+        ws.cell(sec_index + 6, 15, receptor['Barcode 2']).border = border_final_right
         sec_count += 1
 logging.info('Barcodes and plate names added')
 
@@ -713,9 +733,12 @@ binding_output_path = os.path.join(archive_dir, formatted_date + ' - Binding Pri
 wb.save(binding_output_path)
 logging.info('Binding printout generated :' + binding_output_path)
 
-"""
-Move input files to archive
-"""
+
+
+
+# =============================================================================
+# #################### Move input files to archive ############################
+# =============================================================================
 # Move Barcode to archive
 shutil.move(barcodes_txt_path, archive_dir)
 logging.info('Barcode file moved to archive')
