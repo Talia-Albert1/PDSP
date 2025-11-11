@@ -279,7 +279,7 @@ pellet_inventory_lookup = {pellet['Receptor']: pellet for pellet in pellet_inven
 for receptor in receptors:
     pellet = pellet_inventory_lookup.get(receptor['Receptor'])
     if pellet:
-        receptor.update({'Number of Pellets':pellet['Number of Pellets']})
+        receptor.update({'Pellets in Inventory':pellet['Number of Pellets']})
 logging.info('Pellet Inventory info matched to receptors')
 
 
