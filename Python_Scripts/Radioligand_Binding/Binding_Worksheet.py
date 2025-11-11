@@ -261,12 +261,25 @@ for receptor in receptors:
 logging.info('Ligand information matched to receptors')
 
 # Match pellet inventory to receptor
+# some names in the inventory do not match the names from asasy DB
+pellet_inventory_name_replacements = {
+    'Rat P2 (BZP)':'BZP',
+    'Rat P2 (PBR)':'PBR'
+    }
+
+# change names from inventory to fit the assay db
+for pellet in pellet_inventory:
+    if pellet['Receptor'] in pellet_inventory_name_replacements:
+        pellet['Receptor'] = pellet_inventory_name_replacements[pellet['Receptor']]
+
+# create lookup dictionary for pellet inventory
+pellet_inventory_lookup = {pellet['Receptor']: pellet for pellet in pellet_inventory}
+
+# associate pellet inventory with receptor dictionary
 for receptor in receptors:
-    for pellet in pellet_inventory:
-        for element in elements_remove:
-            updated_pellet_name = pellet['Receptor'].replace(element,'')
-        if receptor['Receptor'] == updated_pellet_name:
-            receptor.update({'Pellets in Inventory':pellet['Number of Pellets']})
+    pellet = pellet_inventory_lookup.get(receptor['Receptor'])
+    if pellet:
+        receptor.update({'Number of Pellets':pellet['Number of Pellets']})
 logging.info('Pellet Inventory info matched to receptors')
 
 
