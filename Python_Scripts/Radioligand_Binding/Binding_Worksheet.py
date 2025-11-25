@@ -216,17 +216,21 @@ pellet_inventory = worksheet.get_all_records()
 logging.debug('pellet inventory accessed')
 
 
-""" 
-Create Dictionary for each Plate
-Plate Name, Binding Type, Receptor, Barcode 0, Barcode 1, Barcode 2, Ligand,
-Inventory Control Number, Specific Activity, uCi/uL
-"""
-#Create dictionary
+###############################################################################
+# Create Dictionary for each Plate
+# Plate Name, Binding Type, Receptor, Barcode 0, Barcode 1, Barcode 2, Ligand,
+# Inventory Control Number, Specific Activity, uCi/uL
+###############################################################################
+# Create dictionary
 # remove all spaces
-receptors = []
-for entry in worklist_receptors:
-    temp_dict = {'Plate Name':entry[1].replace(' ', '').rstrip(), 'Binding Type':entry[0].rstrip()}
-    receptors.append(temp_dict)
+receptors = [
+    {
+        'Plate Name': entry[1].replace(' ', '').rstrip(),
+        'Binding Type': entry[0].rstrip()
+    }
+    for entry in worklist_receptors
+]
+
 
 # List of elements we want to replace
 elements_remove = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9',
@@ -245,6 +249,10 @@ for receptor in receptors:
 logging.info('Receptors Identified')
 
 # Match Assay Information
+# create lookup dictionary for assay database
+assay_db_lookup = {assay['Receptor']: assay for assay in assay_db}
+
+# match   
 for receptor in receptors:
     for assay in assay_db:
         assay_db_receptor_name = assay['Receptor'].replace(' ', '').rstrip()
