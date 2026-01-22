@@ -19,7 +19,8 @@ Once installed, use pip to download openpyxl, the package that we use to edit th
 2. Search for "cmd" and select the app "Command Prompt"
 3. Copy and enter the following into the Command Prompt
 ```
-py -m pip install openpyxl
+py -m pip install openpyxl gspread oauth2client
+
 ```
 It should be installed and working now!
 
