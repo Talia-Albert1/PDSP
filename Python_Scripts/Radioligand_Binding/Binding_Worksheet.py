@@ -252,20 +252,29 @@ logging.info('Receptors Identified')
 # create lookup dictionary for assay database
 assay_db_lookup = {assay['Receptor']: assay for assay in assay_db}
 
-# match   
+# Match assay 
 for receptor in receptors:
+    matched = False
     for assay in assay_db:
         assay_db_receptor_name = assay['Receptor'].replace(' ', '').rstrip()
         if receptor['Receptor'] == assay_db_receptor_name:
             receptor.update(assay)
+            matched = True
+    if not matched:
+        logging.debug(f"No match for '{receptor['Receptor']}' in the assay db. Ensure your spelinng of '{receptor['Receptor']}' matches exactly with Assay_Param")
 logging.info('Assay information matched to receptors')
 
 # Match 3H-Ligand Information, only match where current vial = TRUE
 for receptor in receptors:
+    matched = False
     for ligand in ligand_db:
         ligand_db_ligand_name = ligand['Ligand'].replace(' ','').rstrip()
         if receptor['Ligand'] == ligand_db_ligand_name and ligand['Current Vial?'] == 'TRUE':
-            receptor.update(ligand)  
+            receptor.update(ligand)
+            matched = True
+            break
+    if not matched:
+        logging.debug(f"No current vial found for ligand '{receptor['Ligand']}' (receptor: '{receptor['Receptor']}'). Check that 'Current Vial?' is set to TRUE in Hotligand_Inventory.")
 logging.info('Ligand information matched to receptors')
 
 # Match pellet inventory to receptor
