@@ -29,6 +29,25 @@ sys.path.insert(0, parent_dir)
 import utils
 
 
+# gsheet api call wrapper for better error handling
+def gsheet_api_call(func, *args, max_retries=3, **kwargs):
+    for attempt in range(max_retries):
+        try:
+            return func(*args, **kwargs)
+        except gspread.exceptions.APIError as e:
+            if e.response.status_code == 429:  # Rate limit
+                wait = 2 ** attempt  # exponential backoff: 1s, 2s, 4s
+                logging.warning(f'Google Sheets rate limit hit, retrying in {wait}s (attempt {attempt + 1}/{max_retries})')
+                time.sleep(wait)
+            else:
+                logging.error(f'Google Sheets API error: {e}')
+                raise
+        except Exception as e:
+            logging.error(f'Unexpected error during Google Sheets call: {e}')
+            raise
+    logging.error(f'Google Sheets API call failed after {max_retries} attempts')
+    raise RuntimeError('Max retries exceeded for Google Sheets API call')
+
 # =============================================================================
 # ##################### initialize directories and files ######################
 # =============================================================================
@@ -201,18 +220,18 @@ google_sheet_pellet_inventory_name = 'Pellet_Inventory'
 sheet = client.open(google_sheet_name)
 
 # Load assay database
-worksheet = sheet.worksheet(google_sheet_assay_db_name)
-assay_db = worksheet.get_all_records()
+worksheet = gsheet_api_call(sheet.worksheet, google_sheet_assay_db_name)
+assay_db = gsheet_api_call(worksheet.get_all_records)
 logging.debug('assay database accessed')
 
 # load hotligand database
-worksheet = sheet.worksheet(google_sheet_ligand_db_name)
-ligand_db = worksheet.get_all_records()
+worksheet = gsheet_api_call(sheet.worksheet, google_sheet_ligand_db_name)
+ligand_db = gsheet_api_call(worksheet.get_all_records())
 logging.debug('hotligand database accessed')
 
 # load pellet database
-worksheet = sheet.worksheet(google_sheet_pellet_inventory_name)
-pellet_inventory = worksheet.get_all_records()
+worksheet = gsheet_api_call(sheet.worksheet, google_sheet_pellet_inventory_name)
+pellet_inventory = gsheet_api_call(worksheet.get_all_records())
 logging.debug('pellet inventory accessed')
 
 
@@ -260,6 +279,7 @@ for receptor in receptors:
         if receptor['Receptor'] == assay_db_receptor_name:
             receptor.update(assay)
             matched = True
+            break
     if not matched:
         logging.debug(f"No match for '{receptor['Receptor']}' in the assay db. Ensure your spelinng of '{receptor['Receptor']}' matches exactly with Assay_Param")
 logging.info('Assay information matched to receptors')
@@ -607,7 +627,7 @@ for ligand in ligands_summary:
                            user_name])
 
 worksheet = sheet.worksheet(google_sheet_rad_waste_log_name)
-worksheet.append_rows(rad_waste_list,value_input_option="USER_ENTERED")
+gsheet_api_call(worksheet.append_rows, rad_waste_list, value_input_option="USER_ENTERED")
 
 # =============================================================================
 # ############ Write pellet usage data to google sheets #######################
@@ -621,7 +641,7 @@ for receptor in receptors_summary:
                             user_initials, pellets_used])
 
 worksheet = sheet.worksheet(google_sheet_pellet_log_name)
-worksheet.append_rows(pellet_log_list,value_input_option="USER_ENTERED")
+gsheet_api_call(worksheet.append_rows, pellet_log_list, value_input_option="USER_ENTERED")
 
 
 # =============================================================================
