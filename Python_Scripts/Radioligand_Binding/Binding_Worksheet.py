@@ -226,12 +226,12 @@ logging.debug('assay database accessed')
 
 # load hotligand database
 worksheet = gsheet_api_call(sheet.worksheet, google_sheet_ligand_db_name)
-ligand_db = gsheet_api_call(worksheet.get_all_records())
+ligand_db = gsheet_api_call(worksheet.get_all_records)
 logging.debug('hotligand database accessed')
 
 # load pellet database
 worksheet = gsheet_api_call(sheet.worksheet, google_sheet_pellet_inventory_name)
-pellet_inventory = gsheet_api_call(worksheet.get_all_records())
+pellet_inventory = gsheet_api_call(worksheet.get_all_records)
 logging.debug('pellet inventory accessed')
 
 
