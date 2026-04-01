@@ -5,28 +5,235 @@ Created on Tue Sep  5 14:43:49 2023
 @author: TaliaAlbert
 """
 # =============================================================================
-# ############################## import modules ###############################
+# ############################## IMPORT MODULES ###############################
 # =============================================================================
-import os
-import sys
 import datetime
+import os
 import logging
+import json
+import shutil
+
+import sys
+
 import shutil
 
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
 from openpyxl.formatting.rule import FormulaRule
-import csv
 
 import gspread
 from google.oauth2.service_account import Credentials
-
-import math
 import time
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-sys.path.insert(0, parent_dir)
-import utils
+import math
+
+# =============================================================================
+# ############################## TIME UTILS ###################################
+# =============================================================================
+# Format the date as 'YYYYMMDD'
+FORMATTED_DATE = datetime.date.today().strftime('%Y%m%d')
+
+# =============================================================================
+# ############################## FILE CONFIG ##################################
+# =============================================================================
+# %%
+# Directories
+INPUT_DIR = "input"
+ARCHIVE_DIR = "archive"
+DATA_FILES_DIR = "data_files"
+
+# Create DIR's that do not exist
+os.makedirs(INPUT_DIR, exist_ok=True)
+os.makedirs(ARCHIVE_DIR, exist_ok=True)
+
+# Text File Paths
+WORKLIST_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Barcodes.txt")
+BARCODE_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Worklist.txt")
+
+# Radioactivity Archive Paths
+RADIOACTIVITY_TEMPLATE_PATH = os.path.join(DATA_FILES_DIR, "Radioactivity_Archive_Template.xlsx")
+RADIOACTIVITY_PATH = "Radioactivity_Archive.xlsx"
+
+# Binding Printout Template
+PRINTOUT_TEMPLATE_PATH = os.path.join(DATA_FILES_DIR, "Binding_Printout_Template.xlsx")
+PRINTOUT_PATH = os.path.join(ARCHIVE_DIR, f"{FORMATTED_DATE} - Binding Printout.xlsx")
+
+# User Config Path
+USER_CONFIG_EXAMPLE_PATH = os.path.join(DATA_FILES_DIR, "user_config.example.json")
+USER_CONFIG_PATH = os.path.join(DATA_FILES_DIR, "user_config.json")
+
+# %%
+print('hi')
+
+
+# =============================================================================
+# ############################ LOGGING CONFIG #################################
+# =============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[
+        logging.FileHandler(os.path.join(ARCHIVE_DIR, f"{FORMATTED_DATE}_Binding_Worksheet.log")),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+
+
+
+
+# =============================================================================
+# ############################ INITIAL CONFIG #################################
+# =============================================================================
+def verify_user_config(user_config_path:str = USER_CONFIG_PATH) -> dict[str, str]:
+    """
+    Verifies user_config.json file exists
+    Verifies the following columns exist:
+    ['user_name', 'user_initials', 'gray_switch']
+    
+    Returns dict
+
+    Parameters
+    ----------
+    user_config_path : str, optional
+        DESCRIPTION. The default is USER_CONFIG_PATH.
+
+    Returns
+    -------
+    dict[str, str]
+        DESCRIPTION.
+
+    """
+    # If file doesn't exist, create it by prompting the user
+    if not os.path.isfile(user_config_path):
+        logger.info('No user_config.json at: {user_config_path}, '
+                     'creating new one...'
+                     )
+        print('\nNo user config file found. Please enter your information:')
+        
+        while True:
+            # Prompt user to input info for JSON
+            user_name = input("Enter your first name: ").strip()
+            user_initials = input("Enter your initials: ").strip()
+            gray_switch = 1  # default starting value
+            
+            # Confirm with user
+            print('\nPlease verify your information:')
+            print(f'  Name:     {user_name}')
+            print(f'  Initials: {user_initials}')
+            confirm = input('Is this correct? (Y/N): ').strip().lower()
+            
+            if confirm == 'y':
+                user_config = {
+                    'user_name': user_name,
+                    'user_initials': user_initials,
+                    'gray_switch': gray_switch
+                }
+                with open(user_config_path, 'w') as f:
+                    json.dump(user_config, f, indent=4)
+                logger.info(f'user_config.json created at: {user_config_path}')
+                break
+            else:
+                print('Let\'s try again...\n')
+    
+    # Load the file
+    try:
+        with open(user_config_path, 'r') as f:
+            user_config = json.load(f)
+    except json.JSONDecodeError as e:
+        logging.error(f'user_config.json is malformed and could not be read: {e}')
+        sys.exit(1)
+    
+    # Verify required fields are present and not empty
+    required_fields = ['user_name', 'user_initials', 'gray_switch']
+    missing = [field for field in required_fields if not user_config.get(field, None)]
+    if missing:
+        logger.error(f'user_config.json is missing or has empty fields: {missing}')
+        sys.exit(1)
+    
+    logger.info(f'user_config.json loaded for: {user_config["user_name"]} ({user_config["user_initials"]})')
+    return user_config
+
+
+
+
+def verify_radioactivity_archive_file(
+        radioactivity_path         : str = RADIOACTIVITY_PATH,
+        radioactivity_template_path: str = RADIOACTIVITY_TEMPLATE_PATH
+    ) -> None:
+    """
+    Verifies the Radioactivity Archive Exists, if it does not, the template is
+    copied from Data_Files_Dir into the root.
+
+    Parameters
+    ----------
+    radioactivity_path : str, optional
+        DESCRIPTION. The default is RADIOACTIVITY_PATH.
+    radioactivity_template_path : str, optional
+        DESCRIPTION. The default is RADIOACTIVITY_TEMPLATE_PATH.
+
+    Returns
+    -------
+    None
+        DESCRIPTION.
+    """
+    if not os.path.isfile(radioactivity_path):
+        if not os.path.isfile(radioactivity_template_path):
+            logger.warning(f"Missing {radioactivity_template_path}, ensure file is present")
+        
+
+
+
+    
+
+
+
+
+
+
+
+
+
+def print_log_separator(message: str) -> None:
+    """
+    Prints Uppercase section header to log
+
+    Parameters
+    ----------
+    message : str
+        Separator text - will be converted to uppercase automatically
+
+    Returns
+    -------
+    None
+    """
+    logger.info("=" * 60)
+    logger.info(message.upper())
+    logger.info("=" * 60)
+
+if __name__ == "__main__":
+    print_log_separator("Starting Radiobinding Script")
+    user_config = verify_user_config(USER_CONFIG_PATH)
+
+"""
+# Read
+with open(user_config_path, 'r') as f:
+    user_config = json.load(f)
+gray_switch = user_config['gray_switch']
+
+# ... rest of script ...
+
+# Write updated gray_switch back at the end
+user_config['gray_switch'] = gray_switch  # updated value
+with open(user_config_path, 'w') as f:
+    json.dump(user_config, f, indent=4)
+
+
+
+
 
 
 # gsheet api call wrapper for better error handling
@@ -51,13 +258,6 @@ def gsheet_api_call(func, *args, max_retries=3, **kwargs):
 # =============================================================================
 # ##################### initialize directories and files ######################
 # =============================================================================
-# Get directories
-current_dir, archive_dir, data_files_dir, input_dir = utils.setup_dir(create_output_dir = 'n')
-
-
-
-# Format the date as 'YYYY-MM-DD'
-formatted_date = datetime.date.today().strftime('%Y%m%d')
 
 
 
@@ -374,7 +574,7 @@ for receptor in receptors:
     logging.info(receptor['Receptor'] + ' uCi & ligand vol calculated.')
 
 """
-Gather unique receptor information and unique ligand information
+
 """
 unique_receptors_list = []
 for receptor in receptors:
@@ -807,4 +1007,4 @@ utils.open_file(archive_sheet_path)
 logging.info('Binding sheet being printed')
 utils.print_file(binding_output_path)
 time.sleep(15)
-
+"""
