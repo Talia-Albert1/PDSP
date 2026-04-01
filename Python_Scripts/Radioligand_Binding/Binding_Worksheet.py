@@ -7,15 +7,25 @@ Created on Tue Sep  5 14:43:49 2023
 # =============================================================================
 # ############################## IMPORT MODULES ###############################
 # =============================================================================
-import datetime
+from data_files.modules.paths import (
+    INPUT_DIR,
+    ARCHIVE_DIR,
+    DATA_FILES_DIR,
+    PRINTOUT_TEMPLATE_PATH
+    RADIOACTIVITY_TEMPLATE_PATH,
+    RADIOACTIVITY_PATH,
+    USER_CONFIG_PATH
+)
+from data_files.modules.time_utils import(
+    FORMATTED_DATE
+)
+
 import os
 import logging
 import json
 import shutil
 
 import sys
-
-import shutil
 
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
@@ -28,42 +38,14 @@ import time
 import math
 
 # =============================================================================
-# ############################## TIME UTILS ###################################
-# =============================================================================
-# Format the date as 'YYYYMMDD'
-FORMATTED_DATE = datetime.date.today().strftime('%Y%m%d')
-
-# =============================================================================
 # ############################## FILE CONFIG ##################################
 # =============================================================================
-# %%
-# Directories
-INPUT_DIR = "input"
-ARCHIVE_DIR = "archive"
-DATA_FILES_DIR = "data_files"
-
-# Create DIR's that do not exist
-os.makedirs(INPUT_DIR, exist_ok=True)
-os.makedirs(ARCHIVE_DIR, exist_ok=True)
-
 # Text File Paths
 WORKLIST_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Barcodes.txt")
 BARCODE_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Worklist.txt")
 
-# Radioactivity Archive Paths
-RADIOACTIVITY_TEMPLATE_PATH = os.path.join(DATA_FILES_DIR, "Radioactivity_Archive_Template.xlsx")
-RADIOACTIVITY_PATH = "Radioactivity_Archive.xlsx"
-
-# Binding Printout Template
-PRINTOUT_TEMPLATE_PATH = os.path.join(DATA_FILES_DIR, "Binding_Printout_Template.xlsx")
+# Binding Prinout Destination Path
 PRINTOUT_PATH = os.path.join(ARCHIVE_DIR, f"{FORMATTED_DATE} - Binding Printout.xlsx")
-
-# User Config Path
-USER_CONFIG_EXAMPLE_PATH = os.path.join(DATA_FILES_DIR, "user_config.example.json")
-USER_CONFIG_PATH = os.path.join(DATA_FILES_DIR, "user_config.json")
-
-# %%
-print('hi')
 
 
 # =============================================================================
@@ -88,6 +70,25 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # ############################ INITIAL CONFIG #################################
 # =============================================================================
+def print_log_separator(message: str) -> None:
+    """
+    Prints Uppercase section header to log
+
+    Parameters
+    ----------
+    message : str
+        Separator text - will be converted to uppercase automatically
+
+    Returns
+    -------
+    None
+    """
+    logger.info("=" * 60)
+    logger.info(message.upper())
+    logger.info("=" * 60)
+
+
+
 def verify_user_config(user_config_path:str = USER_CONFIG_PATH) -> dict[str, str]:
     """
     Verifies user_config.json file exists
@@ -110,8 +111,8 @@ def verify_user_config(user_config_path:str = USER_CONFIG_PATH) -> dict[str, str
     # If file doesn't exist, create it by prompting the user
     if not os.path.isfile(user_config_path):
         logger.info('No user_config.json at: {user_config_path}, '
-                     'creating new one...'
-                     )
+                    'creating new one...'
+                    )
         print('\nNo user config file found. Please enter your information:')
         
         while True:
@@ -171,59 +172,101 @@ def verify_radioactivity_archive_file(
     Parameters
     ----------
     radioactivity_path : str, optional
-        DESCRIPTION. The default is RADIOACTIVITY_PATH.
+        The default is RADIOACTIVITY_PATH.
     radioactivity_template_path : str, optional
-        DESCRIPTION. The default is RADIOACTIVITY_TEMPLATE_PATH.
+        The default is RADIOACTIVITY_TEMPLATE_PATH.
 
     Returns
     -------
     None
-        DESCRIPTION.
     """
+    # copy template to root if it does not exist
     if not os.path.isfile(radioactivity_path):
         if not os.path.isfile(radioactivity_template_path):
             logger.warning(f"Missing {radioactivity_template_path}, ensure file is present")
-        
-
-
-
+            return
+        shutil.copy2(radioactivity_template_path, radioactivity_path)
+        logger.info(f"{radioactivity_template_path} copied to {radioactivity_path}")
     
+    logger.info(f"{radioactivity_path} - exists")
+    return
 
 
-
-
-
-
-
-
-
-def print_log_separator(message: str) -> None:
+# Create Barcodes.txt or worklist.txt
+def create_blank_file(file_path:str)->None:
     """
-    Prints Uppercase section header to log
+    Creates files if they do not exist, used for Barcode and Worklist text file creation.
+    Parameters
+    ----------
+    file_path : str
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    if os.path.exists(text_file_dir):
+        logging.info('text file already exists')
+    else:
+        with open(text_file_dir, 'w') as file:
+            file.write('')
+    return
+
+
+
+# Generalized function to open or print files
+def open_or_print_file(filepath:str, action:str="open")->None:
+    """
+    Open or Print a file, operating system agnostic
 
     Parameters
     ----------
-    message : str
-        Separator text - will be converted to uppercase automatically
-
+    filepath : str
+        path of file to open
+    action : str, optional
+        default to "open", other option is "print"
+    
     Returns
     -------
     None
     """
-    logger.info("=" * 60)
-    logger.info(message.upper())
-    logger.info("=" * 60)
+    try:
+        if platform.system() == 'Windows':
+            if action == "print":
+                os.startfile(filepath, 'print')
+            else:
+                os.startfile(filepath)
+        elif platform.system() == 'Darwin':  # macOS
+            if action == "print":
+                subprocess.call(('lpr', filepath))
+            else:
+                subprocess.call(('open', filepath))
+        else:  # Linux and other Unix-like systems
+            if action == "print":
+                subprocess.call(('lp', filepath))
+            else:
+                subprocess.call(('xdg-open', filepath))
+    except Exception as e:
+        print(f"Failed to {action} {filepath}: {e}")
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     print_log_separator("Starting Radiobinding Script")
     user_config = verify_user_config(USER_CONFIG_PATH)
+    verify_radioactivity_archive_file(RADIOACTIVITY_PATH, RADIOACTIVITY_TEMPLATE_PATH)
+
 
 """
-# Read
-with open(user_config_path, 'r') as f:
-    user_config = json.load(f)
-gray_switch = user_config['gray_switch']
-
 # ... rest of script ...
 
 # Write updated gray_switch back at the end
