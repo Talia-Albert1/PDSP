@@ -354,9 +354,11 @@ for receptor in receptors:
         receptor.update({'Buffer Volume (mL)':float(15)})
         receptor.update({'Number of Plate(s)':float(3)})
     
-    if receptor['Filter Type?'].lower().strip() == "filtermat":
+    # Filtermat
+    if receptor['Filter Type?'].lower().strip().startswith("f") == True:
         receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['Filtermat Pellet/Plate Ratio'] * 8) / 8})
-    elif receptor['Filter Type?'].lower().strip() == "unifilter":
+    # Unifilter
+    elif receptor['Filter Type?'].lower().strip().startswith("u") == True:
         receptor.update({'Number of Pellet(s)':round(receptor['Number of Plate(s)'] * receptor['Unifilter Pellet/Plate Ratio'] * 8) / 8})
     logging.debug(receptor['Receptor'] + ' buffer volume, number of plates, and number of pellets calculated.')
 
@@ -562,7 +564,7 @@ for index, receptor in enumerate(receptors):
 
         # Add formula to automatically calculate postion in plate counter
         if column == 'E' and index == 0:
-            current_cell.value = 4
+            current_cell.value = 1
         
         elif column == 'E':
             formula = '=IF(A' + str(row_index - 1) + '="SEC", K' + str(row_index - 1) + ' + 1, E' + str(row_index - 1) + ' + 1)'
@@ -765,7 +767,7 @@ for index, receptor in enumerate(receptors):
     if receptor['Binding Type'].lower() == 'prim':
         ws.cell(sec_index + 4, 12, receptor['Plate Name']).border = border_final_left
         ws.cell(sec_index + 4, 13, 'P').border = border_final_middle
-        ws.cell(sec_index + 4, 14, sec_index + 4).border = border_final_middle
+        ws.cell(sec_index + 4, 14, sec_index + 1).border = border_final_middle
         ws.cell(sec_index + 4, 15, receptor['Barcode 0']).border = border_final_right
     elif receptor['Binding Type'].lower() == 'sec':
         ws.cell(sec_index + 4, 12, receptor['Plate Name']).border = border_left
@@ -774,9 +776,9 @@ for index, receptor in enumerate(receptors):
         ws.cell(sec_index + 4, 13, 'S').border = border_middle
         ws.cell(sec_index + 5, 13, 'S').border = border_middle
         ws.cell(sec_index + 6, 13, 'S').border = border_final_middle
-        ws.cell(sec_index + 4, 14, sec_index + 4).border = border_middle
-        ws.cell(sec_index + 5, 14, sec_index + 5).border = border_middle
-        ws.cell(sec_index + 6, 14, sec_index + 6).border = border_final_middle
+        ws.cell(sec_index + 4, 14, sec_index + 1).border = border_middle
+        ws.cell(sec_index + 5, 14, sec_index + 2).border = border_middle
+        ws.cell(sec_index + 6, 14, sec_index + 3).border = border_final_middle
         ws.cell(sec_index + 4, 15, receptor['Barcode 0']).border = border_right
         ws.cell(sec_index + 5, 15, receptor['Barcode 1']).border = border_right
         ws.cell(sec_index + 6, 15, receptor['Barcode 2']).border = border_final_right

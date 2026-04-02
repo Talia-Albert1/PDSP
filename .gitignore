@@ -32,5 +32,12 @@ Python_Scripts/Radioligand_Binding/data_files/gray_switch.txt
 Python_Scripts/Radioligand_Binding/Radioactivity_Archive.xlsx
 Python_Scripts/Radioligand_Binding/data_files/user_name.txt
 Python_Scripts/Radioligand_Binding/data_files/user_initials.txt
-*.json
 Python_Scripts/Radioligand_Binding/~$Radioactivity_Archive.xlsx
+
+# Ignore JSON files except examples
+*.json
+!Python_Scripts/Radioligand_Binding/data_files/user_config.example.json
+
+**.venv/
+**.python-version
+
