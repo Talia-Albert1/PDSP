@@ -23,7 +23,7 @@
 /Python_Scripts/I125_Binding/125I-Radioactivity_Archive.xlsx
 /Python_Scripts/I125_Binding/data_files/Gray_Switch.txt
 
-/Python_Scripts/__pycache__
+*__pycache__
 
 
 

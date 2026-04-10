@@ -11,7 +11,7 @@ from data_files.modules.paths import (
     INPUT_DIR,
     ARCHIVE_DIR,
     DATA_FILES_DIR,
-    PRINTOUT_TEMPLATE_PATH
+    PRINTOUT_TEMPLATE_PATH,
     RADIOACTIVITY_TEMPLATE_PATH,
     RADIOACTIVITY_PATH,
     USER_CONFIG_PATH
@@ -20,10 +20,15 @@ from data_files.modules.time_utils import(
     FORMATTED_DATE
 )
 
+from data_files.modules.get_user_inputs import get_user_inputs
+
 import os
 import logging
 import json
 import shutil
+import platform
+import subprocess
+import pandas as pd
 
 import sys
 
@@ -41,8 +46,8 @@ import math
 # ############################## FILE CONFIG ##################################
 # =============================================================================
 # Text File Paths
-WORKLIST_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Barcodes.txt")
-BARCODE_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Worklist.txt")
+BARCODE_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Barcodes.txt")
+WORKLIST_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Worklist.txt")
 
 # Binding Prinout Destination Path
 PRINTOUT_PATH = os.path.join(ARCHIVE_DIR, f"{FORMATTED_DATE} - Binding Printout.xlsx")
@@ -183,8 +188,8 @@ def verify_radioactivity_archive_file(
     # copy template to root if it does not exist
     if not os.path.isfile(radioactivity_path):
         if not os.path.isfile(radioactivity_template_path):
-            logger.warning(f"Missing {radioactivity_template_path}, ensure file is present")
-            return
+            logger.error(f"Missing {radioactivity_template_path}, ensure file is present")
+            sys.exit(1)
         shutil.copy2(radioactivity_template_path, radioactivity_path)
         logger.info(f"{radioactivity_template_path} copied to {radioactivity_path}")
     
@@ -206,10 +211,10 @@ def create_blank_file(file_path:str)->None:
     _type_
         _description_
     """
-    if os.path.exists(text_file_dir):
+    if os.path.exists(file_path):
         logging.info('text file already exists')
     else:
-        with open(text_file_dir, 'w') as file:
+        with open(file_path, 'w') as file:
             file.write('')
     return
 
@@ -217,9 +222,7 @@ def create_blank_file(file_path:str)->None:
 
 # Generalized function to open or print files
 def open_or_print_file(filepath:str, action:str="open")->None:
-    """
-    Open or Print a file, operating system agnostic
-
+    """Open or Print a file, operating system agnostic
     Parameters
     ----------
     filepath : str
@@ -253,6 +256,15 @@ def open_or_print_file(filepath:str, action:str="open")->None:
 
 
 
+def prompt_user_input()-> None:
+    while True:
+        user_input = input("Enter 'y' when ready to proceed: ").strip().lower()
+        
+        if user_input == 'y':
+            print("Great! Proceeding...")
+            break
+        else:
+            print("Invalid input. Please enter 'Y' to proceed.")
 
 
 
@@ -260,10 +272,91 @@ def open_or_print_file(filepath:str, action:str="open")->None:
 
 
 
-if __name__ == "__main__":
-    print_log_separator("Starting Radiobinding Script")
-    user_config = verify_user_config(USER_CONFIG_PATH)
-    verify_radioactivity_archive_file(RADIOACTIVITY_PATH, RADIOACTIVITY_TEMPLATE_PATH)
+def load_text_files(file_path: str, file_type: str) -> pd.DataFrame:
+    """Loads a text file into a DataFrame.
+
+    Args:
+        file_path (str): Path to the text file.
+        file_type (str): Type of file, either 'barcode' or 'worklist'.
+
+    Returns:
+        pd.DataFrame: Loaded data.
+
+    Raises:
+        ValueError: If file_type is not 'barcode' or 'worklist'.
+    """
+    with open(file_path, 'r') as f:
+        if file_type == "barcode":
+            barcodes = [line.strip() for line in f]
+            df = pd.DataFrame(barcodes, columns=["Barcode"])
+
+        elif file_type == "worklist":
+            binding_types = []
+            plate_names = []
+            for line in f:
+                columns = line.strip().split('\t')
+                binding_types.append(columns[0])
+                plate_names.append(columns[1])
+            df = pd.DataFrame({
+                'Binding Type': binding_types,
+                'Plate Name': plate_names
+            })
+
+        else:
+            raise ValueError(f"Unknown file_type '{file_type}'. Expected 'barcode' or 'worklist'.")
+    
+    logger.info(f"{file_type} text file loaded from {file_path}, shape of dataframe {df.shape}")
+
+    return df
+
+
+def verify_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> None:
+    """Verifies that the Worklist and Barcode text files were populated correctly, and ensures the
+    number of barcodes matches what is expected.
+
+    Args:
+        barcode_df (pd.DataFrame, optional): _description_. Defaults to barcode_df.
+        worklist_df (pd.DataFrame, optional): _description_. Defaults to worklist_df.
+
+    Raises:
+        RuntimeError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Verify Barocde dataframe
+    # Ensure there are no blanks
+    if barcodes_df is None or worklist_df is None:
+        logger.error("User cancelled or closed input window")
+        sys.exit(1)
+
+    logger.info(f"Loaded {len(barcode_df)} barcodes")
+    logger.info(f"Loaded {len(worklist_df)} worklist entries")
+
+
+def merge_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> pd.DataFrame:
+    """_summary_
+
+    Args:
+        barcode_df (pd.DataFrame): _description_
+        worklist_df (pd.DataFrame): _description_
+
+    Raises:
+        RuntimeError: _description_
+
+    Returns:
+        pd.DataFrame: _description_
+    """
+
+
+# if __name__ == "__main__":
+print_log_separator("Starting Radiobinding Script")
+user_config = verify_user_config(USER_CONFIG_PATH)
+verify_radioactivity_archive_file(RADIOACTIVITY_PATH, RADIOACTIVITY_TEMPLATE_PATH)
+barcodes_df, worklist_df = get_user_inputs()
+verify_input_df(barcodes_df, worklist_df)
+
+
 
 
 """
