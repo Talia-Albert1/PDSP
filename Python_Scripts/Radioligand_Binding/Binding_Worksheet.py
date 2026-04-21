@@ -7,27 +7,16 @@ Created on Tue Sep  5 14:43:49 2023
 # =============================================================================
 # ############################## IMPORT MODULES ###############################
 # =============================================================================
-from data_files.modules.paths import (
-    INPUT_DIR,
-    ARCHIVE_DIR,
-    DATA_FILES_DIR,
-    PRINTOUT_TEMPLATE_PATH,
-    RADIOACTIVITY_TEMPLATE_PATH,
-    RADIOACTIVITY_PATH,
-    USER_CONFIG_PATH
-)
-from data_files.modules.time_utils import(
-    FORMATTED_DATE
-)
-
-from data_files.modules.get_user_inputs import get_user_inputs
+from data_files.modules import config_paths as paths
+from data_files.modules.time_utils import FORMATTED_DATE
+from data_files.modules import inputs
+from data_files.modules import validators
 
 import os
+from pathlib import Path
 import logging
 import json
 import shutil
-import platform
-import subprocess
 import pandas as pd
 
 import sys
@@ -42,296 +31,34 @@ import time
 
 import math
 
-# =============================================================================
-# ############################## FILE CONFIG ##################################
-# =============================================================================
-# Text File Paths
-BARCODE_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Barcodes.txt")
-WORKLIST_TEXT_PATH = os.path.join(INPUT_DIR, f"{FORMATTED_DATE}_Worklist.txt")
-
-# Binding Prinout Destination Path
-PRINTOUT_PATH = os.path.join(ARCHIVE_DIR, f"{FORMATTED_DATE} - Binding Printout.xlsx")
-
 
 # =============================================================================
 # ############################ LOGGING CONFIG #################################
 # =============================================================================
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[
-        logging.FileHandler(os.path.join(ARCHIVE_DIR, f"{FORMATTED_DATE}_Binding_Worksheet.log")),
-        logging.StreamHandler()
-    ]
-)
+def setup_logging(log_filepath: Path):
+    """Configures logging to both console and the specified file."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(name)-30s | %(levelname)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[
+            logging.FileHandler(log_filepath),
+            logging.StreamHandler()
+        ]
+    )
+    # Return the root logger or a specific one
+    return logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
 
-
-
-
-
-# =============================================================================
-# ############################ INITIAL CONFIG #################################
-# =============================================================================
 def print_log_separator(message: str) -> None:
-    """
-    Prints Uppercase section header to log
-
-    Parameters
-    ----------
-    message : str
-        Separator text - will be converted to uppercase automatically
-
-    Returns
-    -------
-    None
-    """
+    """Prints Uppercase section header to log"""
     logger.info("=" * 60)
     logger.info(message.upper())
     logger.info("=" * 60)
 
 
 
-def verify_user_config(user_config_path:str = USER_CONFIG_PATH) -> dict[str, str]:
-    """
-    Verifies user_config.json file exists
-    Verifies the following columns exist:
-    ['user_name', 'user_initials', 'gray_switch']
-    
-    Returns dict
 
-    Parameters
-    ----------
-    user_config_path : str, optional
-        DESCRIPTION. The default is USER_CONFIG_PATH.
-
-    Returns
-    -------
-    dict[str, str]
-        DESCRIPTION.
-
-    """
-    # If file doesn't exist, create it by prompting the user
-    if not os.path.isfile(user_config_path):
-        logger.info('No user_config.json at: {user_config_path}, '
-                    'creating new one...'
-                    )
-        print('\nNo user config file found. Please enter your information:')
-        
-        while True:
-            # Prompt user to input info for JSON
-            user_name = input("Enter your first name: ").strip()
-            user_initials = input("Enter your initials: ").strip()
-            gray_switch = 1  # default starting value
-            
-            # Confirm with user
-            print('\nPlease verify your information:')
-            print(f'  Name:     {user_name}')
-            print(f'  Initials: {user_initials}')
-            confirm = input('Is this correct? (Y/N): ').strip().lower()
-            
-            if confirm == 'y':
-                user_config = {
-                    'user_name': user_name,
-                    'user_initials': user_initials,
-                    'gray_switch': gray_switch
-                }
-                with open(user_config_path, 'w') as f:
-                    json.dump(user_config, f, indent=4)
-                logger.info(f'user_config.json created at: {user_config_path}')
-                break
-            else:
-                print('Let\'s try again...\n')
-    
-    # Load the file
-    try:
-        with open(user_config_path, 'r') as f:
-            user_config = json.load(f)
-    except json.JSONDecodeError as e:
-        logging.error(f'user_config.json is malformed and could not be read: {e}')
-        sys.exit(1)
-    
-    # Verify required fields are present and not empty
-    required_fields = ['user_name', 'user_initials', 'gray_switch']
-    missing = [field for field in required_fields if not user_config.get(field, None)]
-    if missing:
-        logger.error(f'user_config.json is missing or has empty fields: {missing}')
-        sys.exit(1)
-    
-    logger.info(f'user_config.json loaded for: {user_config["user_name"]} ({user_config["user_initials"]})')
-    return user_config
-
-
-
-
-def verify_radioactivity_archive_file(
-        radioactivity_path         : str = RADIOACTIVITY_PATH,
-        radioactivity_template_path: str = RADIOACTIVITY_TEMPLATE_PATH
-    ) -> None:
-    """
-    Verifies the Radioactivity Archive Exists, if it does not, the template is
-    copied from Data_Files_Dir into the root.
-
-    Parameters
-    ----------
-    radioactivity_path : str, optional
-        The default is RADIOACTIVITY_PATH.
-    radioactivity_template_path : str, optional
-        The default is RADIOACTIVITY_TEMPLATE_PATH.
-
-    Returns
-    -------
-    None
-    """
-    # copy template to root if it does not exist
-    if not os.path.isfile(radioactivity_path):
-        if not os.path.isfile(radioactivity_template_path):
-            logger.error(f"Missing {radioactivity_template_path}, ensure file is present")
-            sys.exit(1)
-        shutil.copy2(radioactivity_template_path, radioactivity_path)
-        logger.info(f"{radioactivity_template_path} copied to {radioactivity_path}")
-    
-    logger.info(f"{radioactivity_path} - exists")
-    return
-
-
-# Create Barcodes.txt or worklist.txt
-def create_blank_file(file_path:str)->None:
-    """
-    Creates files if they do not exist, used for Barcode and Worklist text file creation.
-    Parameters
-    ----------
-    file_path : str
-        _description_
-
-    Returns
-    -------
-    _type_
-        _description_
-    """
-    if os.path.exists(file_path):
-        logging.info('text file already exists')
-    else:
-        with open(file_path, 'w') as file:
-            file.write('')
-    return
-
-
-
-# Generalized function to open or print files
-def open_or_print_file(filepath:str, action:str="open")->None:
-    """Open or Print a file, operating system agnostic
-    Parameters
-    ----------
-    filepath : str
-        path of file to open
-    action : str, optional
-        default to "open", other option is "print"
-    
-    Returns
-    -------
-    None
-    """
-    try:
-        if platform.system() == 'Windows':
-            if action == "print":
-                os.startfile(filepath, 'print')
-            else:
-                os.startfile(filepath)
-        elif platform.system() == 'Darwin':  # macOS
-            if action == "print":
-                subprocess.call(('lpr', filepath))
-            else:
-                subprocess.call(('open', filepath))
-        else:  # Linux and other Unix-like systems
-            if action == "print":
-                subprocess.call(('lp', filepath))
-            else:
-                subprocess.call(('xdg-open', filepath))
-    except Exception as e:
-        print(f"Failed to {action} {filepath}: {e}")
-
-
-
-
-def prompt_user_input()-> None:
-    while True:
-        user_input = input("Enter 'y' when ready to proceed: ").strip().lower()
-        
-        if user_input == 'y':
-            print("Great! Proceeding...")
-            break
-        else:
-            print("Invalid input. Please enter 'Y' to proceed.")
-
-
-
-
-
-
-
-def load_text_files(file_path: str, file_type: str) -> pd.DataFrame:
-    """Loads a text file into a DataFrame.
-
-    Args:
-        file_path (str): Path to the text file.
-        file_type (str): Type of file, either 'barcode' or 'worklist'.
-
-    Returns:
-        pd.DataFrame: Loaded data.
-
-    Raises:
-        ValueError: If file_type is not 'barcode' or 'worklist'.
-    """
-    with open(file_path, 'r') as f:
-        if file_type == "barcode":
-            barcodes = [line.strip() for line in f]
-            df = pd.DataFrame(barcodes, columns=["Barcode"])
-
-        elif file_type == "worklist":
-            binding_types = []
-            plate_names = []
-            for line in f:
-                columns = line.strip().split('\t')
-                binding_types.append(columns[0])
-                plate_names.append(columns[1])
-            df = pd.DataFrame({
-                'Binding Type': binding_types,
-                'Plate Name': plate_names
-            })
-
-        else:
-            raise ValueError(f"Unknown file_type '{file_type}'. Expected 'barcode' or 'worklist'.")
-    
-    logger.info(f"{file_type} text file loaded from {file_path}, shape of dataframe {df.shape}")
-
-    return df
-
-
-def verify_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> None:
-    """Verifies that the Worklist and Barcode text files were populated correctly, and ensures the
-    number of barcodes matches what is expected.
-
-    Args:
-        barcode_df (pd.DataFrame, optional): _description_. Defaults to barcode_df.
-        worklist_df (pd.DataFrame, optional): _description_. Defaults to worklist_df.
-
-    Raises:
-        RuntimeError: _description_
-
-    Returns:
-        _type_: _description_
-    """
-    # Verify Barocde dataframe
-    # Ensure there are no blanks
-    if barcodes_df is None or worklist_df is None:
-        logger.error("User cancelled or closed input window")
-        sys.exit(1)
-
-    logger.info(f"Loaded {len(barcode_df)} barcodes")
-    logger.info(f"Loaded {len(worklist_df)} worklist entries")
 
 
 def merge_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> pd.DataFrame:
@@ -350,12 +77,21 @@ def merge_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> pd.D
 
 
 # if __name__ == "__main__":
+paths.initialize_directories()
+daily_paths = paths.get_daily_paths(FORMATTED_DATE)
+logger = setup_logging(daily_paths["log"])
 print_log_separator("Starting Radiobinding Script")
-user_config = verify_user_config(USER_CONFIG_PATH)
-verify_radioactivity_archive_file(RADIOACTIVITY_PATH, RADIOACTIVITY_TEMPLATE_PATH)
-barcodes_df, worklist_df = get_user_inputs()
-verify_input_df(barcodes_df, worklist_df)
-
+user_config = validators.verify_user_config(paths.USER_CONFIG_PATH)
+validators.verify_radioactivity_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
+inputs.create_blank_file(daily_paths["barcode"])
+inputs.create_blank_file(daily_paths["worklist"])
+inputs.open_or_print_file(daily_paths["barcode"], action="open")
+inputs.open_or_print_file(daily_paths["worklist"], action="open")
+inputs.prompt_user_input()
+barcode_df = inputs.load_text_files(daily_paths["barcode"], file_type="barcode")
+worklist_df = inputs.load_text_files(daily_paths["worklist"], file_type="worklist")
+validators.verify_input_df(barcode_df, worklist_df)
+print_log_separator("done :/)")
 
 
 
