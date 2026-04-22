@@ -59,6 +59,7 @@ def open_or_print_file(filepath: Path, action: str="open")->None:
 
 
 def prompt_user_input()-> None:
+    """Prompts user to proceed script after completing text files"""
     while True:
         user_input = input("Enter 'y' when ready to proceed: ").strip().lower()
         
@@ -74,19 +75,16 @@ def prompt_user_input()-> None:
 
 
 
-def load_text_files(file_path: Path, file_type: str) -> pd.DataFrame:
-    """Loads a text file into a DataFrame.
+def load_text_files(file_path: Path) -> list:
+    """Reads in text file and returns list of lines"""
+    with open(file_path, 'r') as f:
+        # get non-empty lines
+        lines = [line.strip() for line in f if line.strip()]
 
-    Args:
-        file_path (str): Path to the text file.
-        file_type (str): Type of file, either 'barcode' or 'worklist'.
+    return lines
 
-    Returns:
-        pd.DataFrame: Loaded data.
-
-    Raises:
-        ValueError: If file_type is not 'barcode' or 'worklist'.
-    """
+def old_load_text_files(file_path: Path, file_type: str) -> pd.DataFrame:
+    """Loads a text file into a raw list"""
     with open(file_path, 'r') as f:
         if file_type == "barcode":
             barcodes = [line.strip() for line in f]

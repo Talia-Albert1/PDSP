@@ -8,9 +8,14 @@ Created on Tue Sep  5 14:43:49 2023
 # ############################## IMPORT MODULES ###############################
 # =============================================================================
 from data_files.modules import config_paths as paths
+from data_files.modules.config_log import (
+    setup_logging,
+    print_log_separator
+)
 from data_files.modules.time_utils import FORMATTED_DATE
 from data_files.modules import inputs
 from data_files.modules import validators
+
 
 import os
 from pathlib import Path
@@ -32,32 +37,6 @@ import time
 import math
 
 
-# =============================================================================
-# ############################ LOGGING CONFIG #################################
-# =============================================================================
-def setup_logging(log_filepath: Path):
-    """Configures logging to both console and the specified file."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s | %(name)-30s | %(levelname)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[
-            logging.FileHandler(log_filepath),
-            logging.StreamHandler()
-        ]
-    )
-    # Return the root logger or a specific one
-    return logging.getLogger(__name__)
-
-
-def print_log_separator(message: str) -> None:
-    """Prints Uppercase section header to log"""
-    logger.info("=" * 60)
-    logger.info(message.upper())
-    logger.info("=" * 60)
-
-
-
 
 
 
@@ -77,20 +56,40 @@ def merge_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> pd.D
 
 
 # if __name__ == "__main__":
+#   Initalize
 paths.initialize_directories()
 daily_paths = paths.get_daily_paths(FORMATTED_DATE)
 logger = setup_logging(daily_paths["log"])
 print_log_separator("Starting Radiobinding Script")
-user_config = validators.verify_user_config(paths.USER_CONFIG_PATH)
-validators.verify_radioactivity_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
+
+# Verify Configs
+print_log_separator("Verifying Config Files")
+try:
+    user_config = validators.validate_user_config(paths.USER_CONFIG_PATH)
+    validators.validate_radioactivity_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
+except (ValueError, KeyError, FileNotFoundError) as e:
+        # One catch-all for critical setup errors
+        logger.critical(f"Startup failed: {e}", exc_info=True)
+        sys.exit(1)
+
+
+# Load Text Files
+print_log_separator("Loading Text Files")
 inputs.create_blank_file(daily_paths["barcode"])
 inputs.create_blank_file(daily_paths["worklist"])
 inputs.open_or_print_file(daily_paths["barcode"], action="open")
 inputs.open_or_print_file(daily_paths["worklist"], action="open")
 inputs.prompt_user_input()
-barcode_df = inputs.load_text_files(daily_paths["barcode"], file_type="barcode")
-worklist_df = inputs.load_text_files(daily_paths["worklist"], file_type="worklist")
-validators.verify_input_df(barcode_df, worklist_df)
+
+# Validate Text Files
+print_log_separator("Validating Text Files")
+barcode_raw = inputs.load_text_files(daily_paths["barcode"])
+worklist_raw = inputs.load_text_files(daily_paths["worklist"])
+validators.validate_input(barcode_raw, worklist_raw)
+
+# Merge Text Files
+print_log_separator("Merging Text Files")
+
 print_log_separator("done :/)")
 
 

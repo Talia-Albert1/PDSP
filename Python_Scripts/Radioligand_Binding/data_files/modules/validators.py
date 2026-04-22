@@ -6,10 +6,9 @@ import shutil
 import pandas as pd
 logger = logging.getLogger(__name__)
 
-def verify_user_config(user_config_path:Path) -> dict[str, str]:
-    """
-    Verifies user_config.json file exists
-    Verifies the following columns exist:
+def validate_user_config(user_config_path:Path) -> dict[str, str]:
+    """Validates user_config.json file exists
+    Validates the following columns exist:
     ['user_name', 'user_initials', 'gray_switch']
     
     Returns dict
@@ -17,12 +16,12 @@ def verify_user_config(user_config_path:Path) -> dict[str, str]:
     Parameters
     ----------
     user_config_path : str, optional
-        DESCRIPTION. The default is USER_CONFIG_PATH.
+        Path to user_config.json file
 
     Returns
     -------
     dict[str, str]
-        DESCRIPTION.
+        dict with ['user_name', 'user_initials', 'gray_switch']
 
     """
     # If file doesn't exist, create it by prompting the user
@@ -62,15 +61,14 @@ def verify_user_config(user_config_path:Path) -> dict[str, str]:
         with open(user_config_path, 'r') as f:
             user_config = json.load(f)
     except json.JSONDecodeError as e:
-        logging.error(f'user_config.json is malformed and could not be read: {e}')
-        sys.exit(1)
+        raise ValueError(f"Config at {user_config_path} is not valid JSON: {e}")
     
     # Verify required fields are present and not empty
     required_fields = ['user_name', 'user_initials', 'gray_switch']
     missing = [field for field in required_fields if not user_config.get(field, None)]
+
     if missing:
-        logger.error(f"user_config.json is missing or has empty fields: {missing}")
-        sys.exit(1)
+        raise KeyError(f"Config is missing required fields: {missing}")
     
     logger.info(f"user_config.json loaded for: {user_config['user_name']} ({user_config['user_initials']})")
     return user_config
@@ -78,7 +76,7 @@ def verify_user_config(user_config_path:Path) -> dict[str, str]:
 
 
 
-def verify_radioactivity_archive_file(
+def validate_radioactivity_archive_file(
         radioactivity_path         : Path,
         radioactivity_template_path: Path
     ) -> None:
@@ -99,8 +97,7 @@ def verify_radioactivity_archive_file(
     # copy template to root if it does not exist
     if not radioactivity_path.exists():
         if not radioactivity_template_path.exists():
-            logger.error(f"Missing {radioactivity_template_path}, ensure file is present")
-            sys.exit(1)
+            raise FileNotFoundError(f"Required template missing: {template_path}")
         shutil.copy2(radioactivity_template_path, radioactivity_path)
         logger.info(f"{radioactivity_template_path} copied to {radioactivity_path}")
     else:
@@ -112,25 +109,18 @@ def verify_radioactivity_archive_file(
 
 
 
-def verify_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> None:
-    """Verifies that the Worklist and Barcode text files were populated correctly, and ensures the
-    number of barcodes matches what is expected.
-
-    Args:
-        barcode_df (pd.DataFrame, optional): _description_. Defaults to barcode_df.
-        worklist_df (pd.DataFrame, optional): _description_. Defaults to worklist_df.
-
-    Raises:
-        RuntimeError: _description_
-
-    Returns:
-        _type_: _description_
+def validate_input(barcode_raw: list, worklist_raw: list) -> None:
     """
-    # Verify Barocde dataframe
-    # Ensure there are no blanks
-    if barcode_df is None or worklist_df is None:
-        logger.error("User cancelled or closed input window")
-        sys.exit(1)
+    Verifies that the files were populated and lists are not empty.
+    
+    Raises:
+        ValueError: If either list is None or empty.
+    """
+    if not barcode_raw:
+        raise ValueError("Barcode list is empty or was not provided.")
+        
+    if not worklist_raw:
+        raise ValueError("Worklist list is empty or was not provided.")
 
-    logger.info(f"Loaded {len(barcode_df)} barcodes")
-    logger.info(f"Loaded {len(worklist_df)} worklist entries")
+    logger.info(f"Loaded {len(barcode_raw)} barcodes")
+    logger.info(f"Loaded {len(worklist_raw)} worklist entries")
