@@ -56,38 +56,56 @@ def merge_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> pd.D
 
 
 # if __name__ == "__main__":
-#   Initalize
+# ==============================================================================
+# INITALIZE
+# ==============================================================================
 paths.initialize_directories()
 daily_paths = paths.get_daily_paths(FORMATTED_DATE)
 logger = setup_logging(daily_paths["log"])
 print_log_separator("Starting Radiobinding Script")
 
-# Verify Configs
-print_log_separator("Verifying Config Files")
+# ==============================================================================
+# VALIDATE CONFIG FILES
+# ==============================================================================
+print_log_separator("Validating Config Files")
 try:
     user_config = validators.validate_user_config(paths.USER_CONFIG_PATH)
     validators.validate_radioactivity_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
-except (ValueError, KeyError, FileNotFoundError) as e:
+except (ValueError, KeyError, FileNotFoundError, RuntimeError) as e:
         # One catch-all for critical setup errors
         logger.critical(f"Startup failed: {e}", exc_info=True)
         sys.exit(1)
 
 
-# Load Text Files
+# ==============================================================================
+# LOAD TEXT FILES
+# ==============================================================================
 print_log_separator("Loading Text Files")
 inputs.create_blank_file(daily_paths["barcode"])
 inputs.create_blank_file(daily_paths["worklist"])
-inputs.open_or_print_file(daily_paths["barcode"], action="open")
-inputs.open_or_print_file(daily_paths["worklist"], action="open")
+try:
+    inputs.open_or_print_file(daily_paths["barcode"], action="open")
+    inputs.open_or_print_file(daily_paths["worklist"], action="open")
+except Exception as e:
+    logger.critical(f"Failure Loading File: {e}")
+    sys.exit(1)
 inputs.prompt_user_input()
 
-# Validate Text Files
+# ==============================================================================
+# VALIDATE TEXT FILES
+# ==============================================================================
 print_log_separator("Validating Text Files")
 barcode_raw = inputs.load_text_files(daily_paths["barcode"])
 worklist_raw = inputs.load_text_files(daily_paths["worklist"])
-validators.validate_input(barcode_raw, worklist_raw)
+try:
+    validators.validate_input(barcode_raw, worklist_raw)
+except (ValueError) as e:
+    logger.critical(f"Text File Validation Failed: {e}")
+    sys.exit(1)
 
-# Merge Text Files
+# ==============================================================================
+# CREATE PANDAS DATAFRAME FOR FILES
+# ==============================================================================
 print_log_separator("Merging Text Files")
 
 print_log_separator("done :/)")

@@ -19,6 +19,7 @@ def setup_logging(log_filepath: Path):
 
 def print_log_separator(message: str) -> None:
     """Prints Uppercase section header to log"""
-    logger.info("=" * 60)
+    number_of_equals_chars = 80
+    logger.info("=" * number_of_equals_chars)
     logger.info(message.upper())
-    logger.info("=" * 60)
+    logger.info("=" * number_of_equals_chars)

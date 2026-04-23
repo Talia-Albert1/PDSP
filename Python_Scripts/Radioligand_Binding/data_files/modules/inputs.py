@@ -4,15 +4,48 @@ import pandas as pd
 import os
 import platform
 import subprocess
+import json
 
 
 
 logger = logging.getLogger(__name__)
 
+def run_config_setup_wizard(user_config_path: Path) -> None:
+    print('\n--- User Configuration Setup ---')
+    
+    while True:
+        user_name = input("Enter your first name: ").strip()
+        user_initials = input("Enter your initials: ").strip()
+        gray_switch = 1
+        
+        if not user_name or not user_initials:
+            print("Fields cannot be empty. Please try again.")
+            continue
+
+        print('\nPlease verify your information:')
+        print(f'  Name:     {user_name}')
+        print(f'  Initials: {user_initials}')
+        confirm = input('Is this correct? (Y/N): ').strip().lower()
+        if confirm == 'y':
+            user_config = {
+                'user_name': user_name,
+                'user_initials': user_initials,
+                'gray_switch': gray_switch
+            }
+            
+            with open(user_config_path, 'w') as f:
+                json.dump(user_config, f, indent=4)
+            
+            logger.info(f"New config created at {user_config_path}")
+            break
+        else:
+            print('Let\'s try again...\n')
+
+
 # Create Barcodes.txt or worklist.txt
 def create_blank_file(file_path: Path)->None:
     """Creates files at path if they do not exist.
-    For Barcode and Worklist text file creation."""
+    Used Barcode and Worklist text file creation."""
     if os.path.exists(file_path):
         logger.info(f"{file_path} text file already exists")
     else:
@@ -53,7 +86,7 @@ def open_or_print_file(filepath: Path, action: str="open")->None:
             else:
                 subprocess.call(('xdg-open', filepath))
     except Exception as e:
-        print(f"Failed to {action} {filepath}: {e}")
+        raise Exception(f"Failed to {action} {filepath}: {e}")
 
 
 
@@ -83,28 +116,4 @@ def load_text_files(file_path: Path) -> list:
 
     return lines
 
-def old_load_text_files(file_path: Path, file_type: str) -> pd.DataFrame:
-    """Loads a text file into a raw list"""
-    with open(file_path, 'r') as f:
-        if file_type == "barcode":
-            barcodes = [line.strip() for line in f]
-            df = pd.DataFrame(barcodes, columns=["Barcode"])
 
-        elif file_type == "worklist":
-            binding_types = []
-            plate_names = []
-            for line in f:
-                columns = line.strip().split('\t')
-                binding_types.append(columns[0])
-                plate_names.append(columns[1])
-            df = pd.DataFrame({
-                'Binding Type': binding_types,
-                'Plate Name': plate_names
-            })
-
-        else:
-            raise ValueError(f"Unknown file_type '{file_type}'. Expected 'barcode' or 'worklist'.")
-    
-    logger.info(f"{file_type} text file loaded from {file_path}, shape of dataframe {df.shape}")
-
-    return df
