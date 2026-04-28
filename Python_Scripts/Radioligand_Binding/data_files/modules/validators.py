@@ -103,23 +103,107 @@ def validate_radioactivity_archive_file(
 def validate_input(barcode_raw: list, worklist_raw: list) -> None:
     """
     Verifies that the files were populated and lists are not empty.
+    Compiles errors into list, raises error back to main script via truthiness checks
     
     Raises:
         ValueError: If either list is None or empty.
     """
-    # emptiness check
+    # --------------------------------------------------------------------------------
+    # ERRORS LIST
+    # --------------------------------------------------------------------------------
+    errors = []
+    def compile_errors(list_of_errors:list) -> str:
+        if errors:
+            report = "\n- ".join(list_of_errors)
+            raise ValueError(f"Validation failed with {len(list_of_errors)} error(s):\n- {report}")
+
+    # --------------------------------------------------------------------------------
+    # EMPTINESS CHECK
+    # --------------------------------------------------------------------------------
     if not barcode_raw:
-        raise ValueError("Barcode text file is empty or was not provided.")
-        
+        errors.append("Barcode text file is empty or was not provided.")
     if not worklist_raw:
-        raise ValueError("Worklist text file is empty or was not provided.")
+        errors.append("Worklist text file is empty or was not provided.")
     
-    # barcode validation
+    # --------------------------------------------------------------------------------
+    # REPORT EMPTY ERRORS
+    # --------------------------------------------------------------------------------
+    if errors:
+        compile_errors(errors)
+    
+    # --------------------------------------------------------------------------------
+    # BARCODE VALIDATION
+    # --------------------------------------------------------------------------------
     logger.info(f"Loaded {len(barcode_raw)} barcodes")
+
+    # check for duplicate barcodes, should be none
     barcode_dupes = [b for b in barcode_raw if barcode_raw.count(b) > 1]
     if barcode_dupes:
-        raise ValueError(f"Duplicate Barcodes: {', '.join(set(barcode_dupes))}")
-
-
+        msg = f"Duplicate Barcodes: {', '.join(set(barcode_dupes))}"
+        errors.append(msg)
     
+    # --------------------------------------------------------------------------------
+    # WORKLIST VALIDATION
+    # --------------------------------------------------------------------------------
     logger.info(f"Loaded {len(worklist_raw)} worklist entries")
+
+    # all lines should have 2 columns "Binding Type\tReceptorName-X"
+    # column one should be "PRIM" or "SEC"
+    erroneous_lines = []
+    spelling_errors = []
+    excpected_bt_values = ["PRIM", "SEC"]
+    binding_type_list = []
+    for i, line in enumerate(worklist_raw):
+        columns = line.split('\t')
+        
+        # if not 2 columns, error
+        if len(columns) != 2:
+            erroneous_lines.append(f"Row {i}: {line}")    
+
+        elif columns:
+            binding_type = columns[0].upper().strip()
+
+            if binding_type not in excpected_bt_values:
+                spelling_errors.append(f"Row {i}: Incorrect Label:{columns[1]}")
+            
+            binding_type_list.append(binding_type)
+
+
+    if erroneous_lines:
+        msg = f"Worklist rows missing tab-delimiter: {'; '.join(erroneous_lines)}"
+        logger.warning(msg)
+        errors.append(msg)
+    
+    if spelling_errors:
+        msg = f"Worklist rows without 'PRIM' or 'SEC' in first column: {'; '.join(spelling_errors)}"
+        logger.warning(msg)
+        errors.append(msg)
+    
+    # --------------------------------------------------------------------------------
+    # BARCODE COUNTS
+    # --------------------------------------------------------------------------------
+    num_barcodes_barcode = len(barcode_raw)
+    prim_count = sum(1 for bt in binding_type_list if bt == "PRIM")
+    sec_count = sum(1 for bt in binding_type_list if bt == "SEC")
+    num_barcodes_worklist = prim_count + (sec_count * 3)
+
+    if num_barcodes_barcode != num_barcodes_worklist:
+        msg_1 = (f"Number of Barcodes from Barcode text file: {num_barcodes_barcode}")
+        msg_2 = (f"Number of Barcodes from Worklist text file: {num_barcodes_worklist}")    
+        logger.warning(msg_1)
+        logger.warning(msg_2)
+        errors.append(msg_1)
+        errors.append(msg_2)
+
+    else:
+        logger.info(f"Number of Barcodes from Barcode file and Worklist file match: {num_barcodes_barcode} barcodes")
+        
+    # --------------------------------------------------------------------------------
+    # REPORT ERRORS IF THERE ARE ANY
+    # --------------------------------------------------------------------------------
+    if errors:
+        compile_errors(errors)
+
+
+
+

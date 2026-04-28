@@ -15,6 +15,7 @@ from data_files.modules.config_log import (
 from data_files.modules.time_utils import FORMATTED_DATE
 from data_files.modules import inputs
 from data_files.modules import validators
+from data_files.modules import processing
 
 
 import os
@@ -104,9 +105,11 @@ except (ValueError) as e:
     sys.exit(1)
 
 # ==============================================================================
-# CREATE PANDAS DATAFRAME FOR FILES
+# CREATE PANDAS DATAFRAME FOR INPUT FILES
 # ==============================================================================
 print_log_separator("Merging Text Files")
+input_df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
+
 
 print_log_separator("done :/)")
 
