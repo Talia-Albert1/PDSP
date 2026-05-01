@@ -1,4 +1,4 @@
-from .inputs import run_config_setup_wizard
+from .inputs import run_config_setup_wizard, choose_file
 import logging
 from pathlib import Path
 import json
@@ -7,10 +7,10 @@ import shutil
 import pandas as pd
 logger = logging.getLogger(__name__)
 
-def validate_user_config(user_config_path:Path) -> dict[str, str]:
+def validate_user_config(user_config_path:Path, data_files_dir:Path) -> dict[str, str]:
     """Validates user_config.json file exists
     Validates the following columns exist:
-    ['user_name', 'user_initials', 'gray_switch']
+    ['user_name', 'user_initials', 'gheet_auth_path', 'gray_switch']
     
     Returns dict
 
@@ -31,7 +31,7 @@ def validate_user_config(user_config_path:Path) -> dict[str, str]:
             run_config_setup_wizard(user_config_path)
         
         # necessary columns
-        required_fields = ['user_name', 'user_initials', 'gray_switch']
+        required_fields = ['user_name', 'user_initials', 'gsheet_auth_path', 'gray_switch']
 
         # Load the file
         try:
@@ -54,8 +54,8 @@ def validate_user_config(user_config_path:Path) -> dict[str, str]:
             
             else:
                 raise RuntimeError("User declined to repair the corrupted configuration file.")
-        # Verify required fields are present and not empty
         
+        # Verify required fields are present and not empty
         logger.info(f"user_config.json loaded for: {user_config['user_name']} ({user_config['user_initials']})")
         return user_config
 
@@ -104,6 +104,15 @@ def validate_input(barcode_raw: list, worklist_raw: list) -> None:
     """
     Verifies that the files were populated and lists are not empty.
     Compiles errors into list, raises error back to main script via truthiness checks
+
+    Checks:
+    1. Files are not empty
+    2. Barcodes:
+        a. No duplicate barcodes
+    3. Worklist:
+        a. Only 2 Columns (PRIM/SEC and PlateName-X)
+        b. Checks if PRIM/SEC are spelled properly
+    4. Number of barcodes matches between lists
     
     Raises:
         ValueError: If either list is None or empty.
@@ -149,28 +158,27 @@ def validate_input(barcode_raw: list, worklist_raw: list) -> None:
 
     # all lines should have 2 columns "Binding Type\tReceptorName-X"
     # column one should be "PRIM" or "SEC"
-    erroneous_lines = []
+    columns_errors = []
     spelling_errors = []
-    excpected_bt_values = ["PRIM", "SEC"]
     binding_type_list = []
     for i, line in enumerate(worklist_raw):
         columns = line.split('\t')
         
         # if not 2 columns, error
         if len(columns) != 2:
-            erroneous_lines.append(f"Row {i}: {line}")    
+            columns_errors.append(f"Row {i}: {line}")    
 
         elif columns:
             binding_type = columns[0].upper().strip()
 
-            if binding_type not in excpected_bt_values:
+            if binding_type not in ["PRIM", "SEC"]:
                 spelling_errors.append(f"Row {i}: Incorrect Label:{columns[1]}")
             
             binding_type_list.append(binding_type)
 
 
-    if erroneous_lines:
-        msg = f"Worklist rows missing tab-delimiter: {'; '.join(erroneous_lines)}"
+    if columns_errors:
+        msg = f"Worklist rows missing tab-delimiter: {'; '.join(columns_errors)}"
         logger.warning(msg)
         errors.append(msg)
     

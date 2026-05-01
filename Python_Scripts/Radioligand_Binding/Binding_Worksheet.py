@@ -110,6 +110,9 @@ except (ValueError) as e:
 print_log_separator("Merging Text Files")
 input_df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
 
+# ==============================================================================
+# AUTHENTICATE & READ GOOGLE SHEETS
+# ==============================================================================
 
 print_log_separator("done :/)")
 

@@ -10,6 +10,55 @@ import json
 
 logger = logging.getLogger(__name__)
 
+def choose_file(data_files_dir: Path) -> str:
+    """_summary_
+
+    Args:
+        data_files_dir (Path): _description_
+        json (str, optional): _description_. Defaults to "json".
+
+    Returns:
+        Path: _description_
+    """
+    # generate list of candidate files, in there are none, raise an error
+    auth_candidates = [
+        f for f in data_files_dir.glob('*.json')
+    ]
+    if not auth_candidates:
+        raise FileNotFoundError(f"No Google Sheets json file in {data_files_dir}")
+    
+    # create a list of valid choices, used for choice validation later
+    valid_choices = [0, (i + 1) for i in len(auth_candidates)]
+
+    # choice selection
+    while True:
+        print(f"\nPlease choose the Google Sheets .json")
+        print(f"0: Not using Google Sheets, using the script offline")
+        for i, file in enumerate(auth_candidates):
+            print(f"{i + 1}: {file.name}")
+
+        user_choice = input(f"Please choose the Google Sheets .json:").int()
+
+        # if invalid choice, print menu again
+        if user_choice not in valid_choices:
+            print(f"{user_choice} not a valid choice, please pick again")
+            continue
+        
+        # if valid choice, return 0 or 
+        else:
+            if user_choice == 0:
+                gsheet_auth_path = ""
+            else:
+                # index is offset by 0 to allow for not using the file as an option
+                file_index = user_choice - 1
+                # str gives full path, want to return str object for json
+                gsheet_auth_path = str(data_files_dir / Path(auth_candidates[file_index]))
+
+            return gsheet_auth_path
+
+
+
+
 def run_config_setup_wizard(user_config_path: Path) -> None:
     print('\n--- User Configuration Setup ---')
     

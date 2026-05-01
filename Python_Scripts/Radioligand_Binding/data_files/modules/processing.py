@@ -3,11 +3,18 @@ import logging
 import pandas as pd
 logger = logging.getLogger(__name__)
 
-def determine_receptor(plate_name:str) -> str:
-    
-    return
 
 def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.DataFrame:
+    """Takes the raw list of barcodes and raw list of text files and merges them into
+    a single dataframe.
+
+    Args:
+        barcode_raw (list[str]): list of barcode strings
+        worklist_raw (list[str]): list of worklist line strings (should be tab separated)
+
+    Returns:
+        pd.DataFrame: Merged dataframe of Platenames, Receptors, and Barcodes
+    """
     # --------------------------------------------------------------------------------
     # CREATE LIST OF DICTS
     # --------------------------------------------------------------------------------
@@ -45,8 +52,35 @@ def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.Dat
     # CREATE DATAFRAME
     # --------------------------------------------------------------------------------
     df = pd.DataFrame(intial_input)
+
+    # --------------------------------------------------------------------------------
+    # DETERMINE RECEPTOR NAME FROM PLATE NAME
+    # --------------------------------------------------------------------------------
+    # use regex to identify receptor name
+    # all plates will end in "-0", "-1", ... "-99"
+    # limiting to 2 digits to keep specificity, do not want to accidentally remove receptor names
+    # "5-HT1A" for example
+    pattern = r'-\d{1,2}$'
+    df['Receptor'] = df['Plate Name'].str.replace(pattern, '', regex=True)
+    logger.info(f"Receptor Names Determined from Plate Names")
+
+    # check that the regex was successful
+    # it does not necessairly need to match, if it's entered without a plate name
+    failed_mask = df['Receptor'] == df['Plate Name']
+    failed_matches = df.loc[failed_mask, 'Receptor'].unique().tolist()
+    if failed_matches:
+        logger.warning(
+            f"Regex failed to trim plate names for:{failed_matches}, "
+            "may result in error when matching receptors"
+            )
+        logger.warning("Plate names should end in '-XX' and can only be 2 digits max")
+
+
+
+    # --------------------------------------------------------------------------------
+    # LOG SHAPE
+    # --------------------------------------------------------------------------------
     logger.info(f"Dataframe Columns: {df.columns}")
     logger.info(f"\n{df.head()}")
     logger.info(f"Shape of Created DataFrame: {df.shape}")
-
     return df
