@@ -6,7 +6,7 @@ def setup_logging(log_filepath: Path):
     """Configures logging to both console and the specified file."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s | %(name)-30s | %(funcName)s:%(lineno)d | %(levelname)s | %(message)s",
+        format="%(asctime)s | %(name)-30s | %(funcName)-25s:%(lineno)-3d | %(levelname)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         handlers=[
             logging.FileHandler(log_filepath),

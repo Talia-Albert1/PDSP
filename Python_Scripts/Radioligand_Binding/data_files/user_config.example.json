@@ -1,5 +1,6 @@
 {
     "user_name": "Firstname",
     "user_initials": "FL",
-    "gray_switch": 0
+    "gray_switch": 0,
+    "gsheet_auth_path": "Sample\\Path"
 }

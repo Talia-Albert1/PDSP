@@ -28,7 +28,7 @@ def validate_user_config(user_config_path:Path, data_files_dir:Path) -> dict[str
     while True:
         # If file doesn't exist, create it by prompting the user
         if not user_config_path.exists():
-            run_config_setup_wizard(user_config_path)
+            run_config_setup_wizard(user_config_path, data_files_dir)
         
         # necessary columns
         required_fields = ['user_name', 'user_initials', 'gsheet_auth_path', 'gray_switch']
@@ -62,7 +62,7 @@ def validate_user_config(user_config_path:Path, data_files_dir:Path) -> dict[str
 
 
 
-def validate_radioactivity_archive_file(
+def validate_rad_archive_file(
         radioactivity_path         : Path,
         radioactivity_template_path: Path
     ) -> None:

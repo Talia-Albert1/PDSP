@@ -16,6 +16,7 @@ from data_files.modules.time_utils import FORMATTED_DATE
 from data_files.modules import inputs
 from data_files.modules import validators
 from data_files.modules import processing
+from data_files.modules import gsheet_auth
 
 
 import os
@@ -70,8 +71,8 @@ print_log_separator("Starting Radiobinding Script")
 # ==============================================================================
 print_log_separator("Validating Config Files")
 try:
-    user_config = validators.validate_user_config(paths.USER_CONFIG_PATH)
-    validators.validate_radioactivity_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
+    user_config = validators.validate_user_config(paths.USER_CONFIG_PATH, paths.DATA_FILES_DIR)
+    validators.validate_rad_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
 except (ValueError, KeyError, FileNotFoundError, RuntimeError) as e:
         # One catch-all for critical setup errors
         logger.critical(f"Startup failed: {e}", exc_info=True)
@@ -113,6 +114,17 @@ input_df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
 # ==============================================================================
 # AUTHENTICATE & READ GOOGLE SHEETS
 # ==============================================================================
+print_log_separator("Authenticating Google Sheets")
+creds = Credentials.from_service_account_file(user_config["gsheet_auth_path"], scopes=gsheet_auth.SCOPE)
+client = gspread.authorize(creds)
+logging.info('google credientals authenticated')
+
+print_log_separator("Load Databases")
+gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
+    client,
+    gsheet_auth.GSHEET_FILE_NAME,
+    gsheet_auth.GSHEET_DB_NAMES
+    )
 
 print_log_separator("done :/)")
 

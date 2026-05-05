@@ -80,7 +80,7 @@ def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.Dat
     # --------------------------------------------------------------------------------
     # LOG SHAPE
     # --------------------------------------------------------------------------------
-    logger.info(f"Dataframe Columns: {df.columns}")
-    logger.info(f"\n{df.head()}")
     logger.info(f"Shape of Created DataFrame: {df.shape}")
+    logger.info(f"Dataframe Columns:\n{df.columns}")
+    logger.info(f"First 5 Rows of User Input DataFrame:\n{df.head()}")
     return df

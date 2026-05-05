@@ -21,14 +21,13 @@ def choose_file(data_files_dir: Path) -> str:
         Path: _description_
     """
     # generate list of candidate files, in there are none, raise an error
-    auth_candidates = [
-        f for f in data_files_dir.glob('*.json')
-    ]
+    auth_candidates = list(data_files_dir.glob('*.json'))
+
     if not auth_candidates:
         raise FileNotFoundError(f"No Google Sheets json file in {data_files_dir}")
     
     # create a list of valid choices, used for choice validation later
-    valid_choices = [0, (i + 1) for i in len(auth_candidates)]
+    valid_choices = list(range(len(auth_candidates) + 1))
 
     # choice selection
     while True:
@@ -37,29 +36,36 @@ def choose_file(data_files_dir: Path) -> str:
         for i, file in enumerate(auth_candidates):
             print(f"{i + 1}: {file.name}")
 
-        user_choice = input(f"Please choose the Google Sheets .json:").int()
+        user_input = input(f"Please choose the Google Sheets .json:")
+
+        if not user_input.isdigit():
+            print("Please enter a number.")
+            continue
+
+        user_input = int(user_input)
 
         # if invalid choice, print menu again
-        if user_choice not in valid_choices:
-            print(f"{user_choice} not a valid choice, please pick again")
+        if user_input not in valid_choices:
+            print(f"{user_input} not a valid choice, please pick again")
             continue
         
         # if valid choice, return 0 or 
         else:
-            if user_choice == 0:
+            if user_input == 0:
                 gsheet_auth_path = ""
             else:
                 # index is offset by 0 to allow for not using the file as an option
-                file_index = user_choice - 1
+                file_index = user_input - 1
                 # str gives full path, want to return str object for json
                 gsheet_auth_path = str(data_files_dir / Path(auth_candidates[file_index]))
 
+            logger.info(f"gsheet_auth_path chosen to be: {gsheet_auth_path}")
             return gsheet_auth_path
 
 
 
 
-def run_config_setup_wizard(user_config_path: Path) -> None:
+def run_config_setup_wizard(user_config_path: Path, data_files_dir: Path) -> None:
     print('\n--- User Configuration Setup ---')
     
     while True:
@@ -77,18 +83,22 @@ def run_config_setup_wizard(user_config_path: Path) -> None:
         confirm = input('Is this correct? (Y/N): ').strip().lower()
         if confirm == 'y':
             user_config = {
-                'user_name': user_name,
-                'user_initials': user_initials,
-                'gray_switch': gray_switch
+                'user_name'       : user_name,
+                'user_initials'   : user_initials,
+                'gray_switch'     : gray_switch
             }
-            
-            with open(user_config_path, 'w') as f:
-                json.dump(user_config, f, indent=4)
-            
-            logger.info(f"New config created at {user_config_path}")
-            break
+            logger.info("Name and initals confirmed")
         else:
             print('Let\'s try again...\n')
+            continue
+        
+        gsheet_auth_path = choose_file(data_files_dir)
+        user_config.update({'gsheet_auth_path': gsheet_auth_path})
+        with open(user_config_path, 'w') as f:
+            json.dump(user_config, f, indent=4)
+            
+        logger.info(f"New config created at {user_config_path}")
+        break
 
 
 # Create Barcodes.txt or worklist.txt
@@ -157,8 +167,8 @@ def prompt_user_input()-> None:
 
 
 
-def load_text_files(file_path: Path) -> list:
-    """Reads in text file and returns list of lines"""
+def load_text_files(file_path: Path) -> list[str]:
+    """Reads in text file and returns list of strings"""
     with open(file_path, 'r') as f:
         # get non-empty lines
         lines = [line.strip() for line in f if line.strip()]
