@@ -443,7 +443,7 @@ for ligand in ligands_summary:
             specific_activity = receptor['Specific Activity (Ci/mmol)']
             mci_in_vial = receptor['Quantity Remaining (mCi)']
             uci_ul_ratio = receptor['uCi/uL Ratio']
-            radionuclide = receptor['Radio-nuclide']
+            radionuclide = receptor['Radionuclide']
             ligand.update({'Ligand Volume (uL)':round(ligand_vol,2),
                    'uCi':round(uCi_total,2),
                    'mCi in Vial':mci_in_vial,
@@ -526,7 +526,7 @@ for index, receptor in enumerate(receptors):
     ws.cell(row_index, 10, receptor['Barcode 2'])
     ws.cell(row_index, 17, receptor['Receptor'])
     ws.cell(row_index, 18, receptor['Ligand'])
-    ws.cell(row_index, 19, receptor['Radio-nuclide'])
+    ws.cell(row_index, 19, receptor['Radionuclide'])
     ws.cell(row_index, 20, receptor['Inventory Control Number'])
     ws.cell(row_index, 21, receptor['Specific Activity (Ci/mmol)'])
     ws.cell(row_index, 22, receptor['Assay Conc. (nM)'])
