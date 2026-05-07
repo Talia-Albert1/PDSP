@@ -143,9 +143,23 @@ except (KeyError, ValueError) as e:
     sys.exit(1)
 
 # ==============================================================================
+# FORMAT GSHEET DATABASES
+# ==============================================================================
+print_log_separator("Formatting Google Sheet Databases")
+
+
+
+# ==============================================================================
 # MERGE INPUT DF AND GSHEET DATABASES
 # ==============================================================================
-
+print_log_separator("Merging Input DF's and GSHEET DF's")
+try:
+    merged_df = processing.merge_dfs(
+        input_df,
+        gsheet_database_dfs
+    )
+except (KeyError) as e:
+    logger.critical(f"Failed to Merge")
 
 print_log_separator("done :/)")
 

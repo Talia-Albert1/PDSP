@@ -84,3 +84,50 @@ def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.Dat
     logger.info(f"Dataframe Columns:\n{df.columns}")
     logger.info(f"First 5 Rows of User Input DataFrame:\n{df.head()}")
     return df
+
+def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])->pd.DataFrame:
+    
+    # --------------------------------------------------------------------------------
+    # MERGE ASSAY PARAMS WITH INPUT
+    # --------------------------------------------------------------------------------
+    logger.info("Merging input df with assay db")
+    # Merge input df and assay_db df on receptor, left join preserves input df
+    df_merged_assay = input_df.merge(
+        gsheet_database_dfs["Assay_DB"],
+        on = "Receptor",
+        how = "left",
+        indicator=True,
+        validate="m:1"
+    )
+
+    # Filter for rows that only exist in the left (input) dataframe
+    unmatched = df_merged_assay[df_merged_assay["_merge"] == "left_only"]
+    unmatched_count = len(unmatched)
+
+    if unmatched_count > 0:
+        # Get the specific receptors that failed so the user can fix the Google Sheet or input
+        # create df that informs user on specific unmatched plates
+        error_df = unmatched.loc[:, ["Plate Name", "Binding Type", "Receptor"]]
+        failed_receptors = unmatched["Receptor"].unique().tolist()
+        msg = (
+            f"{unmatched_count} rows unmatched. "
+            f"Plates not matched: {error_df}"
+            f"Receptors not found in Assay_DB: {failed_receptors}"
+        )
+        logger.warning(msg)
+        raise ValueError(msg)
+    else:
+        logger.info("All rows matched successfully.")
+    df_merged_assay.drop(columns=["_merge"])
+
+    # --------------------------------------------------------------------------------
+    # MERGE HOTLIGAND INFO WITH INPUT
+    # --------------------------------------------------------------------------------
+    df_merged_hot = df_merged_assay.merge(
+        gsheet_database_dfs["Ligand_DB"],
+        on="Ligand",
+        how="left",
+        indicator=True,
+        validate="m:1"
+    )
+    return df_merged

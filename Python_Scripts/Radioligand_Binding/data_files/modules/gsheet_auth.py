@@ -10,47 +10,64 @@ SCOPE = ["https://www.googleapis.com/auth/spreadsheets",
 
 # Google Sheet Names
 GSHEET_FILE_NAME = 'PDSP'
-GSHEET_DB_NAMES = {
-    "Assay_DB" : "Assay_Param",
-    "Ligand_DB": "Hotligand_Inventory",
-    "Pellet_DB": "Pellet_Inventory"
-}
-GSHEET_LOG_NAMES = {
-    "Hotligand_Log": "Hotligand_Log",
-    "Pellet_Log"   : "Pellet_Log"
-}
-
-
 GSHEET_CONFIG = {
     "Assay_DB": {
         "sheet_name":"Assay_Param",
         "type"      :"database",
-        "required_columns":[
-            'Receptor', 'Ligand', 'Radionuclide', 'Assay Conc. (nM)',
-            'PRIM Pellet/Plate Ratio', 'SEC Pellet/Plate Ratio', 'Assay BB',
-            'Reference', 'Filter Type?', 'Unifilter Pellet/Plate Ratio',
-            'Filtermat Pellet/Plate Ratio'
-        ]
+        "schema":{
+            'Receptor'                    :str,
+            'Ligand'                      :str,
+            'Radionuclide'                :str,
+            'Assay Conc. (nM)'            :float,
+            'PRIM Pellet/Plate Ratio'     :float,
+            'SEC Pellet/Plate Ratio'      :float,
+            'Assay BB'                    :str,
+            'Reference'                   :str,
+            'Filter Type?'                :str,
+            'Unifilter Pellet/Plate Ratio':float,
+            'Filtermat Pellet/Plate Ratio':float,
+            'Notes'                       :str
+        },
     },
     "Ligand_DB":{
         "sheet_name":"Hotligand_Inventory",
         "type"      :"database",
-        "required_columns":[
-            'Ligand', 'Radionuclide', 'Inventory Control Number',
-            'Specific Activity (Ci/mmol)', 'Quantity (mCi)', 'Volume (uL)',
-            'uCi/uL Ratio', 'Quantity Remaining (mCi)', 'Volume Remaining (uL)', 
-            'Date Last Used', 'Current Vial?', 'Finished?', 'Calibration Date'
-        ]
+        "schema":{
+            'Ligand'                     :str,
+            'Radionuclide'               :str,
+            'Inventory Control Number'   :str,
+            'Specific Activity (Ci/mmol)':float,
+            'Quantity (mCi)'             :float,
+            'Volume (uL)'                :float,
+            'uCi/uL Ratio'               :float,
+            'Quantity Remaining (mCi)'   :float,
+            'Volume Remaining (uL)'      :float,
+            'Date Received'              :'datetime64[ns]',
+            'Date Started'               :'datetime64[ns]',
+            'Date Last Used'             :'datetime64[ns]',
+            'Current Vial?'              :bool,
+            'Finished?'                  :bool,
+            'Calibration Date'           :'datetime64[ns]'
+        },
     },
     "Pellet_DB":{
         "sheet_name":"Pellet_Inventory",
         "type"      :"database",
-        "required_columns":[
-            'Receptor', 'Number of Pellets', 'Notes'
-        ]
+        "schema":{
+            'Receptor'         :str,
+            'Number of Pellets':float,
+            'Notes'            :str
+        },
+    },
+    "Hotligand_Log":{
+        'sheet_name':'Hotligand_log',
+        'type'      :'log'
+    },
+    "Pellet_Log":{
+        'sheet_name':'Pellet_Log',
+        'type'      :'log'
     }
 }
-
 
 def gsheet_api_call(func, *args, max_retries=3, **kwargs):
     """small gshet api call wrapper for better error handling"""
