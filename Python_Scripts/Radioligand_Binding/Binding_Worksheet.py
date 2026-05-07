@@ -112,19 +112,40 @@ print_log_separator("Merging Text Files")
 input_df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
 
 # ==============================================================================
-# AUTHENTICATE & READ GOOGLE SHEETS
+# AUTHENTICATE GOOGLE CREDENTIALS
 # ==============================================================================
 print_log_separator("Authenticating Google Sheets")
 creds = Credentials.from_service_account_file(user_config["gsheet_auth_path"], scopes=gsheet_auth.SCOPE)
 client = gspread.authorize(creds)
 logging.info('google credientals authenticated')
 
-print_log_separator("Load Databases")
+# ==============================================================================
+# READ IN GOOGLE SHEET DATA
+# ==============================================================================
+print_log_separator("Load Google Sheet Databases")
 gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
     client,
     gsheet_auth.GSHEET_FILE_NAME,
-    gsheet_auth.GSHEET_DB_NAMES
+    gsheet_auth.GSHEET_CONFIG
     )
+
+# ==============================================================================
+# VALIDATE GSHEET DATABASES
+# ==============================================================================
+print_log_separator("Validating Google Sheet Databases")
+try:
+    validators.validate_gsheet_dfs(
+        gsheet_database_dfs,
+        gsheet_auth.GSHEET_CONFIG
+    )
+except (KeyError, ValueError) as e:
+    logger.critical(f"Google Sheet Database Validation Failed: {e}")
+    sys.exit(1)
+
+# ==============================================================================
+# MERGE INPUT DF AND GSHEET DATABASES
+# ==============================================================================
+
 
 print_log_separator("done :/)")
 

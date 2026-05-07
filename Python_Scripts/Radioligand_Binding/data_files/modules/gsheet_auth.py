@@ -11,14 +11,46 @@ SCOPE = ["https://www.googleapis.com/auth/spreadsheets",
 # Google Sheet Names
 GSHEET_FILE_NAME = 'PDSP'
 GSHEET_DB_NAMES = {
-    "Assay_DB" : 'Assay_Param',
-    "Ligand_DB": 'Hotligand_Inventory',
-    "Pellet_DB": 'Pellet_Inventory'
+    "Assay_DB" : "Assay_Param",
+    "Ligand_DB": "Hotligand_Inventory",
+    "Pellet_DB": "Pellet_Inventory"
 }
-GSHEET_LOG_NAMES ={
+GSHEET_LOG_NAMES = {
     "Hotligand_Log": "Hotligand_Log",
     "Pellet_Log"   : "Pellet_Log"
 }
+
+
+GSHEET_CONFIG = {
+    "Assay_DB": {
+        "sheet_name":"Assay_Param",
+        "type"      :"database",
+        "required_columns":[
+            'Receptor', 'Ligand', 'Radionuclide', 'Assay Conc. (nM)',
+            'PRIM Pellet/Plate Ratio', 'SEC Pellet/Plate Ratio', 'Assay BB',
+            'Reference', 'Filter Type?', 'Unifilter Pellet/Plate Ratio',
+            'Filtermat Pellet/Plate Ratio'
+        ]
+    },
+    "Ligand_DB":{
+        "sheet_name":"Hotligand_Inventory",
+        "type"      :"database",
+        "required_columns":[
+            'Ligand', 'Radionuclide', 'Inventory Control Number',
+            'Specific Activity (Ci/mmol)', 'Quantity (mCi)', 'Volume (uL)',
+            'uCi/uL Ratio', 'Quantity Remaining (mCi)', 'Volume Remaining (uL)', 
+            'Date Last Used', 'Current Vial?', 'Finished?', 'Calibration Date'
+        ]
+    },
+    "Pellet_DB":{
+        "sheet_name":"Pellet_Inventory",
+        "type"      :"database",
+        "required_columns":[
+            'Receptor', 'Number of Pellets', 'Notes'
+        ]
+    }
+}
+
 
 def gsheet_api_call(func, *args, max_retries=3, **kwargs):
     """small gshet api call wrapper for better error handling"""
@@ -39,16 +71,19 @@ def gsheet_api_call(func, *args, max_retries=3, **kwargs):
     logger.error(f'Google Sheets API call failed after {max_retries} attempts')
     raise RuntimeError('Max retries exceeded for Google Sheets API call')
 
+
+
+
+
 def load_gsheet_db(gsheet_file, gsheet_sheet_name:str)->pd.DataFrame:
     """read in an individual sheet
 
     Args:
-        client (_type_): _description_
-        gsheet_file_name (str): _description_
-        gsheet_sheet_name (str): _description_
+        gsheet_file_name (str): The name of the Google Sheets File
+        gsheet_sheet_name (str): The name of the Sheet within the Google Sheets File
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: DataFrame of Sheet
     """
     
     indv_sheet = gsheet_api_call(gsheet_file.worksheet, gsheet_sheet_name)
@@ -71,13 +106,20 @@ def load_gsheet_db(gsheet_file, gsheet_sheet_name:str)->pd.DataFrame:
 
     return df
 
-def load_all_gsheet_db(client, gsheet_file_name:str, gsheet_db_names:dict[str, str])->dict[str, pd.DataFrame]:
+
+
+
+
+
+def load_all_gsheet_db(client, gsheet_file_name:str, gsheet_config:dict[str, dict])->dict[str, pd.DataFrame]:
     gsheet_file = client.open(gsheet_file_name)
     database_df = {}
-    for db_type, sheet_name in gsheet_db_names.items():
-        df = load_gsheet_db(gsheet_file, sheet_name)
-        database_df[db_type] = df
-        logger.info(f"Loaded Database: '{db_type}' from Google Sheet: '{sheet_name}'")
-    
+    for internal_id, config in gsheet_config.items():
+        if config['type'] == "database":
+            sheet_name = config['sheet_name']
+            df = load_gsheet_db(gsheet_file, sheet_name)
+            database_df[internal_id] = df
+            logger.info(f"Loaded Database: '{internal_id}' from Google Sheet: '{config['sheet_name']}'")
+        
     return database_df
 

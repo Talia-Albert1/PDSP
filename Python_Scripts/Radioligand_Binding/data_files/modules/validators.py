@@ -213,5 +213,24 @@ def validate_input(barcode_raw: list, worklist_raw: list) -> None:
         compile_errors(errors)
 
 
+def validate_gsheet_dfs(gsheet_database_dfs:dict[str,pd.DataFrame], gsheet_config:dict[str,dict])->None:
+    for db_type, df in gsheet_database_dfs.items():
+        if db_type not in gsheet_config:
+            logger.warning(f"'{db_type}' Key missing from Google Sheet Config {gsheet_config}")
+            raise KeyError(f"'{db_type}' Key missing from Google Sheet Config {gsheet_config}")
+
+        expected_columns = gsheet_config[db_type]['required_columns']
+        actual_columns = df.columns.to_list()
+
+        missing = set(expected_columns) - set(actual_columns)
+
+        if missing:
+            logger.warning(f"Columns missing from {db_type} DataFrame: {missing}")
+            raise ValueError(f"Columns missing from {db_type} DataFrame: {missing}")
+        else:
+            logger.info(f"{db_type} DataFrame has all necessary columns.")
+        
+
+
 
 
