@@ -5,68 +5,69 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 # Define the scope
-SCOPE = ["https://www.googleapis.com/auth/spreadsheets",
-         "https://www.googleapis.com/auth/drive"]
+SCOPE = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+    ]
 
 # Google Sheet Names
 GSHEET_FILE_NAME = 'PDSP'
 GSHEET_CONFIG = {
     "Assay_DB": {
-        "sheet_name":"Assay_Param",
-        "type"      :"database",
-        "schema":{
-            'Receptor'                    :str,
-            'Ligand'                      :str,
-            'Radionuclide'                :str,
-            'Assay Conc. (nM)'            :float,
-            'PRIM Pellet/Plate Ratio'     :float,
-            'SEC Pellet/Plate Ratio'      :float,
-            'Assay BB'                    :str,
-            'Reference'                   :str,
-            'Filter Type?'                :str,
-            'Unifilter Pellet/Plate Ratio':float,
-            'Filtermat Pellet/Plate Ratio':float,
-            'Notes'                       :str
+        "sheet_name": "Assay_Param",
+        "type":       "database",
+        "schema": {
+            "Receptor":                     {"column_name": "Receptor",                     "format": str},
+            "Ligand":                       {"column_name": "Ligand",                       "format": str},
+            "Assay Conc":                   {"column_name": "Assay Conc. (nM)",             "format": float},
+            "PRIM Pellet Ratio":            {"column_name": "PRIM Pellet/Plate Ratio",      "format": float},
+            "SEC Pellet Ratio":             {"column_name": "SEC Pellet/Plate Ratio",       "format": float},
+            "Assay BB":                     {"column_name": "Assay BB",                     "format": str},
+            "Reference":                    {"column_name": "Reference",                    "format": str},
+            "Filter Type":                  {"column_name": "Filter Type?",                 "format": str},
+            "Unifilter Pellet Ratio":       {"column_name": "Unifilter Pellet/Plate Ratio", "format": float},
+            "Filtermat Pellet Ratio":       {"column_name": "Filtermat Pellet/Plate Ratio", "format": float},
+            "Notes":                        {"column_name": "Notes",                        "format": str},
         },
     },
-    "Ligand_DB":{
-        "sheet_name":"Hotligand_Inventory",
-        "type"      :"database",
-        "schema":{
-            'Ligand'                     :str,
-            'Radionuclide'               :str,
-            'Inventory Control Number'   :str,
-            'Specific Activity (Ci/mmol)':float,
-            'Quantity (mCi)'             :float,
-            'Volume (uL)'                :float,
-            'uCi/uL Ratio'               :float,
-            'Quantity Remaining (mCi)'   :float,
-            'Volume Remaining (uL)'      :float,
-            'Date Received'              :'datetime64[ns]',
-            'Date Started'               :'datetime64[ns]',
-            'Date Last Used'             :'datetime64[ns]',
-            'Current Vial?'              :bool,
-            'Finished?'                  :bool,
-            'Calibration Date'           :'datetime64[ns]'
+    "Ligand_DB": {
+        "sheet_name": "Hotligand_Inventory",
+        "type":       "database",
+        "schema": {
+            "Ligand":                      {"column_name": "Ligand",                      "format": str},
+            "Radionuclide":                {"column_name": "Radionuclide",                "format": str},
+            "Inventory Control Number":    {"column_name": "Inventory Control Number",    "format": str},
+            "Specific Activity":           {"column_name": "Specific Activity (Ci/mmol)", "format": float},
+            "Initial Quantity mCi":        {"column_name": "Quantity (mCi)",              "format": float},
+            "Initial Volume uL":           {"column_name": "Volume (uL)",                 "format": float},
+            "uCi/uL Ratio":                {"column_name": "uCi/uL Ratio",                "format": float},
+            "mCi Remaining":               {"column_name": "Quantity Remaining (mCi)",    "format": float},
+            "uL Remaining":                {"column_name": "Volume Remaining (uL)",       "format": float},
+            "Date Received":               {"column_name": "Date Received",               "format": "datetime64[ns]"},
+            "Date Started":                {"column_name": "Date Started",                "format": "datetime64[ns]"},
+            "Date Last Used":              {"column_name": "Date Last Used",              "format": "datetime64[ns]"},
+            "Current Vial":                {"column_name": "Current Vial?",               "format": bool},
+            "Finished":                    {"column_name": "Finished?",                   "format": bool},
+            "Calibration Date":            {"column_name": "Calibration Date",            "format": "datetime64[ns]"},
         },
     },
-    "Pellet_DB":{
-        "sheet_name":"Pellet_Inventory",
-        "type"      :"database",
-        "schema":{
-            'Receptor'         :str,
-            'Number of Pellets':float,
-            'Notes'            :str
+    "Pellet_DB": {
+        "sheet_name": "Pellet_Inventory",
+        "type":       "database",
+        "schema": {
+            "Receptor":          {"column_name": "Receptor",          "format": str},
+            "Number of Pellets": {"column_name": "Number of Pellets", "format": float},
+            "Notes":             {"column_name": "Notes",             "format": str},
         },
     },
-    "Hotligand_Log":{
-        'sheet_name':'Hotligand_log',
-        'type'      :'log'
+    "Hotligand_Log": {
+        "sheet_name": "Hotligand_log",
+        "type":       "log",
     },
-    "Pellet_Log":{
-        'sheet_name':'Pellet_Log',
-        'type'      :'log'
-    }
+    "Pellet_Log": {
+        "sheet_name": "Pellet_Log",
+        "type":       "log",
+    },
 }
 
 def gsheet_api_call(func, *args, max_retries=3, **kwargs):

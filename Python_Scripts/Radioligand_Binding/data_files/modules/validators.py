@@ -219,7 +219,7 @@ def validate_gsheet_dfs(gsheet_database_dfs:dict[str,pd.DataFrame], gsheet_confi
             logger.warning(f"'{db_type}' Key missing from Google Sheet Config {gsheet_config}")
             raise KeyError(f"'{db_type}' Key missing from Google Sheet Config {gsheet_config}")
 
-        expected_columns = gsheet_config[db_type]['required_columns']
+        expected_columns = expected_columns = [info['column_name'] for info in gsheet_config[db_type]['schema'].values()]
         actual_columns = df.columns.to_list()
 
         missing = set(expected_columns) - set(actual_columns)

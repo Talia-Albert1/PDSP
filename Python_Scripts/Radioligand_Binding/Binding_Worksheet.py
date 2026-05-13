@@ -146,7 +146,14 @@ except (KeyError, ValueError) as e:
 # FORMAT GSHEET DATABASES
 # ==============================================================================
 print_log_separator("Formatting Google Sheet Databases")
-
+try:
+    gsheet_database_dfs = processing.format_gsheet_dfs(
+            gsheet_database_dfs,
+            gsheet_auth.GSHEET_CONFIG
+        )
+except (Exception) as e:
+    logger.critical(f"Formatting Google Sheet Databases failed: {e}")
+    sys.exit(1)
 
 
 # ==============================================================================
@@ -159,7 +166,34 @@ try:
         gsheet_database_dfs
     )
 except (KeyError) as e:
-    logger.critical(f"Failed to Merge")
+    logger.critical(f"Failed to Merge: {e}")
+
+
+# ==============================================================================
+# CALCULATE HOT USAGE & PELLET USAGE PER ASSAY
+# ==============================================================================
+print_log_separator("calculating radioactive material & pellet usage")
+
+
+# ==============================================================================
+# CREATE SUMMARY OF HOT USAGE PER HOT & PELLET USAGE RECEPTOR
+# ==============================================================================
+
+# ==============================================================================
+# WRITE TO LOCAL ARCHIVE EXCEL FILE
+# ==============================================================================
+
+# ==============================================================================
+# WRITE TO BINDING PRINTOUT EXCEL FILE
+# ==============================================================================
+
+# ==============================================================================
+# WRITE TO GOOGLE SHEET HOT & PELLET LOGS
+# ==============================================================================
+
+# ==============================================================================
+# MOVE FILES TO ARCHIVE
+# ==============================================================================
 
 print_log_separator("done :/)")
 
