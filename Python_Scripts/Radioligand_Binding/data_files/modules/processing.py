@@ -1,6 +1,8 @@
 import logging
 
 import pandas as pd
+import numpy as np
+import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -155,7 +157,7 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
     # --------------------------------------------------------------------------------
     # MERGE ASSAY PARAMS WITH INPUT
     # --------------------------------------------------------------------------------
-    logger.info("Merging input df with assay db")
+    logger.info("Merging input DataFrame with Assay_DB")
     # Merge input df and assay_db df on receptor, left join preserves input df
     df_merged_assay = input_df.merge(
         gsheet_database_dfs["Assay_DB"],
@@ -188,6 +190,8 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
     # --------------------------------------------------------------------------------
     # FILTER HOTS DF FOR ONLY CURRENT VIALS
     # --------------------------------------------------------------------------------    
+    logger.info("Filtering Ligand_DB to only have Current Vials")
+    
     df_hot_current = gsheet_database_dfs["Ligand_DB"]
     # Keep only rows with True current vial and where ligand is not Na
     df_hot_current = df_hot_current[df_hot_current["Current Vial"] == True & df_hot_current["Ligand"].notna()]
@@ -195,6 +199,7 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
     # --------------------------------------------------------------------------------
     # MERGE HOTLIGAND INFO WITH INPUT
     # --------------------------------------------------------------------------------
+    logger.info("Merging Hot Ligand (Ligand_DB) with Merged DataFrame")
     df_merged = df_merged_assay.merge(
         df_hot_current,
         on="Ligand",
@@ -223,20 +228,75 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
         logger.info("All Ligand rows matched successfully.")
 
     df_merged = df_merged.drop(columns=["_merge"])
+
+    # log df shape
+    logger.info(f"Merged DataFrame Shape: {df_merged.shape}")
+    logger.info(f"Merged DataFrame Columns:\n{df_merged.columns}")
+    logger.info(f"Merged DataFrame First 5 Rows:\n{df_merged.head()}")
     return df_merged
 
-def calc_material_usage(merged_df:pd.DataFrame)->pd.DataFrame:
-    def calculate_radioactive_material(
-            buffer_vol       :int,
-            assay_conc       :float,
-            specific_activity:float,
-            dilution_factor  :float = 2.5,
-            overage_percent  :float = 1.44,
-            uci_ul_ratio     :float
-            ) -> float:
-        uci_amount = buffer_vol * assay_conc * specific_activity * (1/1000) * dilution_factor * overage_percent
-        ul_amount = uci_amount * uci_ul_ratio
 
-        return uci_amount,ul_amount
+
+def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
+    # ==============================================================================
+    # DETERMINE BUFFER VOLUME & NUMBER OF PLATES
+    # ==============================================================================
+    logger.info("Determining Buffer Volume & Number of Plates")
+
+    binding_conditions = [
+        (df["Binding Type"] == "PRIM"),
+        (df["Binding Type"] == "SEC")
+    ]
+
+    # PRIM = 1 Plate  =  5 mL Buffer
+    # SEC  = 3 Plates = 15 mL Buffer
+    df["Number of Plates"] = np.select(binding_conditions, [1, 3], default=1)
+    df["Buffer Volume"] = np.select(binding_conditions, [5, 15], default=5)
+    logger.info("Buffer Volumes & Number of Plates Calculated")
+    # ==============================================================================
+    # CALCULATE RAD MATERIAL USAGE
+    # ==============================================================================
+    logger.info("Calculating Radioactive Material Usage")
+
+    # calculate uci needed for assay -----------------------------------------------
+    dilution_factor = 2.5
+    overage_percent = 1.44 #1.2 * 1.2
+    df["uCi for Assay"] = df["Buffer Volume"] * df["Assay Conc"] * df["Specific Activity"] * (1/1000) * dilution_factor * overage_percent
+    logger.info("uCi per Assay calculated")
     
+    # calculate decay factor for I125, for H3 it is 1 ------------------------------
+    # np.log is base e (effectively this is ln(2))
+    day_since_cal = (pd.to_datetime(now) - df["Calibration Date"]).dt.days
+    I125_decay_factor = np.exp((-np.log(2)/60.1)*day_since_cal)
+    
+    decay_factor_conditions = [(df["Radionuclide"] == "H3"), (df["Radionuclide"] == "I125")]
+    decay_factor_choices = [1, I125_decay_factor]
+    df["Decay Factor"] = np.select(decay_factor_conditions, decay_factor_choices, default=1.0)
+
+    # calculate uL needed for assay --------------------------------------------------
+    df["uL for Assay"] = df["uCi for Assay"] / (df["uCi/uL Ratio"] * df["Decay Factor"])
+    logger.info("uL per Assay calculated")
+
+    # ==============================================================================
+    # CALCULATE PELLET USAGE
+    # ==============================================================================
+    logger.info("Calculating Pellet Usage")
+
+    pellet_conditions = [
+        (df["Filter Type"] == "Filtermat"),
+        (df["Filter Type"] == "Unifilter")
+    ]
+
+    pellet_choices = [
+        (df["Number of Plates"] * df["Filtermat Pellet Ratio"]),
+        (df["Number of Plates"] * df["Unifilter Pellet Ratio"])
+    ]
+
+    df["Number of Pellets"] = np.select(pellet_conditions, pellet_choices, default=1)
+
+    logger.info("Number of Pellets per Assay calculated")
+
+    return df
+
+
 

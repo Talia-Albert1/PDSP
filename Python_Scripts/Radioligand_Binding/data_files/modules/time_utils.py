@@ -1,4 +1,5 @@
 import datetime
 
 # Format the date as 'YYYYMMDD'
-FORMATTED_DATE = datetime.date.today().strftime('%Y%m%d')
+NOW = datetime.date.today()
+FORMATTED_DATE = NOW.strftime('%Y%m%d')

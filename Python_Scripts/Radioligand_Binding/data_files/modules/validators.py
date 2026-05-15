@@ -213,7 +213,7 @@ def validate_input(barcode_raw: list, worklist_raw: list) -> None:
         compile_errors(errors)
 
 
-def validate_gsheet_dfs(gsheet_database_dfs:dict[str,pd.DataFrame], gsheet_config:dict[str,dict])->None:
+def val_gsheet_dfs_cols(gsheet_database_dfs:dict[str,pd.DataFrame], gsheet_config:dict[str,dict])->None:
     for db_type, df in gsheet_database_dfs.items():
         if db_type not in gsheet_config:
             logger.warning(f"'{db_type}' Key missing from Google Sheet Config {gsheet_config}")

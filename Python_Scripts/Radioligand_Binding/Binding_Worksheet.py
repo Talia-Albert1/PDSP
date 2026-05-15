@@ -8,11 +8,14 @@ Created on Tue Sep  5 14:43:49 2023
 # ############################## IMPORT MODULES ###############################
 # =============================================================================
 from data_files.modules import config_paths as paths
-from data_files.modules.config_log import (
+from data_files.modules.config_log import(
     setup_logging,
     print_log_separator
 )
-from data_files.modules.time_utils import FORMATTED_DATE
+from data_files.modules.time_utils import(
+    NOW,
+    FORMATTED_DATE
+)
 from data_files.modules import inputs
 from data_files.modules import validators
 from data_files.modules import processing
@@ -37,24 +40,6 @@ from google.oauth2.service_account import Credentials
 import time
 
 import math
-
-
-
-
-
-def merge_input_df (barcode_df: pd.DataFrame, worklist_df: pd.DataFrame) -> pd.DataFrame:
-    """_summary_
-
-    Args:
-        barcode_df (pd.DataFrame): _description_
-        worklist_df (pd.DataFrame): _description_
-
-    Raises:
-        RuntimeError: _description_
-
-    Returns:
-        pd.DataFrame: _description_
-    """
 
 
 # if __name__ == "__main__":
@@ -109,7 +94,7 @@ except (ValueError) as e:
 # CREATE PANDAS DATAFRAME FOR INPUT FILES
 # ==============================================================================
 print_log_separator("Merging Text Files")
-input_df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
+df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
 
 # ==============================================================================
 # AUTHENTICATE GOOGLE CREDENTIALS
@@ -130,11 +115,11 @@ gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
     )
 
 # ==============================================================================
-# VALIDATE GSHEET DATABASES
+# VALIDATE GSHEET DATABASES COLUMNS
 # ==============================================================================
-print_log_separator("Validating Google Sheet Databases")
+print_log_separator("Validating Google Sheet Database's Columns")
 try:
-    validators.validate_gsheet_dfs(
+    validators.val_gsheet_dfs_cols(
         gsheet_database_dfs,
         gsheet_auth.GSHEET_CONFIG
     )
@@ -155,14 +140,26 @@ except (Exception) as e:
     logger.critical(f"Formatting Google Sheet Databases failed: {e}")
     sys.exit(1)
 
+# ==============================================================================
+# VALIDATE GSHEET DATABASES POST-FORMATTING
+# ==============================================================================
+# print_log_separator("Validating Google Sheet Databases - Pre-Formatting")
+# try:
+#     validators.val_preformat_gsheet_dfs(
+#         gsheet_database_dfs,
+#         gsheet_auth.GSHEET_CONFIG
+#     )
+# except (KeyError, ValueError) as e:
+#     logger.critical(f"Google Sheet Database Validation Failed: {e}")
+#     sys.exit(1)
 
 # ==============================================================================
 # MERGE INPUT DF AND GSHEET DATABASES
 # ==============================================================================
 print_log_separator("Merging Input DF's and GSHEET DF's")
 try:
-    merged_df = processing.merge_dfs(
-        input_df,
+    df = processing.merge_dfs(
+        df,
         gsheet_database_dfs
     )
 except (KeyError) as e:
@@ -173,7 +170,7 @@ except (KeyError) as e:
 # CALCULATE HOT USAGE & PELLET USAGE PER ASSAY
 # ==============================================================================
 print_log_separator("calculating radioactive material & pellet usage")
-
+df = processing.calc_material_usage(NOW, df)
 
 # ==============================================================================
 # CREATE SUMMARY OF HOT USAGE PER HOT & PELLET USAGE RECEPTOR
