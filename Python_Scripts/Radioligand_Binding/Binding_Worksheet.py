@@ -177,7 +177,7 @@ df = processing.calc_material_usage(NOW, df)
 # ==============================================================================
 summary_df = processing.aggregate_df(
     df = df,
-    user_initals=user_config["user_initals"],
+    user_initals=user_config["user_initials"],
     user_name=user_config["user_name"]
     )
 
