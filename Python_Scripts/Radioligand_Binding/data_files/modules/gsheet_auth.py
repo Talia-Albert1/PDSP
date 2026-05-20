@@ -27,7 +27,7 @@ GSHEET_CONFIG = {
             "Filter Type":                  {"column_name": "Filter Type?",                 "format": str},
             "Unifilter Pellet Ratio":       {"column_name": "Unifilter Pellet/Plate Ratio", "format": float},
             "Filtermat Pellet Ratio":       {"column_name": "Filtermat Pellet/Plate Ratio", "format": float},
-            "Notes":                        {"column_name": "Notes",                        "format": str},
+            "Assay DB Notes":               {"column_name": "Notes",                        "format": str},
         },
     },
     "Ligand_DB": {
@@ -55,9 +55,9 @@ GSHEET_CONFIG = {
         "sheet_name": "Pellet_Inventory",
         "type":       "database",
         "schema": {
-            "Receptor":          {"column_name": "Receptor",          "format": str},
-            "Number of Pellets": {"column_name": "Number of Pellets", "format": float},
-            "Notes":             {"column_name": "Notes",             "format": str},
+            "Receptor":            {"column_name": "Receptor",          "format": str},
+            "Pellets in Inventory":{"column_name": "Number of Pellets", "format": float},
+            "Pellet DB Notes":     {"column_name": "Notes",             "format": str},
         },
     },
     "Hotligand_Log": {

@@ -173,8 +173,13 @@ print_log_separator("calculating radioactive material & pellet usage")
 df = processing.calc_material_usage(NOW, df)
 
 # ==============================================================================
-# CREATE SUMMARY OF HOT USAGE PER HOT & PELLET USAGE RECEPTOR
+# CREATE SUMMARY DATAFRAMES
 # ==============================================================================
+summary_df = processing.aggregate_df(
+    df = df,
+    user_initals=user_config["user_initals"],
+    user_name=user_config["user_name"]
+    )
 
 # ==============================================================================
 # WRITE TO LOCAL ARCHIVE EXCEL FILE
@@ -189,7 +194,7 @@ df = processing.calc_material_usage(NOW, df)
 # ==============================================================================
 
 # ==============================================================================
-# MOVE FILES TO ARCHIVE
+# MOVE FILES TO ARCHIVE DIR
 # ==============================================================================
 
 print_log_separator("done :/)")

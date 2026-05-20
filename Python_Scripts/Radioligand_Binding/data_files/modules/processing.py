@@ -229,7 +229,42 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
 
     df_merged = df_merged.drop(columns=["_merge"])
 
-    # log df shape
+    # --------------------------------------------------------------------------------
+    # MERGE PELLET INVENTORY INFO WITH INPUT
+    # --------------------------------------------------------------------------------
+    logger.info("Merging Pellet Inventory (Pellet_DB) with Merged DataFrame")
+    df_merged = df_merged.merge(
+        gsheet_database_dfs["Pellet_DB"],
+        on="Receptor",
+        how="left",
+        indicator=True,
+        validate="m:1"
+    )
+    
+    # Filter for rows that only exist in the left (input) dataframe
+    unmatched = df_merged[df_merged["_merge"] == "left_only"]
+    unmatched_count = len(unmatched)
+    
+    if unmatched_count > 0:
+        # Get the specific receptors that failed so the user can fix the Google Sheet or input
+        # create df that informs user on specific unmatched plates
+        error_df = unmatched.loc[:, ["Receptor"]]
+        failed_receptorss = unmatched["Receptor"].unique().tolist()
+        msg = (
+            f"{unmatched_count} rows unmatched. "
+            f"Receptors not found in Pellet_DB: {failed_receptors} "
+            f"Ensure Receptor name is in the Pellet_DB Google Sheet"
+        )
+        # don't raise error, script can proceed without inventory
+        logger.warning(msg)
+
+    else:
+        logger.info("All Pellet Inventory rows matched successfully.")
+
+    df_merged = df_merged.drop(columns=["_merge"])
+
+    
+    # log df shape -------------------------------------------------------------------
     logger.info(f"Merged DataFrame Shape: {df_merged.shape}")
     logger.info(f"Merged DataFrame Columns:\n{df_merged.columns}")
     logger.info(f"Merged DataFrame First 5 Rows:\n{df_merged.head()}")
@@ -238,6 +273,11 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
 
 
 def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
+    # ==============================================================================
+    # ADD TODAY'S DATE
+    # ==============================================================================
+    df["Date"] = pd.to_datetime(now)
+
     # ==============================================================================
     # DETERMINE BUFFER VOLUME & NUMBER OF PLATES
     # ==============================================================================
@@ -248,7 +288,7 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
         (df["Binding Type"] == "SEC")
     ]
 
-    # PRIM = 1 Plate  =  5 mL Buffer
+    # PRIM = 1 Plate  = 5  mL Buffer
     # SEC  = 3 Plates = 15 mL Buffer
     df["Number of Plates"] = np.select(binding_conditions, [1, 3], default=1)
     df["Buffer Volume"] = np.select(binding_conditions, [5, 15], default=5)
@@ -266,7 +306,7 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
     
     # calculate decay factor for I125, for H3 it is 1 ------------------------------
     # np.log is base e (effectively this is ln(2))
-    day_since_cal = (pd.to_datetime(now) - df["Calibration Date"]).dt.days
+    day_since_cal = (df["Date"] - df["Calibration Date"]).dt.days
     I125_decay_factor = np.exp((-np.log(2)/60.1)*day_since_cal)
     
     decay_factor_conditions = [(df["Radionuclide"] == "H3"), (df["Radionuclide"] == "I125")]
@@ -282,6 +322,7 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
     # ==============================================================================
     logger.info("Calculating Pellet Usage")
 
+    # select which pellet ratio to use depending on filter type --------------------
     pellet_conditions = [
         (df["Filter Type"] == "Filtermat"),
         (df["Filter Type"] == "Unifilter")
@@ -300,3 +341,104 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
 
 
 
+def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd.DataFrame]:
+    # ==============================================================================
+    # SUM BASED ON ASSAY (INCLUDING PELLET INVENTORY)
+    # ==============================================================================
+    logger.info("Aggregating Receptor/Assay Information")
+    assay_summary = (
+        df.groupby("Receptor")
+        .agg(**{
+            "Date"               :("Date",                 "first"),
+            "Ligand"             :("Ligand",               "first"),
+            "Buffer"             :("Assay BB",             "first"),
+            "Buffer Vol (mL)"    :("Buffer Volume",        "sum"),
+            "Ligand Vol (uL)"    :("uL for Assay",         "sum"),
+            "# of Plates"        :("Number of Plates",     "sum"),
+            "# of Pellets"       :("Number of Pellets",    "sum"),
+            "Reference"          :("Reference",            "first"),
+            "Assay Conc. (nM)"   :("Assay Conc",           "first"),
+            "Filter Type"        :("Filter Type",          "first"),
+            "# Pellets Inventory":("Pellets in Inventory", "first")
+        })
+    ).reset_index()
+
+    # ==============================================================================
+    # SUM BASED ON HOT LIGAND
+    # ==============================================================================
+    logger.info("Aggregating Hot Ligand Information")
+    hotligand_summary = (
+        df.groupby("Ligand")
+        .agg(**{
+            "Date"                    :("Date",                    "first"),
+            "Radionuclide"            :("Radionuclide",            "first"),
+            "Inventory Control Number":("Inventory Control Number","first"),
+            "Specific Activity"       :("Specific Activity",       "first"),
+            "Ligand Vol (uL)"         :("uL for Assay",            "sum"),
+            "Ligand Used (uCi)"       :("uCi for Assay",           "sum"),
+            "Ligand in Vial (mCi)"    :("mCi Remaining",           "first")
+        })
+    ).reset_index()
+
+    # calculate waste information --------------------------------------------------
+    # sink waste = 80% of Ligand Used
+    # dry waste = 20% of Ligand Used
+    logger.info("Calculating Rad Waste Information")
+    hotligand_summary["Ligand used (mCi)"] = np.ceil(hotligand_summary["Ligand Used (uCi)"] / 1000)
+    
+    # minimum ligand usage is 0.002 mCi --------------------------------------------
+    waste_mask = hotligand_summary["Ligand used (mCi)"] < 0.002
+    hotligand_summary.loc[waste_mask, "Ligand used (mCi)"] = 0.002
+
+    # calculate dry waste ----------------------------------------------------------
+    logger.info("Calculating Dry Waste")
+    hotligand_summary["Dry Waste"] = np.round(hotligand_summary["Ligand used (mCi)"] * 0.2, decimals=3)
+
+    # minimum dry waste is 0.001 mCi -----------------------------------------------
+    dry_waste_mask = hotligand_summary["Dry Waste"] < 0.001
+    hotligand_summary.loc[waste_mask, "Dry Waste"] = 0.001
+    
+    # calculate sink waste ---------------------------------------------------------
+    logger.info("Calculating Sink Waste")
+    hotligand_summary["Sink Waste"] = hotligand_summary["Ligand used (mCi)"] - hotligand_summary["Dry Waste"]
+
+    # ==============================================================================
+    # CREATE PELLET LOG DF
+    # ==============================================================================
+    # pellet log tracks date, receptor, initals, and quantity used -----------------
+    pellet_log_cols = ["Date", "Receptor", "# of Pellets"]
+    pellet_log_df = assay_summary[pellet_log_cols].copy()
+    pellet_log_df.insert(2, "Initals", user_initals, allow_duplicates=False)
+
+    # ==============================================================================
+    # CREATE HOTLIGAND LOG DF
+    # ==============================================================================
+    # hotligand log tracks:
+    # date, ligand, radionuclide, inventory control number, mCi used, sink, dry, name
+    hotligand_log_cols = [
+        "Ligand", "Radionuclide", "Inventory Control Number",
+        "Ligand used (mCi)", "Sink Waste", "Dry Waste"               
+        ]
+    hotligand_log_df = hotligand_summary[hotligand_log_cols].copy()
+    hotligand_log_df["Name"] = user_name
+
+    # ==============================================================================
+    # CREATE SUMMARY DICT TO RETURN
+    # ==============================================================================
+    df_dict = {
+        "Assay Summary"     : assay_summary,
+        "Hot Ligand Summary": hotligand_summary,
+        "Pellet Log"        : pellet_log_df,
+        "Hot Ligand Log"    : hotligand_log_df
+    }
+
+    # ==============================================================================
+    # PRINT SHAPES/COLUMNS OF DF
+    # ==============================================================================
+    for df_type, df in df_dict.items():
+        logger.info(f"Printing {df_type} Summary:")
+        logger.info(f"{df_type} Shape: {df.shape}")
+        logger.info(f"{df_type} Columns:\n{df.columns}")
+        logger.info(f"{df_type} First 5 Rows:\n{df.head()}")
+    
+    return df_dict
