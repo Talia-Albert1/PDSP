@@ -291,7 +291,7 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
     # PRIM = 1 Plate  = 5  mL Buffer
     # SEC  = 3 Plates = 15 mL Buffer
     df["Number of Plates"] = np.select(binding_conditions, [1, 3], default=1)
-    df["Buffer Volume"] = np.select(binding_conditions, [5, 15], default=5)
+    df["Buffer Volume (mL)"] = np.select(binding_conditions, [5, 15], default=5)
     logger.info("Buffer Volumes & Number of Plates Calculated")
     # ==============================================================================
     # CALCULATE RAD MATERIAL USAGE
@@ -301,9 +301,15 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
     # calculate uci needed for assay -----------------------------------------------
     dilution_factor = 2.5
     overage_percent = 1.44 #1.2 * 1.2
-    df["uCi for Assay"] = df["Buffer Volume"] * df["Assay Conc"] * df["Specific Activity"] * (1/1000) * dilution_factor * overage_percent
+    df["uCi for Assay"] = df["Buffer Volume (mL)"] * df["Assay Conc"] * df["Specific Activity"] * (1/1000) * dilution_factor * overage_percent
     logger.info("uCi per Assay calculated")
     
+    # calculate sink & dry waste for individual assay ------------------------------
+    # NOTE: these rounded numbers are only used if we need to back calculate
+    # NOTE: the numbers used for the actual log are generated in a summary section
+    df["Sink Waste (uCi)"] = df["uCi for Assay"] * 0.8
+    df["Dry Waste (uCi)"]  = df["uCi for Assay"] * 0.2
+
     # calculate decay factor for I125, for H3 it is 1 ------------------------------
     # np.log is base e (effectively this is ln(2))
     day_since_cal = (df["Date"] - df["Calibration Date"]).dt.days
@@ -313,7 +319,7 @@ def calc_material_usage(now:datetime, df:pd.DataFrame)->pd.DataFrame:
     decay_factor_choices = [1, I125_decay_factor]
     df["Decay Factor"] = np.select(decay_factor_conditions, decay_factor_choices, default=1.0)
 
-    # calculate uL needed for assay --------------------------------------------------
+    # calculate uL needed for assay ------------------------------------------------
     df["uL for Assay"] = df["uCi for Assay"] / (df["uCi/uL Ratio"] * df["Decay Factor"])
     logger.info("uL per Assay calculated")
 
@@ -352,7 +358,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
             "Date"               :("Date",                 "first"),
             "Ligand"             :("Ligand",               "first"),
             "Buffer"             :("Assay BB",             "first"),
-            "Buffer Vol (mL)"    :("Buffer Volume",        "sum"),
+            "Buffer Vol (mL)"    :("Buffer Volume (mL)",   "sum"),
             "Ligand Vol (uL)"    :("uL for Assay",         "sum"),
             "# of Plates"        :("Number of Plates",     "sum"),
             "# of Pellets"       :("Number of Pellets",    "sum"),
@@ -380,28 +386,33 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
         })
     ).reset_index()
 
-    # calculate waste information --------------------------------------------------
+    # ==============================================================================
+    # CALCULATE WASTE DATA
+    # ============================================================================== calculate waste information --------------------------------------------------
     # sink waste = 80% of Ligand Used
     # dry waste = 20% of Ligand Used
     logger.info("Calculating Rad Waste Information")
-    hotligand_summary["Ligand used (mCi)"] = np.ceil(hotligand_summary["Ligand Used (uCi)"] / 1000)
+    hotligand_summary["Ligand Used (mCi)"] = np.ceil(hotligand_summary["Ligand Used (uCi)"]) / 1000
     
     # minimum ligand usage is 0.002 mCi --------------------------------------------
-    waste_mask = hotligand_summary["Ligand used (mCi)"] < 0.002
-    hotligand_summary.loc[waste_mask, "Ligand used (mCi)"] = 0.002
+    waste_mask = hotligand_summary["Ligand Used (mCi)"] < 0.002
+    hotligand_summary.loc[waste_mask, "Ligand Used (mCi)"] = 0.002
 
-    # calculate dry waste ----------------------------------------------------------
+    # dry waste --------------------------------------------------------------------
     logger.info("Calculating Dry Waste")
-    hotligand_summary["Dry Waste"] = np.round(hotligand_summary["Ligand used (mCi)"] * 0.2, decimals=3)
+    hotligand_summary["Dry Waste"] = np.round(hotligand_summary["Ligand Used (mCi)"] * 0.2, decimals=3)
 
     # minimum dry waste is 0.001 mCi -----------------------------------------------
     dry_waste_mask = hotligand_summary["Dry Waste"] < 0.001
     hotligand_summary.loc[waste_mask, "Dry Waste"] = 0.001
     
-    # calculate sink waste ---------------------------------------------------------
+    # sink waste -------------------------------------------------------------------
     logger.info("Calculating Sink Waste")
-    hotligand_summary["Sink Waste"] = hotligand_summary["Ligand used (mCi)"] - hotligand_summary["Dry Waste"]
+    hotligand_summary["Sink Waste"] = hotligand_summary["Ligand Used (mCi)"] - hotligand_summary["Dry Waste"]
 
+    # ligand remaining in vial -----------------------------------------------------
+    logger.info("Calculating Ligand Remaining in Vial")
+    hotligand_summary["Ligand Remaining in Vial (mCi)"] = hotligand_summary["Ligand in Vial (mCi)"] - hotligand_summary["Ligand Used (mCi)"]
     # ==============================================================================
     # CREATE PELLET LOG DF
     # ==============================================================================
@@ -417,7 +428,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # date, ligand, radionuclide, inventory control number, mCi used, sink, dry, name
     hotligand_log_cols = [
         "Ligand", "Radionuclide", "Inventory Control Number",
-        "Ligand used (mCi)", "Sink Waste", "Dry Waste"               
+        "Ligand Used (mCi)", "Sink Waste", "Dry Waste"               
         ]
     hotligand_log_df = hotligand_summary[hotligand_log_cols].copy()
     hotligand_log_df["Name"] = user_name

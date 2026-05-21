@@ -24,6 +24,7 @@ def validate_user_config(user_config_path:Path, data_files_dir:Path) -> dict[str
     dict[str, str]
         dict with ['user_name', 'user_initials', 'gray_switch']
 
+    # TODO: Verify that google json file exists at Path and throw error if not
     """
     while True:
         # If file doesn't exist, create it by prompting the user

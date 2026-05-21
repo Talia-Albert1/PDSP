@@ -143,15 +143,9 @@ except (Exception) as e:
 # ==============================================================================
 # VALIDATE GSHEET DATABASES POST-FORMATTING
 # ==============================================================================
-# print_log_separator("Validating Google Sheet Databases - Pre-Formatting")
-# try:
-#     validators.val_preformat_gsheet_dfs(
-#         gsheet_database_dfs,
-#         gsheet_auth.GSHEET_CONFIG
-#     )
-# except (KeyError, ValueError) as e:
-#     logger.critical(f"Google Sheet Database Validation Failed: {e}")
-#     sys.exit(1)
+# TODO: Write a function that verifies the values in columns after formatting
+# TODO: Radionuclide = "I125/H3", Filtertype = "Filtermat/Unifilter"
+# TODO: Binding Type = "PRIM/SEC" (should have been confirmed), etc.
 
 # ==============================================================================
 # MERGE INPUT DF AND GSHEET DATABASES
