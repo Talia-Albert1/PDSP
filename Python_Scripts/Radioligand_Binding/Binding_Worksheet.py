@@ -7,44 +7,28 @@ Created on Tue Sep  5 14:43:49 2023
 # =============================================================================
 # ############################## IMPORT MODULES ###############################
 # =============================================================================
+import logging
+import sys
+
+# import sub-modules ----------------------------------------------------------
 from data_files.modules import config_paths as paths
-from data_files.modules.config_log import(
-    setup_logging,
-    print_log_separator
-)
-from data_files.modules.time_utils import(
-    NOW,
-    FORMATTED_DATE
-)
+from data_files.modules.config_log import(setup_logging,print_log_separator)
+from data_files.modules.time_utils import(NOW, FORMATTED_DATE)
 from data_files.modules import inputs
 from data_files.modules import validators
 from data_files.modules import processing
 from data_files.modules import gsheet_auth
+from data_files.modules import excel_writer
 
-
-import os
-from pathlib import Path
-import logging
-import json
-import shutil
-import pandas as pd
-
-import sys
-
-import openpyxl
-from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
-from openpyxl.formatting.rule import FormulaRule
-
+# google sheet authentication modules -----------------------------------------
 import gspread
 from google.oauth2.service_account import Credentials
-import time
 
-import math
 
 
 # if __name__ == "__main__":
 # ==============================================================================
-# INITALIZE
+# ################################# INITALIZE ##################################
 # ==============================================================================
 paths.initialize_directories()
 daily_paths = paths.get_daily_paths(FORMATTED_DATE)
@@ -52,7 +36,7 @@ logger = setup_logging(daily_paths["log"])
 print_log_separator("Starting Radiobinding Script")
 
 # ==============================================================================
-# VALIDATE CONFIG FILES
+# ########################### VALIDATE CONFIG FILES ############################
 # ==============================================================================
 print_log_separator("Validating Config Files")
 try:
@@ -65,7 +49,7 @@ except (ValueError, KeyError, FileNotFoundError, RuntimeError) as e:
 
 
 # ==============================================================================
-# LOAD TEXT FILES
+# ############################ LOAD TEXT FILES #################################
 # ==============================================================================
 print_log_separator("Loading Text Files")
 inputs.create_blank_file(daily_paths["barcode"])
@@ -79,7 +63,7 @@ except Exception as e:
 inputs.prompt_user_input()
 
 # ==============================================================================
-# VALIDATE TEXT FILES
+# ######################### VALIDATE TEXT FILES ################################
 # ==============================================================================
 print_log_separator("Validating Text Files")
 barcode_raw = inputs.load_text_files(daily_paths["barcode"])
@@ -91,13 +75,13 @@ except (ValueError) as e:
     sys.exit(1)
 
 # ==============================================================================
-# CREATE PANDAS DATAFRAME FOR INPUT FILES
+# ################ CREATE PANDAS DATAFRAME FOR INPUT FILES #####################
 # ==============================================================================
 print_log_separator("Merging Text Files")
 df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
 
 # ==============================================================================
-# AUTHENTICATE GOOGLE CREDENTIALS
+# #################### AUTHENTICATE GOOGLE CREDENTIALS #########################
 # ==============================================================================
 print_log_separator("Authenticating Google Sheets")
 creds = Credentials.from_service_account_file(user_config["gsheet_auth_path"], scopes=gsheet_auth.SCOPE)
@@ -105,8 +89,9 @@ client = gspread.authorize(creds)
 logging.info('google credientals authenticated')
 
 # ==============================================================================
-# READ IN GOOGLE SHEET DATA
+# ######################## READ IN GOOGLE SHEET DATA ###########################
 # ==============================================================================
+# TODO: Let script run optionally offline with local assay csv's
 print_log_separator("Load Google Sheet Databases")
 gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
     client,
@@ -115,7 +100,7 @@ gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
     )
 
 # ==============================================================================
-# VALIDATE GSHEET DATABASES COLUMNS
+# #################### VALIDATE GSHEET DATABASES COLUMNS #######################
 # ==============================================================================
 print_log_separator("Validating Google Sheet Database's Columns")
 try:
@@ -128,7 +113,7 @@ except (KeyError, ValueError) as e:
     sys.exit(1)
 
 # ==============================================================================
-# FORMAT GSHEET DATABASES
+# ######################### FORMAT GSHEET DATABASES ############################
 # ==============================================================================
 print_log_separator("Formatting Google Sheet Databases")
 try:
@@ -141,14 +126,14 @@ except (Exception) as e:
     sys.exit(1)
 
 # ==============================================================================
-# VALIDATE GSHEET DATABASES POST-FORMATTING
+# ############### VALIDATE GSHEET DATABASES POST-FORMATTING ####################
 # ==============================================================================
 # TODO: Write a function that verifies the values in columns after formatting
 # TODO: Radionuclide = "I125/H3", Filtertype = "Filtermat/Unifilter"
 # TODO: Binding Type = "PRIM/SEC" (should have been confirmed), etc.
 
 # ==============================================================================
-# MERGE INPUT DF AND GSHEET DATABASES
+# ################## MERGE INPUT DF AND GSHEET DATABASES #######################
 # ==============================================================================
 print_log_separator("Merging Input DF's and GSHEET DF's")
 try:
@@ -158,17 +143,19 @@ try:
     )
 except (KeyError) as e:
     logger.critical(f"Failed to Merge: {e}")
+    sys.exit(1)
 
 
 # ==============================================================================
-# CALCULATE HOT USAGE & PELLET USAGE PER ASSAY
+# ############### CALCULATE HOT USAGE & PELLET USAGE PER ASSAY #################
 # ==============================================================================
 print_log_separator("calculating radioactive material & pellet usage")
 df = processing.calc_material_usage(NOW, df)
 
 # ==============================================================================
-# CREATE SUMMARY DATAFRAMES
+# ###################### CREATE SUMMARY DATAFRAMES #############################
 # ==============================================================================
+print_log_separator("creating summary dataframes")
 summary_df = processing.aggregate_df(
     df = df,
     user_initals=user_config["user_initials"],
@@ -176,19 +163,34 @@ summary_df = processing.aggregate_df(
     )
 
 # ==============================================================================
-# WRITE TO LOCAL ARCHIVE EXCEL FILE
+# ################### WRITE TO LOCAL ARCHIVE EXCEL FILE ########################
+# ==============================================================================
+print_log_separator("writing to radioactive archive excel sheet")
+excel_writer.write_archive_excel(
+    archive_sheet_path=paths.RADIOACTIVITY_PATH,
+    df=df,
+    column_schema=excel_writer.COLUMN_SCHEMA,
+    user_config=user_config,
+    gray_switch_name="gray_switch",
+    user_config_path=paths.USER_CONFIG_PATH,
+    starting_index=4
+)
+
+# ==============================================================================
+# ################## WRITE TO BINDING PRINTOUT EXCEL FILE ######################
 # ==============================================================================
 
 # ==============================================================================
-# WRITE TO BINDING PRINTOUT EXCEL FILE
+# ################ WRITE TO GOOGLE SHEET HOT & PELLET LOGS #####################
 # ==============================================================================
 
 # ==============================================================================
-# WRITE TO GOOGLE SHEET HOT & PELLET LOGS
+# ############################# OPEN & PRINT FILES #############################
 # ==============================================================================
 
+
 # ==============================================================================
-# MOVE FILES TO ARCHIVE DIR
+# ######################### MOVE FILES TO ARCHIVE DIR ##########################
 # ==============================================================================
 
 print_log_separator("done :/)")

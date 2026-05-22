@@ -2,7 +2,12 @@ import logging
 
 import pandas as pd
 from pathlib import Path
+import time
+import datetime
 import openpyxl
+from openpyxl.styles import Border, Side, PatternFill, Font, Alignment
+from openpyxl.formatting.rule import FormulaRule
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +68,7 @@ COLUMN_SCHEMA = {
     # actual_assay_conc
     "S":  {
         "key": None, "bold": False, "align": "center", "border": "normal", "green_toggle": False, "num_format": "0.00",
-        "formula": lambda r, idx, row, prev: f'=O{r}*(1/2.22E+12)*(1/W{r})*(1/0.125)*10^9'
+        "formula": lambda r, idx, row, prev: f'=P{r}*(1/2.22E+12)*(1/W{r})*(1/0.125)*10^9'
     },
     "T":  {"key": "Ligand",                   "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
     "U":  {"key": "Radionuclide",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
@@ -82,7 +87,7 @@ COLUMN_SCHEMA = {
     "AH": {"key": "Reference",                "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
     "AI": {"key": "Number of Plates",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
     "AJ": {"key": "Number of Pellets",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AK": {"key": "Buffer Volume",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AK": {"key": "Buffer Volume (mL)",       "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
     "AL": {"key": "uL for Assay",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
     "AM": {"key": "uCi for Assay",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
     "AN": {"key": "Sink Waste (uCi)",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
@@ -140,16 +145,150 @@ def write_archive_excel(
         archive_sheet_path: Path,
         df                : pd.DataFrame,
         column_schema     : dict[str, dict],
-        gray_switch       :
+        user_config       : dict[str, str],
+        gray_switch_name  : str,
+        user_config_path  : Path,
+        starting_index    : int = 1
 ):
+    # ==============================================================================
+    # LOAD WORKBOOK
+    # ==============================================================================
+    logger.info(f"Loading Radioactive Archive Sheet: {archive_sheet_path}")
     wb = safe_load_workbook(archive_sheet_path)
-    ws = wb['Sheet1']
+    ws = wb['Sheet1'] # NOTE: change this to write to different sheet ("2026", etc.) (Sheet name must be changed on excel file)
+
+    # ==============================================================================
+    # READ USER CONFIG GRAY SWITCH BOOL
+    # ==============================================================================
+    # Read and swap the boolean state directly inside the user_config dict ---------
+    gray_switch = user_config.get(gray_switch_name, False) # default to False if missing
+    if gray_switch:
+        gray_switch = False
+        cell_fill_color = 'D9D9D9'  # Gray
+    else:
+        gray_switch = True
+        cell_fill_color = 'FFFFFF'  # White
+
+    # Persist the updated boolean state back to the dictionary ---------------------
+    user_config[gray_switch_name] = gray_switch
+
+    # ==============================================================================
+    # CELL STYLES
+    # ==============================================================================
+    border_normal = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    border_thick_right = Border(
+        left=Side(style='thin'),
+        right=Side(style='thick'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    # this will be gray or white depending on the last script execution ------------
+    fill_color = PatternFill(
+        start_color=cell_fill_color,
+        end_color=cell_fill_color,
+        fill_type='solid'
+    )
+    
+    # used for the y or Y confirm cells --------------------------------------------
+    green_fill = PatternFill(
+        start_color='92d050',
+        end_color='92d050',
+        fill_type='solid'
+    )
+
+    align_center = Alignment(horizontal='center')
+    align_left = Alignment(horizontal='left')
+
+    prev_row_dict = None
     last_row = ws.max_row
+    # ==============================================================================
+    # LOOP THROUGH DATAFRAME & COLUMN CONFIG
+    # ==============================================================================
+    logger.info("Writing to Archive Sheet")
+    # Iterate through DataFrame using an optimized row loop
+    for index, (df_idx, row) in enumerate(df.iterrows()): #loop through rows of the dataframe
+        row_index = last_row + index + 1 #add to last rows of excel file
+        row_dict = row.to_dict() #convert row from DataFrame to dict object
+        
+        for col_letter, config in column_schema.items(): #loop through the columns
+            cell_coord = f"{col_letter}{row_index}" #get the cell coordinates "A31", "B31", etc.
+            current_cell = ws[cell_coord] #get the cell
+            
+            # determine what values to put in the cell -----------------------------
+            data_key = config["key"] # data_key is the name of the column in the dataframe
+            if data_key is not None:
+                val = row_dict.get(data_key)
+                # Check for NaN (Pandas empty values) and convert to None for Excel
+                if pd.isna(val):
+                    val = None
+                
+                # --- DATETIME STRIPPING INTERCEPTION ---
+                # Check if the value is a pandas/python datetime object or timestamp string
+                elif ("date" in data_key.lower() or isinstance(val, (pd.Timestamp, datetime.datetime, datetime.date))):
+                    try:
+                        if isinstance(val, str):
+                            # Convert string timestamp to clean date if needed
+                            val = pd.to_datetime(val).strftime('%m/%d/%Y')
+                        else:
+                            val = val.strftime('%m/%d/%Y')
+                    except Exception:
+                        pass # Fallback to original value if parsing fails safely
+                
+                if "round" in config and val is not None:
+                    val = round(val, config["round"])
+                current_cell.value = val
 
-    if gray_switch == '0':
-        gray_switch = '1'
-        cell_fill_color = 'D9D9D9'#Gray
-    elif gray_switch == '1':
-        gray_switch = '0'
-        cell_fill_color = 'FFFFFF'#White
+            # Formula Extraction and Evaluation ------------------------------------
+            elif "formula" in config:
+                calculated_formula = config["formula"](row_index, index, row_dict, prev_row_dict)
+                if calculated_formula is not None:
+                    current_cell.value = calculated_formula
 
+            # --- STARTING INDEX INTERCEPTION OVERRIDE -----------------------------
+            # If it's the very first row being written, force Column E to the starting_index
+            if col_letter == "E" and index == 0:
+                current_cell.value = starting_index
+
+            # Apply Explicit Excel String Number Formats ---------------------------
+            if "num_format" in config:
+                current_cell.number_format = config["num_format"]
+
+            # Conditional Formatting Interception ----------------------------------
+            if config["green_toggle"]:
+                for match_case in ['"y"', '"Y"']:
+                    rule = FormulaRule(formula=[f"{cell_coord}={match_case}"], stopIfTrue=False, fill=green_fill)
+                    ws.conditional_formatting.add(cell_coord, rule)
+
+            # Cell Level Formatting Enforcement ------------------------------------
+            current_cell.fill = fill_color
+            current_cell.font = Font(bold=config["bold"])
+            current_cell.alignment = align_center if config["align"] == "center" else align_left
+            current_cell.border = border_thick_right if config["border"] == "thick_right" else border_normal
+
+        # Cache row reference context for successive loop evaluation (Prev Row references)
+        prev_row_dict = row_dict
+        logging.info(f"{row_dict.get('Binding Type', 'Binding Type')} {row_dict.get('Plate Name', 'Plate')} written to Radioactivity Archive Sheet")
+
+    logging.info('Radioactivity Archive Sheet written to successfully.')
+
+    safe_save_workbook(wb, archive_sheet_path)
+    logging.info('Radioactivity Archive Sheet saved.')
+
+
+    # ==============================================================================
+    # UPDATE JSON FILE
+    # ==============================================================================
+    # Overwrite and dump the changes straight back to your master JSON file
+    try:
+        with open(user_config_path, 'w') as json_file:
+            json.dump(user_config, json_file, indent=4)
+        logger.info(f"User configuration JSON updated successfully: {gray_switch_name} is now {gray_switch}")
+    except Exception as e:
+        logger.error(f"Failed to save user config JSON updates: {e}")

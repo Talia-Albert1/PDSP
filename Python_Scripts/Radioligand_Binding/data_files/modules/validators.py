@@ -7,31 +7,17 @@ import shutil
 import pandas as pd
 logger = logging.getLogger(__name__)
 
-def validate_user_config(user_config_path:Path, data_files_dir:Path) -> dict[str, str]:
-    """Validates user_config.json file exists
-    Validates the following columns exist:
-    ['user_name', 'user_initials', 'gheet_auth_path', 'gray_switch']
+def validate_user_config(user_config_path: Path, data_files_dir: Path) -> dict:
+    """Validates user_config.json file exists and contains valid required data.
+    Verifies that the Google Sheets credentials file exists.
     
     Returns dict
-
-    Parameters
-    ----------
-    user_config_path : str
-        Path to user_config.json file
-
-    Returns
-    -------
-    dict[str, str]
-        dict with ['user_name', 'user_initials', 'gray_switch']
-
-    # TODO: Verify that google json file exists at Path and throw error if not
     """
     while True:
         # If file doesn't exist, create it by prompting the user
         if not user_config_path.exists():
             run_config_setup_wizard(user_config_path, data_files_dir)
         
-        # necessary columns
         required_fields = ['user_name', 'user_initials', 'gsheet_auth_path', 'gray_switch']
 
         # Load the file
@@ -39,24 +25,36 @@ def validate_user_config(user_config_path:Path, data_files_dir:Path) -> dict[str
             with open(user_config_path, 'r') as f:
                 user_config = json.load(f)
 
-            missing = [field for field in required_fields if not user_config.get(field, None)]
+            # Check if key is absent OR explicitly None/empty string, allowing boolean False
+            missing = [
+                field for field in required_fields 
+                if field not in user_config or user_config[field] in (None, "")
+            ]
+            
             if missing:
                 raise KeyError(f"Config is missing required fields: {missing}")
 
-        except (json.JSONDecodeError, KeyError) as e:
+            # verify gsheet exists
+            gsheet_path = Path(user_config['gsheet_auth_path'])
+            if not gsheet_path.exists():
+                raise FileNotFoundError(
+                    f"Google Auth file not found at configured path: '{gsheet_path}'"
+                )
+
+        except (json.JSONDecodeError, KeyError, FileNotFoundError) as e:
             logger.error(f"Config error: {e}")
-            logger.error(f"The config file at {user_config_path} is corrupted or invalid")
-            prompt = input("\n Would you like to delete the file and create a new user_config.json (Y/N): ").strip().lower()
+            logger.error(f"The config file at {user_config_path} is corrupted, invalid, or has broken paths.")
+            
+            prompt = input("\nWould you like to delete the file and create a new user_config.json (Y/N): ").strip().lower()
 
             if prompt == "y":
                 user_config_path.unlink(missing_ok=True)
                 logger.info("User opted to delete config file and restart setup")
                 continue
-            
             else:
                 raise RuntimeError("User declined to repair the corrupted configuration file.")
         
-        # Verify required fields are present and not empty
+        # Success pathway
         logger.info(f"user_config.json loaded for: {user_config['user_name']} ({user_config['user_initials']})")
         return user_config
 

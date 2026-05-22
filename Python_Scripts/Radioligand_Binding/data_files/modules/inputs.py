@@ -11,14 +11,14 @@ import json
 logger = logging.getLogger(__name__)
 
 def choose_file(data_files_dir: Path) -> str:
-    """_summary_
+    """Chooses the gsheet json file
 
     Args:
-        data_files_dir (Path): _description_
-        json (str, optional): _description_. Defaults to "json".
+        data_files_dir (Path): Path object of the data files directory, where the json should be
 
     Returns:
-        Path: _description_
+        str: returns a string of the path, we return a string instead of a path object
+        I want the possibility of running the script offline to be valid
     """
     # generate list of candidate files, in there are none, raise an error
     auth_candidates = list(data_files_dir.glob('*.json'))
@@ -71,7 +71,7 @@ def run_config_setup_wizard(user_config_path: Path, data_files_dir: Path) -> Non
     while True:
         user_name = input("Enter your first name: ").strip()
         user_initials = input("Enter your initials: ").strip()
-        gray_switch = 1
+        gray_switch = True
         
         if not user_name or not user_initials:
             print("Fields cannot be empty. Please try again.")
