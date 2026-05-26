@@ -11,9 +11,11 @@ import json
 
 logger = logging.getLogger(__name__)
 
-# column index in excel is linked to dict, where "key" is the column name
+STARTING_INDEX = 1
+
+# column index in excel is linked to dict, where "key" is the column name --------------------------------------------------------
 # in the dataframe
-COLUMN_SCHEMA = {
+ARCHIVE_COLUMN_SCHEMA = {
     "A":  {"key": "Binding Type",             "bold": True,  "align": "left",   "border": "normal",      "green_toggle": False},
     "B":  {"key": "Plate Name",               "bold": True,  "align": "left",   "border": "normal",      "green_toggle": False},
     "C":  {"key": "Date",                     "bold": False, "align": "center", "border": "thick_right", "green_toggle": False},
@@ -101,6 +103,10 @@ COLUMN_SCHEMA = {
     "AV": {"key": "Pellet DB Notes",          "bold": False, "align": "left",   "border": "normal",      "green_toggle": False}
 }
 
+PRINTOUT_COLUMN_SCHEMA = {
+
+}
+
 def safe_load_workbook(file_path):
     """
     Safely loads an Excel workbook, prompt-retrying if the file is locked open.
@@ -110,13 +116,13 @@ def safe_load_workbook(file_path):
             wb = openpyxl.load_workbook(file_path)
             return wb
         except PermissionError:
-            logging.warning(f"Permission Denied: The file '{file_path}' is currently open or locked.")
+            logger.warning(f"Permission Denied: The file '{file_path}' is currently open or locked.")
             print(f"\n[WARNING] Please CLOSE the Excel file: {file_path}")
             user_input = input("Once closed, press [Enter] (or type 'y' and press Enter) to retry: ")
             # Optional check if you explicitly want 'y', though any key/Enter is usually more user-friendly
             time.sleep(0.5)  # Tiny buffer to let OS release file lock
         except Exception as e:
-            logging.error(f"Failed to load workbook due to an unexpected error: {e}")
+            logger.error(f"Failed to load workbook due to an unexpected error: {e}")
             raise e
 
 
@@ -128,15 +134,15 @@ def safe_save_workbook(wb, file_path):
     while True:
         try:
             wb.save(file_path)
-            logging.info(f"Workbook successfully saved to {file_path}")
+            logger.info(f"Workbook successfully saved to {file_path}")
             return True
         except PermissionError:
-            logging.warning(f"Permission Denied: Cannot save. The file '{file_path}' is currently open.")
+            logger.warning(f"Permission Denied: Cannot save. The file '{file_path}' is currently open.")
             print(f"\n[WARNING] CRITICAL: Cannot save changes! The file is open: {file_path}")
             user_input = input("Please CLOSE the file in Excel, then press [Enter] to retry saving: ")
             time.sleep(0.5)
         except Exception as e:
-            logging.error(f"Failed to save workbook due to an unexpected error: {e}")
+            logger.error(f"Failed to save workbook due to an unexpected error: {e}")
             raise e
 
 
@@ -274,12 +280,12 @@ def write_archive_excel(
 
         # Cache row reference context for successive loop evaluation (Prev Row references)
         prev_row_dict = row_dict
-        logging.info(f"{row_dict.get('Binding Type', 'Binding Type')} {row_dict.get('Plate Name', 'Plate')} written to Radioactivity Archive Sheet")
+        logger.info(f"{row_dict.get('Binding Type', 'Binding Type')} {row_dict.get('Plate Name', 'Plate')} written to Radioactivity Archive Sheet")
 
-    logging.info('Radioactivity Archive Sheet written to successfully.')
+    logger.info('Radioactivity Archive Sheet written to successfully.')
 
     safe_save_workbook(wb, archive_sheet_path)
-    logging.info('Radioactivity Archive Sheet saved.')
+    logger.info('Radioactivity Archive Sheet saved.')
 
 
     # ==============================================================================
@@ -292,3 +298,30 @@ def write_archive_excel(
         logger.info(f"User configuration JSON updated successfully: {gray_switch_name} is now {gray_switch}")
     except Exception as e:
         logger.error(f"Failed to save user config JSON updates: {e}")
+
+    logger.info("Finished Writing to Excel Archive")
+
+
+
+def write_printout(
+        printout_template_path   : Path,
+        printout_dest_path       : Path,
+        summary_df               : dict[str, pd.DataFrame],
+        assay_summary_df_name    : str,
+        hotligand_summary_df_name: str,
+        assay_list_df_name       : str,
+        starting_index           : int=1,
+        now                      : datetime.datetime
+):
+    # ==============================================================================
+    # LOAD PRINTOUT TEMPLATE
+    # ==============================================================================
+    logger.info(f"Loading Printout Sheet: {printout_template_path}")
+    wb = safe_load_workbook(printout_template_path)
+    ws = wb['Sheet1']
+
+    # ==============================================================================
+    # WRITE DATE
+    # ==============================================================================
+    ws.cell(2, 2, now.strftime("%m/%d/%Y"))
+

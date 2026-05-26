@@ -9,6 +9,8 @@ Created on Tue Sep  5 14:43:49 2023
 # =============================================================================
 import logging
 import sys
+import tempfile
+from pathlib import Path
 
 # import sub-modules ----------------------------------------------------------
 from data_files.modules import config_paths as paths
@@ -118,8 +120,8 @@ except (KeyError, ValueError) as e:
 print_log_separator("Formatting Google Sheet Databases")
 try:
     gsheet_database_dfs = processing.format_gsheet_dfs(
-            gsheet_database_dfs,
-            gsheet_auth.GSHEET_CONFIG
+            gsheet_database_dfs=gsheet_database_dfs,
+            gsheet_config=gsheet_auth.GSHEET_CONFIG
         )
 except (Exception) as e:
     logger.critical(f"Formatting Google Sheet Databases failed: {e}")
@@ -138,8 +140,8 @@ except (Exception) as e:
 print_log_separator("Merging Input DF's and GSHEET DF's")
 try:
     df = processing.merge_dfs(
-        df,
-        gsheet_database_dfs
+        df=df,
+        gsheet_database_dfs=gsheet_database_dfs
     )
 except (KeyError) as e:
     logger.critical(f"Failed to Merge: {e}")
@@ -150,7 +152,10 @@ except (KeyError) as e:
 # ############### CALCULATE HOT USAGE & PELLET USAGE PER ASSAY #################
 # ==============================================================================
 print_log_separator("calculating radioactive material & pellet usage")
-df = processing.calc_material_usage(NOW, df)
+df = processing.calc_material_usage(
+    now=NOW,
+    df=df
+    )
 
 # ==============================================================================
 # ###################### CREATE SUMMARY DATAFRAMES #############################
@@ -169,16 +174,36 @@ print_log_separator("writing to radioactive archive excel sheet")
 excel_writer.write_archive_excel(
     archive_sheet_path=paths.RADIOACTIVITY_PATH,
     df=df,
-    column_schema=excel_writer.COLUMN_SCHEMA,
+    column_schema=excel_writer.ARCHIVE_COLUMN_SCHEMA,
     user_config=user_config,
     gray_switch_name="gray_switch",
     user_config_path=paths.USER_CONFIG_PATH,
-    starting_index=4
+    starting_index=excel_writer.STARTING_INDEX
 )
 
 # ==============================================================================
 # ################## WRITE TO BINDING PRINTOUT EXCEL FILE ######################
 # ==============================================================================
+logger.info("Writing to bench printout")
+with tempfile.TemporaryDirectory() as tmp_dir_name:
+        tmp_dir = Path(tmp_dir_name)
+        logger.info(f"Created temporary directory: {tmp_dir}")
+        staging_file_path = tmp_dir / daily_paths["printout_basename"]
+
+        excel_writer.write_printout(
+            printout_template_path=paths.PRINTOUT_TEMPLATE_PATH,
+            printout_dest_path=staging_file_path,
+
+            )
+        
+        paths.ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+        
+        desired_target = paths.ARCHIVE_DIR / daily_paths["printout_basename"]
+        safe_target = paths.get_unique_path(desired_target)
+        
+        shutil.move(str(staging_file_path), str(safe_target))
+        logger.info(f"Successfully archived to: {safe_target}")
+
 
 # ==============================================================================
 # ################ WRITE TO GOOGLE SHEET HOT & PELLET LOGS #####################

@@ -413,9 +413,11 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # ligand remaining in vial -----------------------------------------------------
     logger.info("Calculating Ligand Remaining in Vial")
     hotligand_summary["Ligand Remaining in Vial (mCi)"] = hotligand_summary["Ligand in Vial (mCi)"] - hotligand_summary["Ligand Used (mCi)"]
+
     # ==============================================================================
     # CREATE PELLET LOG DF
     # ==============================================================================
+    logger.info("Creating Pellet Log DF")
     # pellet log tracks date, receptor, initals, and quantity used -----------------
     pellet_log_cols = ["Date", "Receptor", "# of Pellets"]
     pellet_log_df = assay_summary[pellet_log_cols].copy()
@@ -424,6 +426,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # ==============================================================================
     # CREATE HOTLIGAND LOG DF
     # ==============================================================================
+    logger.info("Creating Hotligand Log DF")
     # hotligand log tracks:
     # date, ligand, radionuclide, inventory control number, mCi used, sink, dry, name
     hotligand_log_cols = [
@@ -434,13 +437,42 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     hotligand_log_df["Name"] = user_name
 
     # ==============================================================================
+    # CREATE ASSAY LIST DF
+    # ==============================================================================
+    logger.info("Create Assay List DF")
+    # NOTE: melt converts a wide dataframe to a long dataframe
+    # add index values to ensure order later works
+    df['original_row'] = df.index
+
+    # create melted dataframe, (which will be sorted by all barcode 0, 1 then 2)
+    # we use original row to then sort everything in the order we expect
+    assay_list_df = df.melt(
+        id_vars=['original_row', 'Plate Name', 'Binding Type'],
+        value_vars=['Barcode 0', 'Barcode 1', 'Barcode 2'],
+        value_name='Barcode'
+    )
+
+    # drop Na barcodes (aka PRIM plates without a Barcode 1 or Barcode 2)
+    assay_list_df = assay_list_df.dropna(subset=["Barcode"])
+    # remap PRIM/SEC to P/S
+    assay_list_df["Binding Type"] = assay_list_df['Binding Type'].map({'PRIM': 'P', 'SEC': 'S'})
+
+    # sort by the original row sequence to restore the user's order
+    assay_list_df = assay_list_df.sort_values(by='original_row').reset_index(drop=True)
+
+    # drop the temporary tracking column so your final output is perfectly clean
+    # variable gets created from melt, to show which column the row was from
+    assay_list_df = assay_list_df.drop(columns=['original_row', 'variable'])
+
+    # ==============================================================================
     # CREATE SUMMARY DICT TO RETURN
     # ==============================================================================
     df_dict = {
         "Assay Summary"     : assay_summary,
         "Hot Ligand Summary": hotligand_summary,
         "Pellet Log"        : pellet_log_df,
-        "Hot Ligand Log"    : hotligand_log_df
+        "Hot Ligand Log"    : hotligand_log_df,
+        "Assay List DF"     : assay_list_df
     }
 
     # ==============================================================================
