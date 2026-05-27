@@ -72,39 +72,90 @@ ARCHIVE_COLUMN_SCHEMA = {
         "key": None, "bold": False, "align": "center", "border": "normal", "green_toggle": False, "num_format": "0.00",
         "formula": lambda r, idx, row, prev: f'=P{r}*(1/2.22E+12)*(1/W{r})*(1/0.125)*10^9'
     },
-    "T":  {"key": "Ligand",                   "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
-    "U":  {"key": "Radionuclide",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "V":  {"key": "Inventory Control Number", "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "W":  {"key": "Specific Activity",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "X":  {"key": "Initial Quantity mCi",     "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "Y":  {"key": "Initial Volume uL",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "Z":  {"key": "uCi/uL Ratio",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AA": {"key": "mCi Remaining",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AB": {"key": "uL Remaining",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AC": {"key": "Date Received",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AD": {"key": "Date Started",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AE": {"key": "Date Last Used",           "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AF": {"key": "Calibration Date",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AG": {"key": "Decay Factor",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AH": {"key": "Reference",                "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
-    "AI": {"key": "Number of Plates",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AJ": {"key": "Number of Pellets",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AK": {"key": "Buffer Volume (mL)",       "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AL": {"key": "uL for Assay",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
-    "AM": {"key": "uCi for Assay",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
-    "AN": {"key": "Sink Waste (uCi)",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
-    "AO": {"key": "Dry Waste (uCi)",          "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
-    "AP": {"key": "Assay BB",                 "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
-    "AQ": {"key": "Filter Type",              "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AR": {"key": "Unifilter Pellet Ratio",   "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AS": {"key": "Filtermat Pellet Ratio",   "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AT": {"key": "Pellets in Inventory",     "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
-    "AU": {"key": "Assay DB Notes",           "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
-    "AV": {"key": "Pellet DB Notes",          "bold": False, "align": "left",   "border": "normal",      "green_toggle": False}
+    "T":  {"key": "Pellet Used",              "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
+    "U":  {"key": "Ligand",                   "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
+    "V":  {"key": "Radionuclide",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "W":  {"key": "Inventory Control Number", "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "X":  {"key": "Specific Activity",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "Y":  {"key": "Initial Quantity mCi",     "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "Z":  {"key": "Initial Volume uL",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AA": {"key": "uCi/uL Ratio",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AB": {"key": "mCi Remaining",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AC": {"key": "uL Remaining",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AD": {"key": "Date Received",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AE": {"key": "Date Started",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AF": {"key": "Date Last Used",           "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AG": {"key": "Calibration Date",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AH": {"key": "Decay Factor",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AI": {"key": "Reference",                "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
+    "AJ": {"key": "Number of Plates",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AK": {"key": "Number of Pellets",        "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AL": {"key": "Buffer Volume (mL)",       "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AM": {"key": "uL for Assay",             "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
+    "AN": {"key": "uCi for Assay",            "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
+    "AO": {"key": "Sink Waste (uCi)",         "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
+    "AP": {"key": "Dry Waste (uCi)",          "bold": False, "align": "center", "border": "normal",      "green_toggle": False, "round": 2},
+    "AQ": {"key": "Assay BB",                 "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
+    "AR": {"key": "Filter Type",              "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AS": {"key": "Unifilter Pellet Ratio",   "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AT": {"key": "Filtermat Pellet Ratio",   "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AU": {"key": "Pellets in Inventory",     "bold": False, "align": "center", "border": "normal",      "green_toggle": False},
+    "AV": {"key": "Assay DB Notes",           "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
+    "AW": {"key": "Pellet DB Notes",          "bold": False, "align": "left",   "border": "normal",      "green_toggle": False}
 }
 
 PRINTOUT_COLUMN_SCHEMA = {
-
+        "Assay Summary":{
+            "df name": "Assay Summary",
+            "starting row": 15,
+            "schema":{
+                "A": {"key": "Receptor"},
+                "B": {"key": "Ligand"},
+                "C": {"key": "Pellet Used"},
+                "D": {"key": "Assay BB"},
+                "E": {"key": "Buffer Volume (mL)"},
+                "F": {"key": "Ligand Vol (uL)",     "round": 2},
+                "G": {"key": "# of Plates"},
+                "H": {"key": "# of Pellets"},
+                "I": {"key": "Filter Type"},
+                "J": {"key": "Reference"},
+                "K": {"key": None},#Reference Cell is merged with K
+                "L": {"key": "Assay Conc. (nM)",     "round": 1}
+            }
+    },
+        "Hot Ligand Summary":{
+            "df name": "Hot Ligand Summary",
+            "starting row": 4,
+            "schema":{
+                "B": {"key": "Ligand"},
+                "C": {"key": "Inventory Control Number"},
+                "D": {"key": "Specific Activity",              "round": 1},
+                "E": {"key": "Ligand Vol (uL)",                "round": 2},
+                "F": {"key": "Ligand in Vial (mCi)",           "round": 3},
+                "G": {"key": "Ligand Used (mCi)",              "round": 3},
+                "H": {"key": "Ligand Remaining in Vial (mCi)", "round": 3},
+            }
+    },
+        "Pellet Usage Summary":{
+            "df name": "Assay Summary",
+            "starting row": 4,
+            "schema":{
+                "I": {"key": "Receptor"},
+                "J": {"key": "Pellet Used"},
+                "K": {"key": "# Pellets Inventory", "round": 2},
+                "L": {"key": "# of Pellets",        "round": 2},
+            }
+    },
+        "Assay List":{
+            "df name": "Assay List",
+            "starting row": 4,
+            "schema":{
+                "M": {"key": "Plate Name"},
+                "N": {"key": "Binding Type"},
+                "O": {"key": "# Pellets Inventory"},
+                "P": {"key": "Barcode"}
+            }
+    }
 }
 
 def safe_load_workbook(file_path):
@@ -307,11 +358,12 @@ def write_printout(
         printout_template_path   : Path,
         printout_dest_path       : Path,
         summary_df               : dict[str, pd.DataFrame],
-        assay_summary_df_name    : str,
         hotligand_summary_df_name: str,
+        pellet_summary_df_name   : str,
+        assay_summary_df_name    : str,
         assay_list_df_name       : str,
-        starting_index           : int=1,
-        now                      : datetime.datetime
+        now                      : datetime.datetime,
+        starting_index           : int=1
 ):
     # ==============================================================================
     # LOAD PRINTOUT TEMPLATE
@@ -323,5 +375,31 @@ def write_printout(
     # ==============================================================================
     # WRITE DATE
     # ==============================================================================
+    logger.info("Writing Date to Binding Printout")
     ws.cell(2, 2, now.strftime("%m/%d/%Y"))
 
+    # ==============================================================================
+    # WRITE HOTLIGAND SUMMARY
+    # ==============================================================================
+    logger.info("Writing Hotligand Summary to Binding Printout")
+    
+
+    # ==============================================================================
+    # WRITE PELLET SUMMARY
+    # ==============================================================================
+    logger.info("Writing Pellet Summary to Binding Printout")
+
+    # ==============================================================================
+    # WRITE ASSAY SUMMARY
+    # ==============================================================================
+    logger.info("Writing Assay Summary to Binding Printout")
+
+    # ==============================================================================
+    # WRITE ASSAY LIST SUMMARY
+    # ==============================================================================
+    logger.info("Writing Assay List Summary to Binding Printout")
+
+    # ==============================================================================
+    # SAVE WORKBOOK
+    # ==============================================================================
+    logger.info(f"Saving Workbook to: {printout_dest_path}")

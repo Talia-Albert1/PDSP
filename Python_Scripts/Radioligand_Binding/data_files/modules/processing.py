@@ -88,19 +88,6 @@ def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.Dat
     return df
 
 
-def format_gsheet_dfs(gsheet_database_dfs:dict[str,pd.DataFrame], gsheet_config:dict[str,dict])->dict[str,dict]:
-    database_dict = {}
-    for db_type, df in gsheet_database_dfs.items():
-        for col in df:
-            if col not in gsheet_config[db_type]['schema'].keys():
-                logger.warning(f"{col} not formatted, not in GSHEET_CONFIG: {gsheet_config[db_type]['schema'].keys()}")
-                continue
-            format = gsheet_config[db_type]['schema'][col]
-            df[col] =  df[col].astype(format)
-        database_dict[db_type] = df
-        logger.info(f"{db_type} DataFrame columns formatted")
-    return database_dict
-
 def format_gsheet_dfs(gsheet_database_dfs: dict[str, pd.DataFrame], gsheet_config: dict[str, dict]) -> dict[str, pd.DataFrame]:
     """Format the google sheet dataframes to ensure columns are the correct type.
     Also renames columns to internal name.
@@ -131,7 +118,7 @@ def format_gsheet_dfs(gsheet_database_dfs: dict[str, pd.DataFrame], gsheet_confi
         
         for col in current_df_cols:
             if col not in rename_map:
-                logger.warning(f"Column '{col}' not in GSHEET_CONFIG for {db_type}. Skipping.")
+                logger.warning(f"Column '{col}' in Google Sheets, not in GSHEET_CONFIG for {db_type}. Skipping.")
                 continue
             
             # Apply formatting
@@ -235,11 +222,16 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
     logger.info("Merging Pellet Inventory (Pellet_DB) with Merged DataFrame")
     df_merged = df_merged.merge(
         gsheet_database_dfs["Pellet_DB"],
-        on="Receptor",
+        left_on="Pellet Used",
+        right_on="Receptor",
         how="left",
         indicator=True,
-        validate="m:1"
+        validate="m:1",
+        suffixes=("", "_drop")
     )
+
+    # Safely drop the duplicate column from the database
+    df_merged = df_merged.drop(columns=["Receptor_drop"])
     
     # Filter for rows that only exist in the left (input) dataframe
     unmatched = df_merged[df_merged["_merge"] == "left_only"]
@@ -249,7 +241,7 @@ def merge_dfs(input_df:pd.DataFrame, gsheet_database_dfs:dict[str,pd.DataFrame])
         # Get the specific receptors that failed so the user can fix the Google Sheet or input
         # create df that informs user on specific unmatched plates
         error_df = unmatched.loc[:, ["Receptor"]]
-        failed_receptorss = unmatched["Receptor"].unique().tolist()
+        failed_receptors = unmatched["Receptor"].unique().tolist()
         msg = (
             f"{unmatched_count} rows unmatched. "
             f"Receptors not found in Pellet_DB: {failed_receptors} "
@@ -365,7 +357,8 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
             "Reference"          :("Reference",            "first"),
             "Assay Conc. (nM)"   :("Assay Conc",           "first"),
             "Filter Type"        :("Filter Type",          "first"),
-            "# Pellets Inventory":("Pellets in Inventory", "first")
+            "# Pellets Inventory":("Pellets in Inventory", "first"),
+            "Pellet Used"        :("Pellet Used",          "first")
         })
     ).reset_index()
 
@@ -404,7 +397,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
 
     # minimum dry waste is 0.001 mCi -----------------------------------------------
     dry_waste_mask = hotligand_summary["Dry Waste"] < 0.001
-    hotligand_summary.loc[waste_mask, "Dry Waste"] = 0.001
+    hotligand_summary.loc[dry_waste_mask, "Dry Waste"] = 0.001
     
     # sink waste -------------------------------------------------------------------
     logger.info("Calculating Sink Waste")
@@ -419,7 +412,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # ==============================================================================
     logger.info("Creating Pellet Log DF")
     # pellet log tracks date, receptor, initals, and quantity used -----------------
-    pellet_log_cols = ["Date", "Receptor", "# of Pellets"]
+    pellet_log_cols = ["Date", "Pellet Used", "# of Pellets"]
     pellet_log_df = assay_summary[pellet_log_cols].copy()
     pellet_log_df.insert(2, "Initals", user_initals, allow_duplicates=False)
 
@@ -472,7 +465,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
         "Hot Ligand Summary": hotligand_summary,
         "Pellet Log"        : pellet_log_df,
         "Hot Ligand Log"    : hotligand_log_df,
-        "Assay List DF"     : assay_list_df
+        "Assay List"        : assay_list_df
     }
 
     # ==============================================================================

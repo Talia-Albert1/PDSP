@@ -11,6 +11,7 @@ import logging
 import sys
 import tempfile
 from pathlib import Path
+import shutil
 
 # import sub-modules ----------------------------------------------------------
 from data_files.modules import config_paths as paths
@@ -140,7 +141,7 @@ except (Exception) as e:
 print_log_separator("Merging Input DF's and GSHEET DF's")
 try:
     df = processing.merge_dfs(
-        df=df,
+        input_df=df,
         gsheet_database_dfs=gsheet_database_dfs
     )
 except (KeyError) as e:
@@ -184,7 +185,7 @@ excel_writer.write_archive_excel(
 # ==============================================================================
 # ################## WRITE TO BINDING PRINTOUT EXCEL FILE ######################
 # ==============================================================================
-logger.info("Writing to bench printout")
+print_log_separator("Writing to binding printout")
 with tempfile.TemporaryDirectory() as tmp_dir_name:
         tmp_dir = Path(tmp_dir_name)
         logger.info(f"Created temporary directory: {tmp_dir}")
@@ -193,7 +194,13 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
         excel_writer.write_printout(
             printout_template_path=paths.PRINTOUT_TEMPLATE_PATH,
             printout_dest_path=staging_file_path,
-
+            summary_df=summary_df,
+            hotligand_summary_df_name="Hot Ligand Summary",
+            pellet_summary_df_name="Pellet Log",
+            assay_summary_df_name="Assay Summary",
+            assay_list_df_name="Assay List",
+            now=NOW,
+            starting_index=excel_writer.STARTING_INDEX
             )
         
         paths.ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
