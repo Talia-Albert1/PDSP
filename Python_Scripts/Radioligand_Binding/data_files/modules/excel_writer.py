@@ -70,7 +70,7 @@ ARCHIVE_COLUMN_SCHEMA = {
     # actual_assay_conc
     "S":  {
         "key": None, "bold": False, "align": "center", "border": "normal", "green_toggle": False, "num_format": "0.00",
-        "formula": lambda r, idx, row, prev: f'=P{r}*(1/2.22E+12)*(1/W{r})*(1/0.125)*10^9'
+        "formula": lambda r, idx, row, prev: f'=P{r}*(1/2.22E+12)*(1/X{r})*(1/0.125)*10^9'
     },
     "T":  {"key": "Pellet Used",              "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
     "U":  {"key": "Ligand",                   "bold": False, "align": "left",   "border": "normal",      "green_toggle": False},
@@ -118,9 +118,10 @@ PRINTOUT_COLUMN_SCHEMA = {
                 "G": {"key": "# of Plates"},
                 "H": {"key": "# of Pellets"},
                 "I": {"key": "Filter Type"},
-                "J": {"key": "Reference"},
-                "K": {"key": None},#Reference Cell is merged with K
-                "L": {"key": "Assay Conc. (nM)",     "round": 1}
+                "J": {"key": None},# Filter type merged with J
+                "K": {"key": "Reference"},
+                "L": {"key": None},#Reference Cell is merged with K
+                "M": {"key": "Assay Conc. (nM)",     "round": 1}
             }
     },
         "Hot Ligand Summary":{
@@ -131,29 +132,30 @@ PRINTOUT_COLUMN_SCHEMA = {
                 "C": {"key": "Inventory Control Number"},
                 "D": {"key": "Specific Activity",              "round": 1},
                 "E": {"key": "Ligand Vol (uL)",                "round": 2},
-                "F": {"key": "Ligand in Vial (mCi)",           "round": 3},
-                "G": {"key": "Ligand Used (mCi)",              "round": 3},
-                "H": {"key": "Ligand Remaining in Vial (mCi)", "round": 3},
+                "F": {"key": "Ligand in Vial (mCi)",           "format": "{:.3f}"},
+                "G": {"key": "Ligand Used (mCi)",              "format": "{:.3f}"},
+                "H": {"key": "Ligand Remaining in Vial (mCi)", "format": "{:.3f}"},
+                "I": {"key": "Finishing Vial?"}
             }
     },
         "Pellet Usage Summary":{
             "df name": "Assay Summary",
             "starting row": 4,
             "schema":{
-                "I": {"key": "Receptor"},
-                "J": {"key": "Pellet Used"},
-                "K": {"key": "# Pellets Inventory", "round": 2},
-                "L": {"key": "# of Pellets",        "round": 2},
+                "J": {"key": "Receptor"},
+                "K": {"key": "Pellet Used"},
+                "L": {"key": "# Pellets Inventory", "round": 2},
+                "M": {"key": "# of Pellets",        "round": 2},
             }
     },
         "Assay List":{
             "df name": "Assay List",
             "starting row": 4,
             "schema":{
-                "M": {"key": "Plate Name"},
-                "N": {"key": "Binding Type"},
-                "O": {"key": "# Pellets Inventory"},
-                "P": {"key": "Barcode"}
+                "N": {"key": "Plate Name"},
+                "O": {"key": "Binding Type"},
+                "P": {"key": "# Pellets Inventory"},
+                "Q": {"key": "Barcode"}
             }
     }
 }

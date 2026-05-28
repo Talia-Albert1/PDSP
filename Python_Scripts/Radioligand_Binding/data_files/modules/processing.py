@@ -380,18 +380,48 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     ).reset_index()
 
     # ==============================================================================
-    # CALCULATE WASTE DATA
-    # ============================================================================== calculate waste information --------------------------------------------------
+    # CALCULATE RADIOACTIVE WASTE DATA
+    # ==============================================================================
+    # calculate waste information --------------------------------------------------
     # sink waste = 80% of Ligand Used
     # dry waste = 20% of Ligand Used
     logger.info("Calculating Rad Waste Information")
     hotligand_summary["Ligand Used (mCi)"] = np.ceil(hotligand_summary["Ligand Used (uCi)"]) / 1000
     
+    # NOTE: for record keeping purposes, we cannot use more hot than what is listed.
+    # NOTE: in the vial and on the sign out sheet from EHS. So if we "finish" the vial, but
+    # NOTE: there is still some hot left in the vial, we treat it is "unused"
+    # NOTE: We cannot use more ligand than what is left in the vial.
+    # NOTE: the following calculation will change the amount of ligand used, if it
+    # NOTE: would use all the hot, to just use the amount left in the vial.
+    # NOTE: Example, we would use 0.025 mCi but there is only 0.015 mCi left in the
+    # NOTE: vial, we will change the amount used (for record keeping only) to 0.015 mCi,
+    # NOTE: since we cannot pull out more mCi from the vial than what is explicitly listed.
+    # NOTE: Sorry this is so verbose, I don't have time to make it concise :)
+
+    # ligand remaining in vial -----------------------------------------------------
+    logger.info("Calculating Ligand Remaining in Vial")
+    hotligand_summary["Ligand Remaining in Vial (mCi)"] = hotligand_summary["Ligand in Vial (mCi)"] - hotligand_summary["Ligand Used (mCi)"]
+
+    # ligand remaining cannot be < 0
+    logger.info("Calculating if any Vials will be finished")
+    remaining_ligand_mask = hotligand_summary["Ligand Remaining in Vial (mCi)"] <= 0
+    # if ligand remaining is < 0, change ligand remaining to be 0
+    # if ligand remaining is < 0, change ligand used to be ligand left in vial
+    hotligand_summary.loc[remaining_ligand_mask, "Ligand Remaining in Vial (mCi)"] = 0
+    logger.info("If vials are finished, changing Ligand Used to be mCi in Vial")
+    hotligand_summary.loc[remaining_ligand_mask, "Ligand Used (mCi)"] = hotligand_summary.loc[remaining_ligand_mask, "Ligand in Vial (mCi)"]
+
+    # finish vial bool -------------------------------------------------------------
+    logger.info("Determining if Vials are finished")
+    hotligand_summary["Finishing Vial?"] = remaining_ligand_mask
+
     # minimum ligand usage is 0.002 mCi --------------------------------------------
+    # will get overwritten later if vial was empty at time of running script
     waste_mask = hotligand_summary["Ligand Used (mCi)"] < 0.002
     hotligand_summary.loc[waste_mask, "Ligand Used (mCi)"] = 0.002
 
-    # dry waste --------------------------------------------------------------------
+    # dry waste (20%) --------------------------------------------------------------
     logger.info("Calculating Dry Waste")
     hotligand_summary["Dry Waste"] = np.round(hotligand_summary["Ligand Used (mCi)"] * 0.2, decimals=3)
 
@@ -399,13 +429,15 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     dry_waste_mask = hotligand_summary["Dry Waste"] < 0.001
     hotligand_summary.loc[dry_waste_mask, "Dry Waste"] = 0.001
     
-    # sink waste -------------------------------------------------------------------
+    # sink waste (80%) -------------------------------------------------------------
     logger.info("Calculating Sink Waste")
     hotligand_summary["Sink Waste"] = hotligand_summary["Ligand Used (mCi)"] - hotligand_summary["Dry Waste"]
 
-    # ligand remaining in vial -----------------------------------------------------
-    logger.info("Calculating Ligand Remaining in Vial")
-    hotligand_summary["Ligand Remaining in Vial (mCi)"] = hotligand_summary["Ligand in Vial (mCi)"] - hotligand_summary["Ligand Used (mCi)"]
+    # NOTE: if there is no ligand remaining at time of running script, all waste = 0 -----
+    ligand_in_vial_mask = hotligand_summary["Ligand in Vial (mCi)"] <= 0
+    hotligand_summary.loc[ligand_in_vial_mask, "Ligand Used (mCi)"] = 0
+    hotligand_summary.loc[ligand_in_vial_mask, "Dry Waste"] = 0
+    hotligand_summary.loc[ligand_in_vial_mask, "Sink Waste"] = 0
 
     # ==============================================================================
     # CREATE PELLET LOG DF
@@ -434,7 +466,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # ==============================================================================
     logger.info("Create Assay List DF")
     # NOTE: melt converts a wide dataframe to a long dataframe
-    # add index values to ensure order later works
+    # adding index values to ensure order later works
     df['original_row'] = df.index
 
     # create melted dataframe, (which will be sorted by all barcode 0, 1 then 2)

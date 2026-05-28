@@ -185,6 +185,7 @@ excel_writer.write_archive_excel(
 # ==============================================================================
 # ################## WRITE TO BINDING PRINTOUT EXCEL FILE ######################
 # ==============================================================================
+"""
 print_log_separator("Writing to binding printout")
 with tempfile.TemporaryDirectory() as tmp_dir_name:
         tmp_dir = Path(tmp_dir_name)
@@ -210,7 +211,7 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
         
         shutil.move(str(staging_file_path), str(safe_target))
         logger.info(f"Successfully archived to: {safe_target}")
-
+"""
 
 # ==============================================================================
 # ################ WRITE TO GOOGLE SHEET HOT & PELLET LOGS #####################
