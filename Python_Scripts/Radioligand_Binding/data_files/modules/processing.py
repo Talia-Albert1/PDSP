@@ -3,6 +3,9 @@ import logging
 import pandas as pd
 import numpy as np
 import datetime
+
+from pathlib import Path
+import shutil
 logger = logging.getLogger(__name__)
 
 
@@ -442,28 +445,6 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     hotligand_summary.loc[ligand_in_vial_mask, "Sink Waste"] = 0
 
     # ==============================================================================
-    # CREATE PELLET LOG DF
-    # ==============================================================================
-    logger.info("Creating Pellet Log DF")
-    # pellet log tracks date, receptor, initals, and quantity used -----------------
-    pellet_log_cols = ["Date", "Pellet Used", "# of Pellets"]
-    pellet_log_df = assay_summary[pellet_log_cols].copy()
-    pellet_log_df.insert(2, "Initals", user_initals, allow_duplicates=False)
-
-    # ==============================================================================
-    # CREATE HOTLIGAND LOG DF
-    # ==============================================================================
-    logger.info("Creating Hotligand Log DF")
-    # hotligand log tracks:
-    # date, ligand, radionuclide, inventory control number, mCi used, sink, dry, name
-    hotligand_log_cols = [
-        "Ligand", "Radionuclide", "Inventory Control Number",
-        "Ligand Used (mCi)", "Sink Waste", "Dry Waste"               
-        ]
-    hotligand_log_df = hotligand_summary[hotligand_log_cols].copy()
-    hotligand_log_df["Name"] = user_name
-
-    # ==============================================================================
     # CREATE ASSAY LIST DF
     # ==============================================================================
     logger.info("Create Assay List DF")
@@ -492,23 +473,80 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     assay_list_df = assay_list_df.drop(columns=['original_row', 'variable'])
 
     # ==============================================================================
+    # CREATE PELLET LOG DF
+    # ==============================================================================
+    logger.info("Creating Pellet Log DF")
+    # pellet log tracks date, receptor, initals, and quantity used -----------------
+    pellet_log_cols = ["Date", "Pellet Used", "# of Pellets"]
+    pellet_log_df = assay_summary[pellet_log_cols].copy()
+    pellet_log_df.insert(2, "Initals", user_initals, allow_duplicates=False)
+    # number of pellets used starts as positive, want to be -ve
+    pellet_log_df["# of Pellets"] = pellet_log_df["# of Pellets"] * -1
+
+    # ==============================================================================
+    # CREATE HOTLIGAND LOG DF
+    # ==============================================================================
+    logger.info("Creating Hotligand Log DF")
+    # hotligand log tracks:
+    # date, ligand, radionuclide, inventory control number, mCi used, sink, dry, name
+    hotligand_log_cols = [
+        "Date", "Ligand", "Radionuclide", "Inventory Control Number",
+        "Ligand Used (mCi)", "Sink Waste", "Dry Waste"               
+        ]
+    hotligand_log_df = hotligand_summary[hotligand_log_cols].copy()
+    hotligand_log_df["Name"] = user_name
+
+
+    # ==============================================================================
     # CREATE SUMMARY DICT TO RETURN
     # ==============================================================================
-    df_dict = {
+    summary_df = {
         "Assay Summary"     : assay_summary,
         "Hot Ligand Summary": hotligand_summary,
-        "Pellet Log"        : pellet_log_df,
-        "Hot Ligand Log"    : hotligand_log_df,
         "Assay List"        : assay_list_df
     }
 
+    log_df = {
+        "Hotligand_Log":hotligand_log_df,
+        "Pellet_Log"   :pellet_log_df
+    }
+
+    # combine the dicts for printing the summary
+    all_df = summary_df | log_df
     # ==============================================================================
     # PRINT SHAPES/COLUMNS OF DF
     # ==============================================================================
-    for df_type, df in df_dict.items():
+    for df_type, df in all_df.items():
         logger.info(f"Printing {df_type} Summary:")
         logger.info(f"{df_type} Shape: {df.shape}")
         logger.info(f"{df_type} Columns:\n{df.columns}")
         logger.info(f"{df_type} First 5 Rows:\n{df.head()}")
     
-    return df_dict
+    return summary_df, log_df
+
+
+def get_unique_path(target_path: Path) -> Path:
+    """Checks if a file exists and appends _1, _2, etc. to make it unique."""
+    if not target_path.exists():
+        return target_path
+    
+    stem = target_path.stem
+    suffix = target_path.suffix
+    directory = target_path.parent
+    
+    counter = 1
+    while True:
+        new_path = directory / f"{stem}_{counter}{suffix}"
+        if not new_path.exists():
+            return new_path
+        counter += 1
+
+def move_input_files(daily_paths:dict[str, Path], dest_dir:Path):
+    for input_file in ["barcode", "worklist"]:
+        full_source_path = Path(daily_paths[input_file])
+        logger.info(f"Attempting to move {full_source_path} to {dest_dir}")
+        file_name = full_source_path.name
+        desired_target = Path(dest_dir) / file_name
+        safe_target = get_unique_path(desired_target)
+        shutil.move(str(full_source_path), safe_target)
+        logger.info(f"Successfully Moved {full_source_path} to {safe_target}")

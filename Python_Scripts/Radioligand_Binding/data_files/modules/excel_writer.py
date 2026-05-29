@@ -154,7 +154,7 @@ PRINTOUT_COLUMN_SCHEMA = {
         "Assay List":{
             "df name": "Assay List",
             "starting row": 4,
-            "borders":True
+            "borders":True,
             "schema":{
                 "N": {"key": "Plate Name"},
                 "O": {"key": "Binding Type"},

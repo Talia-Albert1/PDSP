@@ -15,7 +15,7 @@ import shutil
 
 # import sub-modules ----------------------------------------------------------
 from data_files.modules import config_paths as paths
-from data_files.modules.config_log import(setup_logging,print_log_separator)
+from data_files.modules import config_log
 from data_files.modules.time_utils import(NOW, FORMATTED_DATE)
 from data_files.modules import inputs
 from data_files.modules import validators
@@ -35,13 +35,13 @@ from google.oauth2.service_account import Credentials
 # ==============================================================================
 paths.initialize_directories()
 daily_paths = paths.get_daily_paths(FORMATTED_DATE)
-logger = setup_logging(daily_paths["log"])
-print_log_separator("Starting Radiobinding Script")
+logger = config_log.setup_logging(daily_paths["log"])
+config_log.print_log_separator("Starting Radiobinding Script")
 
 # ==============================================================================
 # ########################### VALIDATE CONFIG FILES ############################
 # ==============================================================================
-print_log_separator("Validating Config Files")
+config_log.print_log_separator("Validating Config Files")
 try:
     user_config = validators.validate_user_config(paths.USER_CONFIG_PATH, paths.DATA_FILES_DIR)
     validators.validate_rad_archive_file(paths.RADIOACTIVITY_PATH, paths.RADIOACTIVITY_TEMPLATE_PATH)
@@ -54,7 +54,7 @@ except (ValueError, KeyError, FileNotFoundError, RuntimeError) as e:
 # ==============================================================================
 # ############################ LOAD TEXT FILES #################################
 # ==============================================================================
-print_log_separator("Loading Text Files")
+config_log.print_log_separator("Loading Text Files")
 inputs.create_blank_file(daily_paths["barcode"])
 inputs.create_blank_file(daily_paths["worklist"])
 try:
@@ -68,7 +68,7 @@ inputs.prompt_user_input()
 # ==============================================================================
 # ######################### VALIDATE TEXT FILES ################################
 # ==============================================================================
-print_log_separator("Validating Text Files")
+config_log.print_log_separator("Validating Text Files")
 barcode_raw = inputs.load_text_files(daily_paths["barcode"])
 worklist_raw = inputs.load_text_files(daily_paths["worklist"])
 try:
@@ -80,13 +80,13 @@ except (ValueError) as e:
 # ==============================================================================
 # ################ CREATE PANDAS DATAFRAME FOR INPUT FILES #####################
 # ==============================================================================
-print_log_separator("Merging Text Files")
+config_log.print_log_separator("Merging Text Files")
 df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
 
 # ==============================================================================
 # #################### AUTHENTICATE GOOGLE CREDENTIALS #########################
 # ==============================================================================
-print_log_separator("Authenticating Google Sheets")
+config_log.print_log_separator("Authenticating Google Sheets")
 creds = Credentials.from_service_account_file(user_config["gsheet_auth_path"], scopes=gsheet_auth.SCOPE)
 client = gspread.authorize(creds)
 logging.info('google credientals authenticated')
@@ -95,7 +95,7 @@ logging.info('google credientals authenticated')
 # ######################## READ IN GOOGLE SHEET DATA ###########################
 # ==============================================================================
 # TODO: Let script run optionally offline with local assay csv's
-print_log_separator("Load Google Sheet Databases")
+config_log.print_log_separator("Load Google Sheet Databases")
 gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
     client,
     gsheet_auth.GSHEET_FILE_NAME,
@@ -105,7 +105,7 @@ gsheet_database_dfs = gsheet_auth.load_all_gsheet_db(
 # ==============================================================================
 # #################### VALIDATE GSHEET DATABASES COLUMNS #######################
 # ==============================================================================
-print_log_separator("Validating Google Sheet Database's Columns")
+config_log.print_log_separator("Validating Google Sheet Database's Columns")
 try:
     validators.val_gsheet_dfs_cols(
         gsheet_database_dfs,
@@ -118,7 +118,7 @@ except (KeyError, ValueError) as e:
 # ==============================================================================
 # ######################### FORMAT GSHEET DATABASES ############################
 # ==============================================================================
-print_log_separator("Formatting Google Sheet Databases")
+config_log.print_log_separator("Formatting Google Sheet Databases")
 try:
     gsheet_database_dfs = processing.format_gsheet_dfs(
             gsheet_database_dfs=gsheet_database_dfs,
@@ -138,7 +138,7 @@ except (Exception) as e:
 # ==============================================================================
 # ################## MERGE INPUT DF AND GSHEET DATABASES #######################
 # ==============================================================================
-print_log_separator("Merging Input DF's and GSHEET DF's")
+config_log.print_log_separator("Merging Input DF's and GSHEET DF's")
 try:
     df = processing.merge_dfs(
         input_df=df,
@@ -152,7 +152,7 @@ except (KeyError) as e:
 # ==============================================================================
 # ############### CALCULATE HOT USAGE & PELLET USAGE PER ASSAY #################
 # ==============================================================================
-print_log_separator("calculating radioactive material & pellet usage")
+config_log.print_log_separator("calculating radioactive material & pellet usage")
 df = processing.calc_material_usage(
     now=NOW,
     df=df
@@ -161,8 +161,8 @@ df = processing.calc_material_usage(
 # ==============================================================================
 # ###################### CREATE SUMMARY DATAFRAMES #############################
 # ==============================================================================
-print_log_separator("creating summary dataframes")
-summary_df = processing.aggregate_df(
+config_log.print_log_separator("creating summary dataframes")
+summary_df, log_df = processing.aggregate_df(
     df = df,
     user_initals=user_config["user_initials"],
     user_name=user_config["user_name"]
@@ -171,7 +171,7 @@ summary_df = processing.aggregate_df(
 # ==============================================================================
 # ################### WRITE TO LOCAL ARCHIVE EXCEL FILE ########################
 # ==============================================================================
-print_log_separator("writing to radioactive archive excel sheet")
+config_log.print_log_separator("writing to radioactive archive excel sheet")
 excel_writer.write_archive_excel(
     archive_sheet_path=paths.RADIOACTIVITY_PATH,
     df=df,
@@ -185,7 +185,7 @@ excel_writer.write_archive_excel(
 # ==============================================================================
 # ################## WRITE TO BINDING PRINTOUT EXCEL FILE ######################
 # ==============================================================================
-print_log_separator("Writing to binding printout")
+config_log.print_log_separator("Writing to binding printout")
 with tempfile.TemporaryDirectory() as tmp_dir_name:
         tmp_dir = Path(tmp_dir_name)
         logger.info(f"Created temporary directory: {tmp_dir}")
@@ -203,7 +203,7 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
         paths.ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
         
         desired_target = paths.ARCHIVE_DIR / daily_paths["printout_basename"]
-        safe_target = paths.get_unique_path(desired_target)
+        safe_target = processing.get_unique_path(desired_target)
         
         shutil.move(str(staging_file_path), str(safe_target))
         logger.info(f"Successfully archived to: {safe_target}")
@@ -212,6 +212,13 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
 # ==============================================================================
 # ################ WRITE TO GOOGLE SHEET HOT & PELLET LOGS #####################
 # ==============================================================================
+config_log.print_log_separator("Writing Log to Google Sheets")
+gsheet_auth.write_log_gsheet(
+     client=client,
+     gsheet_file_name=gsheet_auth.GSHEET_FILE_NAME,
+     log_df=log_df,
+     gsheet_config=gsheet_auth.GSHEET_CONFIG
+)
 
 # ==============================================================================
 # ############################# OPEN & PRINT FILES #############################
@@ -221,8 +228,10 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
 # ==============================================================================
 # ######################### MOVE FILES TO ARCHIVE DIR ##########################
 # ==============================================================================
+config_log.print_log_separator("Moving input files to archive folder")
+processing.move_input_files(daily_paths=daily_paths, dest_dir=paths.ARCHIVE_DIR)
 
-print_log_separator("done :/)")
+config_log.print_log_separator("done :/)")
 
 
 

@@ -62,7 +62,7 @@ GSHEET_CONFIG = {
         },
     },
     "Hotligand_Log": {
-        "sheet_name": "Hotligand_log",
+        "sheet_name": "Hotligand_Log",
         "type":       "log",
     },
     "Pellet_Log": {
@@ -127,9 +127,6 @@ def load_gsheet_db(gsheet_file, gsheet_sheet_name:str)->pd.DataFrame:
 
 
 
-
-
-
 def load_all_gsheet_db(client, gsheet_file_name:str, gsheet_config:dict[str, dict])->dict[str, pd.DataFrame]:
     gsheet_file = client.open(gsheet_file_name)
     database_df = {}
@@ -142,3 +139,22 @@ def load_all_gsheet_db(client, gsheet_file_name:str, gsheet_config:dict[str, dic
         
     return database_df
 
+
+
+def write_log_gsheet(client, gsheet_file_name:str, log_df:dict[str, pd.DataFrame], gsheet_config:dict[str, dict]):
+    logger.info("Starting to Write to Google Sheet Log")
+    dict_of_lists = {}
+    for db_type, config in gsheet_config.items():
+        if config["type"] == "log":
+            df = log_df[db_type]
+            # datetime objects do not play well with the gspread module, converting to string
+            for col in df.select_dtypes(include=['datetime64', 'timedelta64']).columns:
+                df[col] = df[col].astype(str)
+            df_list = df.values.tolist()
+            dict_of_lists[config["sheet_name"]] = df_list
+    
+    google_file=client.open(gsheet_file_name)
+    for sheet_name, df_list in dict_of_lists.items():
+        logger.info(f"Writing log to: {sheet_name} Google Sheet")
+        worksheet = google_file.worksheet(f"{sheet_name}")
+        gsheet_api_call(worksheet.append_rows, df_list, value_input_option="USER_ENTERED")

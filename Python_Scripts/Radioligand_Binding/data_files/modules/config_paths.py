@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # directories
@@ -27,19 +28,3 @@ def get_daily_paths(formatted_date:str) -> dict[str, Path]:
         "printout_basename": f"{formatted_date} - Binding Printout.xlsx",
         "log"              : ARCHIVE_DIR / f"{formatted_date}_Binding_Worksheet.log"
     }
-
-def get_unique_path(target_path: Path) -> Path:
-    """Checks if a file exists and appends _1, _2, etc. to make it unique."""
-    if not target_path.exists():
-        return target_path
-    
-    stem = target_path.stem
-    suffix = target_path.suffix
-    directory = target_path.parent
-    
-    counter = 1
-    while True:
-        new_path = directory / f"{stem}_{counter}{suffix}"
-        if not new_path.exists():
-            return new_path
-        counter += 1
