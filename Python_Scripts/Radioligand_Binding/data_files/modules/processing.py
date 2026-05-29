@@ -345,7 +345,7 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # ==============================================================================
     logger.info("Aggregating Receptor/Assay Information")
     assay_summary = (
-        df.groupby("Receptor")
+        df.groupby("Receptor", sort=False)
         .agg(**{
             "Date"               :("Date",                 "first"),
             "Ligand"             :("Ligand",               "first"),
@@ -359,8 +359,8 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
             "Filter Type"        :("Filter Type",          "first"),
             "# Pellets Inventory":("Pellets in Inventory", "first"),
             "Pellet Used"        :("Pellet Used",          "first")
-        })
-    ).reset_index()
+        }).reset_index()
+    )
 
     # ==============================================================================
     # SUM BASED ON HOT LIGAND
@@ -377,7 +377,9 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
             "Ligand Used (uCi)"       :("uCi for Assay",           "sum"),
             "Ligand in Vial (mCi)"    :("mCi Remaining",           "first")
         })
-    ).reset_index()
+        .reset_index()
+        .sort_values(by="Ligand", ascending=True)
+    )
 
     # ==============================================================================
     # CALCULATE RADIOACTIVE WASTE DATA

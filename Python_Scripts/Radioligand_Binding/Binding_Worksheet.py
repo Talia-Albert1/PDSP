@@ -179,13 +179,12 @@ excel_writer.write_archive_excel(
     user_config=user_config,
     gray_switch_name="gray_switch",
     user_config_path=paths.USER_CONFIG_PATH,
-    starting_index=excel_writer.STARTING_INDEX
+    starting_plate_index=excel_writer.STARTING_PLATE_INDEX
 )
 
 # ==============================================================================
 # ################## WRITE TO BINDING PRINTOUT EXCEL FILE ######################
 # ==============================================================================
-"""
 print_log_separator("Writing to binding printout")
 with tempfile.TemporaryDirectory() as tmp_dir_name:
         tmp_dir = Path(tmp_dir_name)
@@ -195,13 +194,10 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
         excel_writer.write_printout(
             printout_template_path=paths.PRINTOUT_TEMPLATE_PATH,
             printout_dest_path=staging_file_path,
+            printout_column_schema=excel_writer.PRINTOUT_COLUMN_SCHEMA,
             summary_df=summary_df,
-            hotligand_summary_df_name="Hot Ligand Summary",
-            pellet_summary_df_name="Pellet Log",
-            assay_summary_df_name="Assay Summary",
-            assay_list_df_name="Assay List",
             now=NOW,
-            starting_index=excel_writer.STARTING_INDEX
+            starting_plate_index=excel_writer.STARTING_PLATE_INDEX
             )
         
         paths.ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -211,7 +207,7 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
         
         shutil.move(str(staging_file_path), str(safe_target))
         logger.info(f"Successfully archived to: {safe_target}")
-"""
+
 
 # ==============================================================================
 # ################ WRITE TO GOOGLE SHEET HOT & PELLET LOGS #####################

@@ -11,7 +11,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
-STARTING_INDEX = 1
+STARTING_PLATE_INDEX = 1
 
 # column index in excel is linked to dict, where "key" is the column name --------------------------------------------------------
 # in the dataframe
@@ -108,12 +108,13 @@ PRINTOUT_COLUMN_SCHEMA = {
         "Assay Summary":{
             "df name": "Assay Summary",
             "starting row": 15,
+            "borders":True,
             "schema":{
                 "A": {"key": "Receptor"},
                 "B": {"key": "Ligand"},
                 "C": {"key": "Pellet Used"},
-                "D": {"key": "Assay BB"},
-                "E": {"key": "Buffer Volume (mL)"},
+                "D": {"key": "Buffer"},
+                "E": {"key": "Buffer Vol (mL)"},
                 "F": {"key": "Ligand Vol (uL)",     "round": 2},
                 "G": {"key": "# of Plates"},
                 "H": {"key": "# of Pellets"},
@@ -127,20 +128,22 @@ PRINTOUT_COLUMN_SCHEMA = {
         "Hot Ligand Summary":{
             "df name": "Hot Ligand Summary",
             "starting row": 4,
+            "borders":False,
             "schema":{
                 "B": {"key": "Ligand"},
                 "C": {"key": "Inventory Control Number"},
                 "D": {"key": "Specific Activity",              "round": 1},
                 "E": {"key": "Ligand Vol (uL)",                "round": 2},
-                "F": {"key": "Ligand in Vial (mCi)",           "format": "{:.3f}"},
-                "G": {"key": "Ligand Used (mCi)",              "format": "{:.3f}"},
-                "H": {"key": "Ligand Remaining in Vial (mCi)", "format": "{:.3f}"},
+                "F": {"key": "Ligand in Vial (mCi)",           "format": ".3f"},
+                "G": {"key": "Ligand Used (mCi)",              "format": ".3f"},
+                "H": {"key": "Ligand Remaining in Vial (mCi)", "format": ".3f"},
                 "I": {"key": "Finishing Vial?"}
             }
     },
         "Pellet Usage Summary":{
             "df name": "Assay Summary",
             "starting row": 4,
+            "borders":False,
             "schema":{
                 "J": {"key": "Receptor"},
                 "K": {"key": "Pellet Used"},
@@ -151,10 +154,11 @@ PRINTOUT_COLUMN_SCHEMA = {
         "Assay List":{
             "df name": "Assay List",
             "starting row": 4,
+            "borders":True
             "schema":{
                 "N": {"key": "Plate Name"},
                 "O": {"key": "Binding Type"},
-                "P": {"key": "# Pellets Inventory"},
+                "P": {"key": None},# plate number
                 "Q": {"key": "Barcode"}
             }
     }
@@ -201,13 +205,13 @@ def safe_save_workbook(wb, file_path):
 
 
 def write_archive_excel(
-        archive_sheet_path: Path,
-        df                : pd.DataFrame,
-        column_schema     : dict[str, dict],
-        user_config       : dict[str, str],
-        gray_switch_name  : str,
-        user_config_path  : Path,
-        starting_index    : int = 1
+        archive_sheet_path  : Path,
+        df                  : pd.DataFrame,
+        column_schema       : dict[str, dict],
+        user_config         : dict[str, str],
+        gray_switch_name    : str,
+        user_config_path    : Path,
+        starting_plate_index: int = 1
 ):
     # ==============================================================================
     # LOAD WORKBOOK
@@ -272,6 +276,7 @@ def write_archive_excel(
     # ==============================================================================
     logger.info("Writing to Archive Sheet")
     # Iterate through DataFrame using an optimized row loop
+    # iterrows returns a tuple of (column index, row index), we don't need column
     for index, (df_idx, row) in enumerate(df.iterrows()): #loop through rows of the dataframe
         row_index = last_row + index + 1 #add to last rows of excel file
         row_dict = row.to_dict() #convert row from DataFrame to dict object
@@ -313,7 +318,7 @@ def write_archive_excel(
             # --- STARTING INDEX INTERCEPTION OVERRIDE -----------------------------
             # If it's the very first row being written, force Column E to the starting_index
             if col_letter == "E" and index == 0:
-                current_cell.value = starting_index
+                current_cell.value = starting_plate_index
 
             # Apply Explicit Excel String Number Formats ---------------------------
             if "num_format" in config:
@@ -359,13 +364,10 @@ def write_archive_excel(
 def write_printout(
         printout_template_path   : Path,
         printout_dest_path       : Path,
+        printout_column_schema   : dict[str, dict],
         summary_df               : dict[str, pd.DataFrame],
-        hotligand_summary_df_name: str,
-        pellet_summary_df_name   : str,
-        assay_summary_df_name    : str,
-        assay_list_df_name       : str,
         now                      : datetime.datetime,
-        starting_index           : int=1
+        starting_plate_index     : int=1
 ):
     # ==============================================================================
     # LOAD PRINTOUT TEMPLATE
@@ -381,27 +383,84 @@ def write_printout(
     ws.cell(2, 2, now.strftime("%m/%d/%Y"))
 
     # ==============================================================================
-    # WRITE HOTLIGAND SUMMARY
+    # WRITE DATAFRAMES
     # ==============================================================================
-    logger.info("Writing Hotligand Summary to Binding Printout")
-    
+    for printout_section, dictionary in printout_column_schema.items():
+        logger.info(f"Writing {printout_section} to Binding Sheet")
+        df_name = dictionary.get("df name")
+        starting_row = dictionary.get("starting row")
+        border_bool = dictionary.get("borders")
+        column_schema = dictionary.get("schema")
+        df = summary_df[df_name]
 
-    # ==============================================================================
-    # WRITE PELLET SUMMARY
-    # ==============================================================================
-    logger.info("Writing Pellet Summary to Binding Printout")
+        for index, (df_idx, row) in enumerate(df.iterrows()):
+            row_index = starting_row + index
+            row_dict = row.to_dict()
+            for col_letter, config in column_schema.items():
+                cell_coord = f"{col_letter}{row_index}"
+                current_cell = ws[cell_coord]
 
-    # ==============================================================================
-    # WRITE ASSAY SUMMARY
-    # ==============================================================================
-    logger.info("Writing Assay Summary to Binding Printout")
+                # data_key is column name in dataframe
+                data_key = config["key"]
+                if data_key is not None:
+                    val = row_dict.get(data_key)
+                    
+                    if pd.isna(val):
+                        val = None
+                    
+                    if "round" in config and val is not None:
+                        val = round(val, config["round"])
+                    
+                    if "format" in config and val is not None:
+                        val = format(val, config["format"])
+                        current_cell.number_format = '@' # tells excel to treat as string
+                    current_cell.value = val
+                
+                # add borders to some sections -------------------------------------
+                if border_bool:
+                    border_normal = Border(
+                        left=Side(style='thin'),
+                        right=Side(style='thin'),
+                        top=Side(style='thin'),
+                        bottom=Side(style='thin')
+                    )
+                    current_cell.border = border_normal
+                # ==================================================================
+                # ASSAY SUMMARY
+                # ==================================================================
+                if printout_section == "Assay Summary":
+                    # NOTE: The actual excel file (.xlsx) is formatted how we want
+                    # NOTE: so this writing script does very little formatting
+                    # NOTE: except here, where we want to alternate gray/white lines
+                    if index % 2 == 0:
+                        cell_fill_color = 'FFFFFF' # white for odd lines
+                    else:
+                        cell_fill_color = 'D9D9D9' # gray for even lines
+                    fill_color = PatternFill(start_color=cell_fill_color, end_color=cell_fill_color, fill_type='solid')
+                    current_cell.fill = fill_color
 
-    # ==============================================================================
-    # WRITE ASSAY LIST SUMMARY
-    # ==============================================================================
-    logger.info("Writing Assay List Summary to Binding Printout")
+                # ==================================================================
+                # HOTLIGAND SUMMARY
+                # ==================================================================
+                # we only want finishing vial to show up if we are finishing
+                elif printout_section == "Hot Ligand Summary":
+                    if data_key == "Finishing Vial?":
+                        if val:
+                            current_cell.value = "Yes"
+                        else:
+                            current_cell.value = None
+
+                # ==================================================================
+                # ASSAY LIST
+                # ==================================================================
+                # starting plate index is inserted here
+                elif printout_section == "Assay List":
+                    if col_letter == "P":
+                        plate_number = starting_plate_index + index
+                        current_cell.value = plate_number
 
     # ==============================================================================
     # SAVE WORKBOOK
     # ==============================================================================
     logger.info(f"Saving Workbook to: {printout_dest_path}")
+    safe_save_workbook(wb, printout_dest_path)
