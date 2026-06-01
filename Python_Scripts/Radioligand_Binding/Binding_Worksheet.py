@@ -81,7 +81,11 @@ except (ValueError) as e:
 # ################ CREATE PANDAS DATAFRAME FOR INPUT FILES #####################
 # ==============================================================================
 config_log.print_log_separator("Merging Text Files")
-df = processing.merge_intial_inputs(barcode_raw, worklist_raw)
+df = processing.merge_intial_inputs(
+    barcode_raw=barcode_raw,
+    worklist_raw=worklist_raw,
+    receptor_mapping=processing.RECEPTOR_MAPPING
+    )
 
 # ==============================================================================
 # #################### AUTHENTICATE GOOGLE CREDENTIALS #########################
@@ -189,11 +193,11 @@ config_log.print_log_separator("Writing to binding printout")
 with tempfile.TemporaryDirectory() as tmp_dir_name:
         tmp_dir = Path(tmp_dir_name)
         logger.info(f"Created temporary directory: {tmp_dir}")
-        staging_file_path = tmp_dir / daily_paths["printout_basename"]
+        temp_binding_printout_path = tmp_dir / daily_paths["printout_basename"]
 
         excel_writer.write_printout(
             printout_template_path=paths.PRINTOUT_TEMPLATE_PATH,
-            printout_dest_path=staging_file_path,
+            printout_dest_path=temp_binding_printout_path,
             printout_column_schema=excel_writer.PRINTOUT_COLUMN_SCHEMA,
             summary_df=summary_df,
             now=NOW,
@@ -203,10 +207,10 @@ with tempfile.TemporaryDirectory() as tmp_dir_name:
         paths.ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
         
         desired_target = paths.ARCHIVE_DIR / daily_paths["printout_basename"]
-        safe_target = processing.get_unique_path(desired_target)
+        binding_printout_path = processing.get_unique_path(desired_target)
         
-        shutil.move(str(staging_file_path), str(safe_target))
-        logger.info(f"Successfully archived to: {safe_target}")
+        shutil.move(str(temp_binding_printout_path), str(binding_printout_path))
+        logger.info(f"Successfully archived to: {binding_printout_path}")
 
 
 # ==============================================================================
@@ -223,7 +227,9 @@ gsheet_auth.write_log_gsheet(
 # ==============================================================================
 # ############################# OPEN & PRINT FILES #############################
 # ==============================================================================
-
+config_log.print_log_separator("Printing and Opening files")
+inputs.open_or_print_file(filepath=paths.RADIOACTIVITY_PATH, action="open")
+inputs.open_or_print_file(filepath=binding_printout_path, action="print")
 
 # ==============================================================================
 # ######################### MOVE FILES TO ARCHIVE DIR ##########################

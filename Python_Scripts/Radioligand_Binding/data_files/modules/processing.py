@@ -8,8 +8,18 @@ from pathlib import Path
 import shutil
 logger = logging.getLogger(__name__)
 
+# NOTE: Some receptor names need to be harcoded to map, the worklist tool
+# NOTE: prints "BZP Rat Brain Site-X" the way the receptor named is determined
+# NOTE: needs hard coded options to detect that "BZP Rat Brain Site-X" is "BZP-X"
+RECEPTOR_MAPPING = {
+    "BZP" : "BZP"
+}
 
-def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.DataFrame:
+def merge_intial_inputs(
+    barcode_raw:list[str],
+    worklist_raw:list[str],
+    receptor_mapping:dict[str,str]
+)->pd.DataFrame:
     """Takes the raw list of barcodes and raw list of text files and merges them into
     a single dataframe.
 
@@ -61,6 +71,16 @@ def merge_intial_inputs(barcode_raw:list[str], worklist_raw:list[str]) -> pd.Dat
     # --------------------------------------------------------------------------------
     # DETERMINE RECEPTOR NAME FROM PLATE NAME
     # --------------------------------------------------------------------------------
+    # cycle through & replace hard coded names first
+    for keyword, clean_name in receptor_mapping.items():
+        spaced_keyword_pattern = " *".join(list(keyword))
+        
+        # Check if the keyword exists (ignoring case)
+        mask = df["Plate Name"].str.contains(spaced_keyword_pattern, case=False, na=False)
+        
+        # Wherever it matches, overwrite that row with the clean name + the original suffix
+        df.loc[mask, "Receptor"] = clean_name
+
     # use regex to identify receptor name
     # all plates will end in "-0", "-1", ... "-99"
     # limiting to 2 digits to keep specificity, do not want to accidentally remove receptor names
@@ -483,6 +503,9 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
     # number of pellets used starts as positive, want to be -ve
     pellet_log_df["# of Pellets"] = pellet_log_df["# of Pellets"] * -1
 
+    # format date column to MM/DD/YYYY
+    pellet_log_df["Date"] = pellet_log_df["Date"].dt.strftime('%m/%d/%Y')
+
     # ==============================================================================
     # CREATE HOTLIGAND LOG DF
     # ==============================================================================
@@ -495,7 +518,8 @@ def aggregate_df(df:pd.DataFrame, user_initals:str, user_name:str)->dict[str, pd
         ]
     hotligand_log_df = hotligand_summary[hotligand_log_cols].copy()
     hotligand_log_df["Name"] = user_name
-
+        # format date column to MM/DD/YYYY
+    hotligand_log_df["Date"] = hotligand_log_df["Date"].dt.strftime('%m/%d/%Y')
 
     # ==============================================================================
     # CREATE SUMMARY DICT TO RETURN
