@@ -40,4 +40,5 @@ Python_Scripts/Radioligand_Binding/~$Radioactivity_Archive.xlsx
 
 **.venv/
 **.python-version
+*.log
 
