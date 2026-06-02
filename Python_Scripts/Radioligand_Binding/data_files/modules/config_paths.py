@@ -26,5 +26,5 @@ def get_daily_paths(formatted_date:str) -> dict[str, Path]:
         "barcode"          : INPUT_DIR / f"{formatted_date}_Barcodes.txt",
         "worklist"         : INPUT_DIR / f"{formatted_date}_Worklist.txt",
         "printout_basename": f"{formatted_date} - Binding Printout.xlsx",
-        "log"              : ARCHIVE_DIR / f"{formatted_date}_Binding_Worksheet.log"
+        "log"              : ARCHIVE_DIR / f"{formatted_date}_Radioligand_Binding_Log.log"
     }
