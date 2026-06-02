@@ -8,11 +8,11 @@
 
 ## Downloads
 
-- Download the GitHub desktop application, available here: https://desktop.github.com/
-- Download the latest version of Python from here: https://www.python.org/downloads/
-Clone the repository (download the files) using the GitHub desktop application
+### Programs
 
-## How to use the "Binding_Worksheet.py" script
+- Download the GitHub desktop application, available here: https://desktop.github.com/
+- Clone the repository (download the files) using the GitHub desktop application
+- Download the latest version of Python from here: https://www.python.org/downloads/
 
 ### Use pip to install packages
 
@@ -31,10 +31,9 @@ py -m pip install -r requirements.txt
 
 It should be installed and working now!
 
+### How to Use
 
-### Daily Use
-
-Double click "Binding_Worksheet.py", and a terminal should appear, followed by 2 text files, YYYYMMDD_Worklist.txt and YYYYMMDD_Barcodes.txt.
+Double click "Binding_Worksheet.py", and a terminal should appear, followed by 2 text files, "YYYYMMDD_Worklist.txt" and "YYYYMMDD_Barcodes.txt".
 
 In YYYYMMDD_Worklist.txt, copy and paste the plates from the worklist that are assigned for today. Copy both the cells indicating PRIM or SEC, and the cells with Receptor-X (where X is the plate number). Save the text file.
 
