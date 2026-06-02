@@ -14,7 +14,7 @@
 - Clone the repository (download the files) using the GitHub desktop application
 - Download the latest version of Python from here: https://www.python.org/downloads/
 
-### Use pip to install packages
+### Install packages with pip
 
 Once installed, we need to use pip, a package manager for python, to install some packages.
 
@@ -29,9 +29,35 @@ py -m pip install -r requirements.txt
 
 ```
 
-It should be installed and working now!
+# Google Cloud Project
 
-### How to Use
+## Creating a Google Cloud Project
+
+I have created a google cloud project using the PDSP google account. This URL: https://developers.google.com/workspace/guides/create-project is helpful for information around Google Cloud projects.
+
+To access the project go to: https://console.cloud.google.com/
+(PDSP-Google-Sheet-Writer)
+
+## Add new users
+
+We create a unique service account and JSON token for each member of the lab, which is necessary for python to read/write to our google sheet.
+
+To view/add users open the project "Menu" > "IAM & Admin" > "Service Accounts" > "Create service account"
+
+Create a name for the user, for example "Name-pdsp-writer"
+
+### Create JSON tokens
+
+Click the newly created accounts navigate to the "Keys" tab, "Add key" > "Create New Key" > "JSON"
+Download the JSON and put it in the "data_files" directory of the Radioligand_Binding script.
+
+"/PDSP/Python_Scripts/Radioligand_Binding/data_files/token_name.json"
+
+### Share autmated email with Google Sheet
+
+Copy the email of the service account, and share it with the Google Sheet.
+
+# How to Use
 
 Double click "Binding_Worksheet.py", and a terminal should appear, followed by 2 text files, "YYYYMMDD_Worklist.txt" and "YYYYMMDD_Barcodes.txt".
 
