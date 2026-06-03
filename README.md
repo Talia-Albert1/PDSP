@@ -38,7 +38,10 @@ If the automated installer fails, you can install the packages manually via the 
 
 ## Google Cloud Project Setup
 
-To allow Python to read and write to our shared Google Sheets, every lab member needs a unique service account and JSON token.
+To allow Python to read and write to our shared Google Sheets, every lab member needs a unique service account and JSON token. If you create a new project, ensure that the following API's are enabled.
+
+* Google Drive API
+* Google Sheets API
 
 ### 1. Access the Cloud Project
 
