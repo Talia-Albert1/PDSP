@@ -8,15 +8,16 @@
 
 ## Downloads
 
-### Programs
+## Programs
 
+- Download the latest version of Python from here: https://www.python.org/downloads/
 - Download the GitHub desktop application, available here: https://desktop.github.com/
 - Clone the repository (download the files) using the GitHub desktop application
-- Download the latest version of Python from here: https://www.python.org/downloads/
+- Install packages by double-clicking the "install_packages.py" file
 
-### Install packages with pip
+### (Optional if install script fails) Install packages via terminal
 
-Once installed, we need to use pip, a package manager for python, to install some packages.
+If the install script failed to install packages for whatever reason, do the following to get the necessary packages installed.
 
 1. Press the Windows key
 2. Search for "cmd" and select the app "Command Prompt"
@@ -29,7 +30,7 @@ py -m pip install -r requirements.txt
 
 ```
 
-# Google Cloud Project
+## Google Cloud Project Setup
 
 ## Creating a Google Cloud Project
 
@@ -53,35 +54,41 @@ Download the JSON and put it in the "data_files" directory of the Radioligand_Bi
 
 "/PDSP/Python_Scripts/Radioligand_Binding/data_files/token_name.json"
 
-### Share autmated email with Google Sheet
+### Share automated email with Google Sheet
 
 Copy the email of the service account, and share it with the Google Sheet.
 
-# How to Use
+## How to Use
 
-Double click "Binding_Worksheet.py", and a terminal should appear, followed by 2 text files, "YYYYMMDD_Worklist.txt" and "YYYYMMDD_Barcodes.txt".
-
-In YYYYMMDD_Worklist.txt, copy and paste the plates from the worklist that are assigned for today. Copy both the cells indicating PRIM or SEC, and the cells with Receptor-X (where X is the plate number). Save the text file.
-
-In YYYYMMDD_Barcodes.txt, enter the barcodes, from the plates, in the descending order that they appear in YYYYMMDD_Worklist.txt. Save the text file.
-
-When both steps have been completed, navigate back to the terminal and enter "y" to proceed.
+- Double click "Binding_Worksheet.py", a terminal window should open
+- If it's the scripts first time running, you will be prompted to input your name, initals, and select a GSHEET json token
+- 2 text files, "YYYYMMDD_Worklist.txt" and "YYYYMMDD_Barcodes.txt" will open
+  - For "YYYYMMDD_Worklist.txt":
+    - Populate the file with the binding type, tab, and then the plate name. Copying and pasting from Google Sheets will format it this way:
+      - "PRIM(**tab**)receptor-XX"
+      - "SEC(**tab**)receptor-XX"
+  - For "YYYYMMDD_Barcodes.txt":
+    - Enter the barcodes in the order they appear from the worklist:
+      - BAR001
+      - BAR002
+- Save the files
+- Enter "y" into the terminal to proceed
 
 The script will then:
 
 - Generate a printout for today's binding, including the ligands, ligand volumes, pellets, and buffers necessary
 - The Radioactivity Archive sheet will open, with today's plates entered at the bottom of the sheet
-- Radioactive_Disposal_log will be updated with the summary information about the uCi used and which ligands were consumed
+- Write to the Google Sheet logs for pellets & hot ligands used
 
 ### Trouble Shooting
 
-**Ensure the Radioactive_Archive.xlsx sheet is saved and closed before entering "y" to proceed, the script will crash otherwise**
-
-Ensure there are no duplicate files in both input and archive, and output and archive. Check the log file in the archive with today's date to get some diagnostic help, such as determining if the number of plates and number of barcodes are not equal.
+**Ensure the "Radioactive_Archive.xlsx" sheet is saved and closed before entering "y" to proceed, the script will crash otherwise**
+Check the log file in the "archive" directory with today's date to get some diagnostic help, such as determining if the number of plates and number of barcodes don't match, if a receptor could not be matched in the database, if there is no current hotligand, etc.
 
 If the script ran, but a mistake was made, the following can be done to undo the changes:
-1. Cut and Paste today's Worklist and Barcode files from archive > input
-2. Delete the printout from archive
-3. Open Radioactivity_Archive.xlsx and delete recent rows (don't forget to save and close)
-4. Open Gray_Switch.txt and change the number back to 0 or 1. (If the last rows of Radioactivity_Archive are gray, change to 1, if they are white, change to 0.)
-5. Delete the entries added to Radioactive_Disposal_log
+
+1. Delete the entries added to Hotligand Log and Pellet Log on the Google Sheet
+2. Delete the entries added to the bottom of the "Radioactive_Archive.xlsx" sheet
+3. If you're concerned about row color formatting, in the "user_config.json" change the "gray_switch" value to:
+    1. "true" (exactly undercase) to have the rows be gray
+    2. "false" (exactly undercase) to have the rows be white
