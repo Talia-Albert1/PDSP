@@ -1,94 +1,99 @@
-# PDSP
+# PDSP Lab Automation
 
- Information relevant to PDSP work
+Information and onboarding relevant to PDSP lab data workflows.
 
- The procedures folder contains the Tex and Markdown files, as well as compiled PDF's, of the procedures.
+* **\procedures:** Contains the `.tex` and `.md` source files, as well as compiled PDFs of lab procedures.
+* **\Python_Scripts:** Houses various Python utility scripts. The primary production script is `Binding_Worksheet.py`, located in the `Radioligand_Binding` directory.
 
- The Python Scripts folder houses various python scripts used in the lab. The primary script we use is the "Binding_Worksheet.py" script in the "Radioligand_Binding" directory
+---
 
-## Downloads
+## Installation & Setup
 
-## Programs
+### 1. Programs
 
-- Download the latest version of Python from here: https://www.python.org/downloads/
-- Download the GitHub desktop application, available here: https://desktop.github.com/
-- Clone the repository (download the files) using the GitHub desktop application
-- Install packages by double-clicking the "install_packages.py" file
+1. Download and install the latest version of **Python**: [python.org/downloads](https://www.python.org/downloads/)
+2. Download and install **GitHub Desktop**: [desktop.github.com](https://desktop.github.com/)
+3. Clone this repository to your local machine using the GitHub Desktop application.
 
-### (Optional if install script fails) Install packages via terminal
+### 2. Package Installation
 
-If the install script failed to install packages for whatever reason, do the following to get the necessary packages installed.
+To install the required dependencies, navigate to your cloned repository folder and **double-click the `install_packages.py` file**.
 
-1. Press the Windows key
-2. Search for "cmd" and select the app "Command Prompt"
-3. Navigate to the directory "/PDSP/Python_Scripts/Radioligand_Binding/"
-4. Copy and enter the following into the Command Prompt
+#### Alternative: Manual Terminal Installation (If the script fails)
 
-```bash
+If the automated installer fails, you can install the packages manually via the Windows Command Prompt:
 
-py -m pip install -r requirements.txt
+1. Press the **Windows Key**, type `cmd`, and press **Enter**.
+2. Run the following command to navigate to the script directory:
 
-```
+    ```bash
+    cd /PDSP/Python_Scripts/Radioligand_Binding/
+    ```
+
+3. Enter the following command, after navigating to "Radioligand_Binding" directory.
+
+    ```bash
+    py -m pip install -r requirements.txt
+    ```
 
 ## Google Cloud Project Setup
 
-## Creating a Google Cloud Project
+To allow Python to read and write to our shared Google Sheets, every lab member needs a unique service account and JSON token.
 
-I have created a google cloud project using the PDSP google account. This URL: https://developers.google.com/workspace/guides/create-project is helpful for information around Google Cloud projects.
+### 1. Access the Cloud Project
 
-To access the project go to: https://console.cloud.google.com/
-(PDSP-Google-Sheet-Writer)
+* Go to the Google Cloud Console: [console.cloud.google.com](https://console.cloud.google.com/)
+* Ensure you are using the shared PDSP Google Account and select the project: **PDSP-Google-Sheet-Writer**.
+* *Reference Guide:* [developers.google.com/workspace/guides/create-project](https://developers.google.com/workspace/guides/create-project)
 
-## Add new users
+### 2. Add a New User (Service Account)
 
-We create a unique service account and JSON token for each member of the lab, which is necessary for python to read/write to our google sheet.
+1. Open the left-hand **Menu** > **IAM & Admin** > **Service Accounts**.
+2. Click **+ Create Service Account** at the top.
+3. Name the account using the format: `Name-pdsp-writer` and click through to finish.
 
-To view/add users open the project "Menu" > "IAM & Admin" > "Service Accounts" > "Create service account"
+### 3. Generate and Save JSON Tokens
 
-Create a name for the user, for example "Name-pdsp-writer"
+1. Click on your newly created service account email from the list.
+2. Navigate to the **Keys** tab.
+3. Click **Add Key** > **Create New Key** > Select **JSON** > Click **Create**.
+4. A file will download automatically. Move and rename this file into the script's data directory:
+   `/PDSP/Python_Scripts/Radioligand_Binding/data_files/token_name.json`
 
-### Create JSON tokens
+### 4. Authorize the Service Account on Google Sheets
 
-Click the newly created accounts navigate to the "Keys" tab, "Add key" > "Create New Key" > "JSON"
-Download the JSON and put it in the "data_files" directory of the Radioligand_Binding script.
+Copy the unique, automated email address of your new service account (e.g., `Name-pdsp-writer@...iam.gserviceaccount.com`). Open the master Google Sheet, click **Share** in the top right, paste the email, and grant it **Editor** permissions.
 
-"/PDSP/Python_Scripts/Radioligand_Binding/data_files/token_name.json"
+---
 
-### Share automated email with Google Sheet
+## How to Use the Script
 
-Copy the email of the service account, and share it with the Google Sheet.
+1. **Double-click `Binding_Worksheet.py`** to start. A terminal window will open.
+2. *First-time setup only:* You will be prompted to enter your name, initials, and select your specific Google Sheet JSON token.
+3. Two empty text files (`YYYYMMDD_Worklist.txt` and `YYYYMMDD_Barcodes.txt`) will automatically open:
+    * **For `YYYYMMDD_Worklist.txt`:** Populate this with the binding type, a tab space, and the plate name. (Note: Copying and pasting directly from Google Sheets formats this automatically).
+        * *Example:* `PRIM[tab]receptor-XX` or `SEC[tab]receptor-XX`
+    * **For `YYYYMMDD_Barcodes.txt`:** Enter the barcodes in the exact order they appear in your worklist.
+        * *Example:* `BAR001` then `BAR002` on the next line.
+4. Save and close both text files.
+5. Return to the terminal and type `y`, then press **Enter** to proceed.
 
-## How to Use
+### What the script does automatically
 
-- Double click "Binding_Worksheet.py", a terminal window should open
-- If it's the scripts first time running, you will be prompted to input your name, initals, and select a GSHEET json token
-- 2 text files, "YYYYMMDD_Worklist.txt" and "YYYYMMDD_Barcodes.txt" will open
-  - For "YYYYMMDD_Worklist.txt":
-    - Populate the file with the binding type, tab, and then the plate name. Copying and pasting from Google Sheets will format it this way:
-      - "PRIM(**tab**)receptor-XX"
-      - "SEC(**tab**)receptor-XX"
-  - For "YYYYMMDD_Barcodes.txt":
-    - Enter the barcodes in the order they appear from the worklist:
-      - BAR001
-      - BAR002
-- Save the files
-- Enter "y" into the terminal to proceed
+* Generates a printable daily breakdown (ligands, volumes, pellets, and necessary buffers).
+* Appends today's plate data to the bottom of the local `Radioactive_Archive.xlsx` sheet.
+* Updates the Google Sheet logs for total pellets and hot ligands used.
 
-The script will then:
+---
 
-- Generate a printout for today's binding, including the ligands, ligand volumes, pellets, and buffers necessary
-- The Radioactivity Archive sheet will open, with today's plates entered at the bottom of the sheet
-- Write to the Google Sheet logs for pellets & hot ligands used
+## Troubleshooting & Undoing Mistakes
 
-### Trouble Shooting
+**CRITICAL: Ensure the `Radioactive_Archive.xlsx` file is completely closed before typing "y" to run the script.** If the file is open in Excel, the script will crash due to a permission lock.
 
-**Ensure the "Radioactive_Archive.xlsx" sheet is saved and closed before entering "y" to proceed, the script will crash otherwise**
-Check the log file in the "archive" directory with today's date to get some diagnostic help, such as determining if the number of plates and number of barcodes don't match, if a receptor could not be matched in the database, if there is no current hotligand, etc.
-
-If the script ran, but a mistake was made, the following can be done to undo the changes:
-
-1. Delete the entries added to Hotligand Log and Pellet Log on the Google Sheet
-2. Delete the entries added to the bottom of the "Radioactive_Archive.xlsx" sheet
-3. If you're concerned about row color formatting, in the "user_config.json" change the "gray_switch" value to:
-    1. "true" (exactly undercase) to have the rows be gray
-    2. "false" (exactly undercase) to have the rows be white
+* **Logs:** If the script encounters an error, check the dated log file inside the `/archive` directory to diagnose issues (e.g., mismatched plate/barcode counts, missing database receptors, or an unassigned hot ligand).
+* **Reverting Run Errors:** If the script ran successfully but you realized an error was made in the data input, manually undo it by:
+    1. Deleting the wrong rows from the **Hotligand Log** and **Pellet Log** on the master Google Sheet.
+    2. Deleting the newly appended rows from the bottom of your local `Radioactive_Archive.xlsx` sheet.
+    3. To fix row alternating color formatting bugs, open `/PDSP/Python_Scripts/Radioligand_Binding/user_config.json` and adjust the `"gray_switch"` property:
+        * Set to `"true"` (all lowercase letters) to make the next row background gray.
+        * Set to `"false"` (all lowercase letters) to make the next row background white.
