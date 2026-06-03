@@ -12,7 +12,7 @@ def install_requirements():
     # This looks for the file in "/PDSP/Python_Scripts/Radioligand_Binding/requirements.txt"
     # relative to your project structure. Adjust the joins if this script sits elsewhere.
     requirements_path = (
-        script_dir / "PDSP" / "Python_Scripts" / "Radioligand_Binding" / "requirements.txt"
+        script_dir / "Python_Scripts" / "Radioligand_Binding" / "requirements.txt"
     )
 
     # Fallback: If it's already running inside the Radioligand_Binding folder
