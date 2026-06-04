@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 # NOTE: Some receptor names need to be harcoded to map, the worklist tool
 # NOTE: prints "BZP Rat Brain Site-X" the way the receptor named is determined
 # NOTE: needs hard coded options to detect that "BZP Rat Brain Site-X" is "BZP-X"
+# NOTE: "Str of receptor we look for":"receptor name we want"
+# NOTE: If we find the string "BZP" in any way in the receptor name, the name becomes BZP
 RECEPTOR_MAPPING = {
     "BZP" : "BZP"
 }
@@ -71,16 +73,6 @@ def merge_intial_inputs(
     # --------------------------------------------------------------------------------
     # DETERMINE RECEPTOR NAME FROM PLATE NAME
     # --------------------------------------------------------------------------------
-    # cycle through & replace hard coded names first
-    for keyword, clean_name in receptor_mapping.items():
-        spaced_keyword_pattern = " *".join(list(keyword))
-        
-        # Check if the keyword exists (ignoring case)
-        mask = df["Plate Name"].str.contains(spaced_keyword_pattern, case=False, na=False)
-        
-        # Wherever it matches, overwrite that row with the clean name + the original suffix
-        df.loc[mask, "Receptor"] = clean_name
-
     # use regex to identify receptor name
     # all plates will end in "-0", "-1", ... "-99"
     # limiting to 2 digits to keep specificity, do not want to accidentally remove receptor names
@@ -88,6 +80,16 @@ def merge_intial_inputs(
     pattern = r'-\d{1,2}$'
     df['Receptor'] = df['Plate Name'].str.replace(pattern, '', regex=True).str.replace(" ","", regex=False)
     logger.info(f"Receptor Names Determined from Plate Names")
+    
+    # cycle through & replace hard coded names first
+    for keyword, clean_name in receptor_mapping.items():
+        spaced_keyword_pattern = " *".join(list(keyword))
+        
+        # Check if the keyword exists (ignoring case)
+        mask = df["Receptor"].str.contains(spaced_keyword_pattern, case=False, na=False)
+        
+        # Wherever it matches, overwrite that row with the clean name + the original suffix
+        df.loc[mask, "Receptor"] = clean_name
 
     # check that the regex was successful
     # it does not necessairly need to match, if it's entered without a plate name
