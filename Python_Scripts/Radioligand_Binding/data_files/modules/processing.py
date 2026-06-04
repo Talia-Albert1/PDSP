@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 # NOTE: "Str of receptor we look for":"receptor name we want"
 # NOTE: If we find the string "BZP" in any way in the receptor name, the name becomes BZP
 RECEPTOR_MAPPING = {
-    "BZP" : "BZP"
+    "BZP"                 : "BZP",
+    "Kainate (Rat Brain)" : "KA"
 }
 
 def merge_intial_inputs(
