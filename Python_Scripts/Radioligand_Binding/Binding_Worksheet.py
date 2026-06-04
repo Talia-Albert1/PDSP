@@ -235,7 +235,7 @@ def main():
     config_log.print_log_separator("Moving input files to archive folder")
     processing.move_input_files(daily_paths=daily_paths, dest_dir=paths.ARCHIVE_DIR)
 
-    config_log.print_log_separator("done :/)")
+    config_log.print_log_separator("done :)")
     # Keep the terminal window open so non-technical users can see the success message
     input("\nPress Enter to close this window...")
 
