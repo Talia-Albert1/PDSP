@@ -11,7 +11,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
-STARTING_PLATE_INDEX = 1
+STARTING_PLATE_INDEX = 4
 
 # column index in excel is linked to dict, where "key" is the column name --------------------------------------------------------
 # in the dataframe
